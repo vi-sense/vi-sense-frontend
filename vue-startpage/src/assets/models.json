@@ -1,0 +1,34 @@
+[
+  {
+    "ID": 1,
+    "Sensors": null,
+    "Name": "Model Name",
+    "Description": "Model Description",
+    "Url": "files/model-name/model.zip",
+    "ImageUrl": "files/model-name/thumbnail.png"
+  },
+  {
+    "ID": 1,
+    "Sensors": null,
+    "Name": "Model Name",
+    "Description": "Model Description",
+    "Url": "files/model-name/model.zip",
+    "ImageUrl": "files/model-name/thumbnail.png"
+  },
+  {
+    "ID": 1,
+    "Sensors": null,
+    "Name": "Model Name",
+    "Description": "Model Description",
+    "Url": "files/model-name/model.zip",
+    "ImageUrl": "files/model-name/thumbnail.png"
+  },
+  {
+    "ID": 1,
+    "Sensors": null,
+    "Name": "Model Name",
+    "Description": "Model Description",
+    "Url": "files/model-name/model.zip",
+    "ImageUrl": "files/model-name/thumbnail.png"
+  }
+]

@@ -1,0 +1,11 @@
+*.log
+npm-debug.log*
+.npm
+pids
+*.pid
+*.seed
+
+.DS_Store
+dist
+node_modules
+worksession.txt 
