@@ -8,6 +8,11 @@ module.exports = {
     publicPath: '/dist/',
     filename: 'build.js'
   },
+  node: {
+    fs: 'empty',
+    net: 'empty',
+    tls: 'empty'
+  },
   module: {
     rules: [
       {
@@ -106,3 +111,5 @@ if (process.env.NODE_ENV === 'production') {
     })
   ])
 }
+
+

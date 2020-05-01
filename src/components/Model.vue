@@ -4,7 +4,7 @@
     <p class="model__body">{{ model.Description }}</p>
     <p  class="model__id">{{ model.ID }}</p>
     <img class="model__image" :src="'http://visense.f4.htw-berlin.de:8080/' + model.ImageUrl">
-    <router-link :to="{name: 'babylon', params: {id: model.ID}}">See 3D Model</router-link>
+    <router-link :to="{name: 'babylon', params: {id: model.ID, name: model.Name}}">See 3D Model</router-link>
   </div>
 </template>
 

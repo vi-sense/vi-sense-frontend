@@ -10,7 +10,10 @@
     "build": "cross-env NODE_ENV=production webpack --progress --hide-modules"
   },
   "dependencies": {
+    "adm-zip": "^0.4.14",
     "babylonjs": "^4.1.0",
+    "fs": "0.0.1-security",
+    "jszip": "^3.4.0",
     "vue": "^2.5.11",
     "vue-babylonjs": "^1.0.0-beta.7"
   },

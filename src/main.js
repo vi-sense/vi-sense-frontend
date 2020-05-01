@@ -23,6 +23,7 @@ const router = new Router({
     path: '/babylon',
     name:'babylon',
     component: Babylon,
+    props: true,
   }
  ]
 })
