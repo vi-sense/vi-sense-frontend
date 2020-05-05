@@ -23,10 +23,12 @@ export default {
   },
   mounted() {    
     var canvas = document.getElementById('canvas')
-    var app = new App(canvas, this.id, this.name)
+    var modelUrl = 'http://visense.f4.htw-berlin.de:8080/'+ this.name
+    var app = new App(canvas, this.id, modelUrl)
+    console.log(modelUrl)
   },
   created () { // Creation cycle
-    this.getBaseData() // Execute during the creation cycle
+    //this.getBaseData() // Execute during the creation cycle
   },
   methods:  {
     getBaseData () {
