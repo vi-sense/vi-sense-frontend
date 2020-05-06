@@ -18,6 +18,7 @@ const router = new Router({
      name:'model',
      component: Model,
      props: true,
+     meta:{ title: '' },
    },
    {
     path: '/babylon',

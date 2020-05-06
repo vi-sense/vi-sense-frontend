@@ -22,6 +22,12 @@ export default {
     };
   },
   mounted() {
+    this.$route.meta.title = this.name;
+    // add a temporary variable
+    this.$router.replace({ query: { temp: Date.now() } });
+    // remove the temporary variable query
+    this.$router.replace({ query: { temp: undefined } });
+
     var canvas = document.getElementById("canvas");
     var fromServer = false;
     var app = new App(canvas, this.id, fromServer);
@@ -35,9 +41,8 @@ export default {
     getBaseData() {
       var Zip = new JSZip();
       console.log(Zip);
-      var url = "http://visense.f4.htw-berlin.de:8080/files/mep-building-model/model.zip/"; // Introducing static files
-      console.log("WTF!!!!" + this.id);
-      console.log("WTF!!!!2 " + this.name);
+      var url =
+        "http://visense.f4.htw-berlin.de:8080/files/mep-building-model/model.zip/"; // Introducing static files
 
       var xmlhttp = null;
       if (window.XMLHttpRequest) {
@@ -71,7 +76,7 @@ export default {
           });
         }
       };
-    },
+    }
   }
 };
 </script>

@@ -30,7 +30,6 @@ export default {
         });
     }
   },
-
   created() {
     this.getModel(this.id);
   },
