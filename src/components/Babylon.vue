@@ -12,65 +12,66 @@ canvas {
 }
 </style>
 <script>
-import App from '../assets/App';
-import JSZip from 'jszip';
+import App from "../assets/App";
+import JSZip from "jszip";
 export default {
-  props: ['id', 'name'],
+  props: ["id", "name"],
   data() {
     return {
       scene: null
-    }
+    };
   },
-  mounted() {    
-    var canvas = document.getElementById('canvas')
-    var modelUrl = 'http://visense.f4.htw-berlin.de:8080/'+ this.name
-    var app = new App(canvas, this.id, modelUrl)
-    console.log(modelUrl)
+  mounted() {
+    var canvas = document.getElementById("canvas");
+    var fromServer = false;
+    var app = new App(canvas, this.id, fromServer);
+    console.log(this.id);
   },
-  created () { // Creation cycle
+  created() {
+    // Creation cycle
     //this.getBaseData() // Execute during the creation cycle
   },
-  methods:  {
-    getBaseData () {
-       var Zip = new JSZip()
-       console.log(Zip)
-       var url = 'http://visense.f4.htw-berlin.de:8080/files/mep-building-model/model.zip/' // Introducing static files
-      console.log("WTF!!!!" + this.id)
-      console.log("WTF!!!!2 " + this.name)
+  methods: {
+    getBaseData() {
+      var Zip = new JSZip();
+      console.log(Zip);
+      var url = "http://visense.f4.htw-berlin.de:8080/files/mep-building-model/model.zip/"; // Introducing static files
+      console.log("WTF!!!!" + this.id);
+      console.log("WTF!!!!2 " + this.name);
 
-      var xmlhttp = null
-      if (window.XMLHttpRequest) { // code for IE7+, Firefox, Chrome, Opera, Safari
+      var xmlhttp = null;
+      if (window.XMLHttpRequest) {
+        // code for IE7+, Firefox, Chrome, Opera, Safari
         /* eslint-disable no-new */
-        xmlhttp = new window.XMLHttpRequest()
-      } else { // code for IE6, IE5
+        xmlhttp = new window.XMLHttpRequest();
+      } else {
+        // code for IE6, IE5
         /* eslint-disable no-new */
-        xmlhttp = new window.ActiveXObject('Microsoft.XMLHTTP')
+        xmlhttp = new window.ActiveXObject("Microsoft.XMLHTTP");
       }
-      xmlhttp.open('GET', url, true)
+      xmlhttp.open("GET", url, true);
       //xmlhttp.withCredentials = true // TO-DO: Should be working
 
       // recent browsers
-      if ('responseType' in xmlhttp) {
-        xmlhttp.responseType = 'arraybuffer'
+      if ("responseType" in xmlhttp) {
+        xmlhttp.responseType = "arraybuffer";
       }
 
       // older browser
       if (xmlhttp.overrideMimeType) {
-        xmlhttp.overrideMimeType('text/plain; charset=x-user-defined')
+        xmlhttp.overrideMimeType("text/plain; charset=x-user-defined");
       }
-      xmlhttp.send()
-      xmlhttp.onreadystatechange = function () {
+      xmlhttp.send();
+      xmlhttp.onreadystatechange = function() {
         if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
-          var file = xmlhttp.response || xmlhttp.responseText
+          var file = xmlhttp.response || xmlhttp.responseText;
 
-          JSZip.loadAsync(file).then(function (zip) {
-            console.log(zip)
-          })
+          JSZip.loadAsync(file).then(function(zip) {
+            console.log(zip);
+          });
         }
-      }
-    }
+      };
+    },
   }
-
-
-}
+};
 </script>
