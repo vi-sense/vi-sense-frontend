@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <header>
-      <h1>Vi-Sense Startpage</h1>
+      <h1>Vi-Sense</h1>
       <h2 class="header__title title-header">
     {{ $route.meta.title }}
  </h2>
@@ -12,6 +12,7 @@
             v-for="model in models"
             active-class="is-active"
             class="link"
+            :key="model.ID"
             :to="{ name: 'model', params: { id: model.ID } }">
           {{model.ID}}. {{model.Name}}
         </router-link>
@@ -84,23 +85,22 @@
   main {
     display: flex;
     height: calc(100vh - 90px);
-    max-width: 1200px;
     margin-top: 90px;
     margin-left: auto;
     margin-right: auto;
     overflow: hidden;
   }
   aside {
-    flex: 1 0 30%;
+    flex: 1 0 20%;
     height: 100%;
     overflow-y: auto;
-    width: 30%;
-    padding: 50px 30px;
+    width: 20%;
+    padding: 1%;
     box-sizing: border-box;
     border-right: 1px solid #42b983;
   }
   .content {
-    flex: 1 1 70%;
+    flex: 1 1 80%;
     display: flex;
     align-items: center;
     justify-content: center;

@@ -18,10 +18,10 @@ const router = new Router({
      name:'model',
      component: Model,
      props: true,
-     meta:{ title: '' },
+     meta: { title: '' },
    },
    {
-    path: '/babylon',
+    path: '/babylon/:id',
     name:'babylon',
     component: Babylon,
     props: true,

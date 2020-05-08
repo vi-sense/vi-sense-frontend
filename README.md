@@ -1,6 +1,4 @@
-# vi-sense-startpage
-
-> This is the vi-sense startpage for entering the models
+# vi-sense frontend
 
 ## Build Setup
 
@@ -15,4 +13,3 @@ npm run dev
 npm run build
 ```
 
-For detailed explanation on how things work, consult the [docs for vue-loader](http://vuejs.github.io/vue-loader).
