@@ -5,7 +5,7 @@ import setupCamera from './scripts/camera';
 import sensorSelectionScript from './scripts/sensorSelection';
 import { loadModel } from './scripts/loadModel';
 
-export default class App {
+export default class BabylonApp {
 
     engine: BABYLON.Engine
     scene: BABYLON.Scene

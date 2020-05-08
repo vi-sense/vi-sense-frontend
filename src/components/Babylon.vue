@@ -15,7 +15,7 @@ div, canvas {
 
 
 <script>
-import App from "../babylon/App";
+import BabylonApp from "../babylon/BabylonApp";
 
 export default {
   props: ["id", "name"],
@@ -33,7 +33,7 @@ export default {
 
 
     var canvas = document.getElementById("canvas");
-    var app = new App(canvas, this.id, false);
+    var app = new BabylonApp(canvas, this.id, false);
   },
 };
 </script>
