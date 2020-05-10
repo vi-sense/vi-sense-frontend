@@ -33,7 +33,7 @@ export default {
 
 
     var canvas = document.getElementById("canvas");
-    var app = new BabylonApp(canvas, this.id, false);
+    var app = new BabylonApp(canvas, this.id, true);
   },
 };
 </script>

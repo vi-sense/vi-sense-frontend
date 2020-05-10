@@ -10,3 +10,4 @@ dist
 node_modules
 worksession.txt 
 gltf
+.idea
