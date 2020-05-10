@@ -10,6 +10,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
       - name: BuildPush
         if: success()
         uses: docker/build-push-action@v1
