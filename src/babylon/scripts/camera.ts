@@ -1,3 +1,7 @@
+/**
+ * @author Tom Wendland
+ */
+
 import * as BABYLON from 'babylonjs'
 
 /**

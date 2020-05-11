@@ -1,15 +1,27 @@
+/**
+ * @author Tom Wendland
+ * 
+ * This file handles the loading process of a model
+ */
 import * as BABYLON from 'babylonjs'
 import { degToRad } from './utils';
 var JSZip = require("jszip");
 
 
-export function loadModel(id: number, scene: BABYLON.Scene, callback: (meshes: BABYLON.AbstractMesh[]) => void, production: boolean) {
-    if(production){
-        fetch("http://visense.f4.htw-berlin.de:8080/models/"+ id).then(response => {
+/**
+ * Load a model by a id indicating a model on our server. 
+ * The model can also be loaded from the local filesystem by setting loadFromLocalFS=true. The hard coded id-model mapping correspond to the database
+ */
+export function loadModel(id: number, scene: BABYLON.Scene, callback: (meshes: BABYLON.AbstractMesh[]) => void, loadFromLocalFS: boolean = false) {
+    
+    if(loadFromLocalFS === false){
+        let API_URL = process.env.API_URL
+
+        fetch(API_URL + "/models/" + id).then(response => {
             response.json().then(bodyData => {
-                var url = 'http://visense.f4.htw-berlin.de:8080/'+bodyData.Url                
+                var url = API_URL + '/' + bodyData.Url                
                 getFileFromServer(url, zipFile => {
-                    loadZIP(zipFile, glTFDataString => {
+                    loadAndResolveGltfFromZip(zipFile, glTFDataString => {
                         BABYLON.SceneLoader.ImportMesh('', '', `data:${glTFDataString}`, scene, (meshes, particleSystems, skeletons)  => {
                             let buildingModel = <BABYLON.Mesh> meshes[0]
                             normalize(buildingModel)
@@ -20,7 +32,7 @@ export function loadModel(id: number, scene: BABYLON.Scene, callback: (meshes: B
             })
         })
     } else {      
-        id = parseInt(""+id) // vue probs is a string 
+        id = parseInt(""+id) // vue probs is a string, typechecking not working here
   
         var url: string
         switch(id){
@@ -41,7 +53,8 @@ export function loadModel(id: number, scene: BABYLON.Scene, callback: (meshes: B
 
 
 /**
- * for facility-mechanical-room
+ * Normalizes the position and rotation of the facility-mechanical-room
+ * TODO generic normalization via bounding boxes
  */
 function normalize(rootMesh){
     rootMesh.rotationQuaternion = undefined // reset default rotation and use euler angles instead
@@ -53,7 +66,9 @@ function normalize(rootMesh){
 
 
 
-
+/**
+ * @author Jannik Schmitz
+ */
 function getFileFromServer (url: String, callback: (file: String) => void) {
     var xmlhttp = null
     if (window.XMLHttpRequest) { // code for IE7+, Firefox, Chrome, Opera, Safari
@@ -61,7 +76,6 @@ function getFileFromServer (url: String, callback: (file: String) => void) {
     } else { // code for IE6, IE5
         xmlhttp = new window.ActiveXObject('Microsoft.XMLHTTP')
     }
-
     xmlhttp.open('GET', url, true)
     //xmlhttp.withCredentials = true // TO-DO: Should be working
     // recent browsers
@@ -72,8 +86,6 @@ function getFileFromServer (url: String, callback: (file: String) => void) {
     if (xmlhttp.overrideMimeType) {
         xmlhttp.overrideMimeType('text/plain; charset=x-user-defined')
     }
-
-    console.log("requesting model file from "+url);
     xmlhttp.send()
     xmlhttp.onreadystatechange = function () {
         if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
@@ -83,8 +95,14 @@ function getFileFromServer (url: String, callback: (file: String) => void) {
     }
  }
 
- // https://github.com/Stuk/jszip/issues/375
- function loadZIP(zipFile: String, callback: (glTF: String) => void){
+
+ /**
+  * Unpacks the zip
+  * There should be a 'scene.gltf' in the zip
+  * Referenced local files (textures, bin, ..) are resolved with a data url
+  * from https://github.com/Stuk/jszip/issues/375
+  */
+ function loadAndResolveGltfFromZip(zipFile: String, callback: (glTF: String) => void){
 
     JSZip
     .loadAsync(zipFile)
