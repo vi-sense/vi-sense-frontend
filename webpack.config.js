@@ -1,3 +1,4 @@
+const { CleanWebpackPlugin }  = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const path = require('path')
@@ -22,6 +23,7 @@ module.exports = {
     overlay: true
   },
   plugins: [
+    new CleanWebpackPlugin(),
     new CopyWebpackPlugin([
         { from: 'public', to: '' }, 
       ], 
@@ -120,12 +122,7 @@ if (process.env.NODE_ENV === 'production') {
     new webpack.LoaderOptionsPlugin({
       minimize: true
     }),
-    new webpack.optimize.UglifyJsPlugin({
-      minimize : true,
-      compress : {
-          warnings : false
-      }
-    })
+    // TODO uglify
   ])
 }
 
