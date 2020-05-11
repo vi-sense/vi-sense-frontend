@@ -37,7 +37,7 @@ export default class BabylonApp {
         loadModel(modelID, this.scene, (meshes) => {
             sensorSelectionScript(this.scene, modelID, meshes);
             this.engine.hideLoadingUI();
-        }, !IS_PRODUCTION)
+        }, IS_PRODUCTION)
 
         this.engine.runRenderLoop(() => {
             this.scene.render();
