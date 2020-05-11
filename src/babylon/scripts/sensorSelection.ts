@@ -1,9 +1,10 @@
 import * as BABYLON from 'babylonjs'
 import * as GUI from "babylonjs-gui";
 
+const API_URL = process.env.API_URL;
 
 async function getModel(id: number) {
-  let response = await fetch("http://visense.f4.htw-berlin.de:8080/models/" + id)
+  let response = await fetch(API_URL + "/models/" + id)
     .then(res => { return res.json() })
     .catch(err => { throw new Error("Can not load model data") });
   return response;
@@ -25,10 +26,10 @@ export default async function sensorSelectionScript(scene: BABYLON.Scene, modelI
     mat.albedoColor = BABYLON.Color3.Purple();
 
     // GET SENSORDATA
-    let sensorData = await fetch("http://visense.f4.htw-berlin.de:8080/sensors/" + sensors[i].ID)
+    let sensorData = await fetch(API_URL + "/sensors/" + sensors[i].ID)
       .then(res => { return res.json() })
       .catch(err => { throw new Error("Can not load sensor data") });
-    let sensorLabelText = "Name: " + sensorData.Name + "\nDescription: " + sensorData.Description + "\nValue: " + sensorData.Data[sensorData.Data.length - 1].Value.toString() + sensorData.MeasurementUnit;
+    let sensorLabelText = sensorData.Name + "\n" + sensorData.Data[sensorData.Data.length - 1].Value.toString() + sensorData.MeasurementUnit;
 
     // GUI SETUP
     let advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
@@ -37,7 +38,6 @@ export default async function sensorSelectionScript(scene: BABYLON.Scene, modelI
     rect.adaptHeightToChildren = true;
     rect.adaptWidthToChildren = true;
     rect.isPointerBlocker = true;
-    rect.isVisible = true;
     advancedTexture.addControl(rect);
 
     let circle = new GUI.Ellipse();
@@ -46,7 +46,6 @@ export default async function sensorSelectionScript(scene: BABYLON.Scene, modelI
     circle.alpha = 0.8;
     circle.background = "white";
     circle.thickness = 2;
-    circle.isVisible = true;
     rect.addControl(circle);
 
     let label = new GUI.TextBlock();
@@ -54,8 +53,6 @@ export default async function sensorSelectionScript(scene: BABYLON.Scene, modelI
     label.resizeToFit = true;
     label.paddingRightInPixels = 20;
     label.paddingLeftInPixels = 20;
-    label.widthInPixels = rect.widthInPixels - 10;
-    label.heightInPixels = rect.heightInPixels - 10;
     label.onTextChangedObservable.add(function(evt, picked) {
       //evt.parent.widthInPixels = evt.parent.widthInPixels + 50;
     })
