@@ -8,6 +8,7 @@ import 'babylonjs-inspector';
 import setupCamera from './scripts/camera';
 import sensorSelectionScript from './scripts/sensorSelection';
 import { loadModel } from './scripts/loadModel';
+import CustomLoadingScreen from './scripts/loadingScreen';
 
 
 export const IS_PRODUCTION: boolean = process.env.NODE_ENV === 'production' // its value is set in webpack.config.js
@@ -28,8 +29,14 @@ export default class BabylonApp {
 
         setupCamera(canvas, this.engine, this.scene)
 
+        var loadingScreen = new CustomLoadingScreen(canvas, "Loading Model");
+        this.engine.loadingScreen = loadingScreen;
+
+        this.engine.displayLoadingUI();
+
         loadModel(modelID, this.scene, (meshes) => {
-            sensorSelectionScript(this.scene, modelID, meshes)
+            sensorSelectionScript(this.scene, modelID, meshes);
+            this.engine.hideLoadingUI();
         }, !IS_PRODUCTION)
 
         this.engine.runRenderLoop(() => {
