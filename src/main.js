@@ -5,6 +5,8 @@ import Model from './components/Model.vue'
 import Hello from './components/Hello.vue'
 import Babylon from './components/Babylon.vue'
 Vue.use(Router)
+Vue.config.productionTip = false
+
 
 const router = new Router({
  routes: [
