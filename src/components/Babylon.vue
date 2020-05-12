@@ -6,7 +6,7 @@
 
 
 <style scoped>
-div:first-child, canvas {
+div:first-of-type, canvas {
   width: 100%;
   height: 100%;
 }
@@ -21,10 +21,7 @@ import STATES from '../statemachine/States';
 export default {
   props: ["id", "name"],
   data() {
-    return {
-      BJS: undefined,
-      SM: undefined
-    };
+    return { };
   },
   mounted() {
     this.$route.meta.title = this.name;
@@ -33,10 +30,11 @@ export default {
     // remove the temporary variable query
     this.$router.replace({ query: { temp: undefined } });
 
-    let canvas = document.getElementById("canvas");
-    let SM = this.SM = new StateMachine()
-    let BJS = this.BJS = new BabylonApp(canvas, this.id, SM);
 
+    var canvas = document.getElementById("canvas");
+    var SM = new StateMachine()
+    var app = new BabylonApp(canvas, this.id, SM);
+    
     SM.registerOnUpdateCallback(STATES.SELECTED_SENSOR, (value) => {
       console.log("new sensor selected: ", value);
     })
