@@ -1,6 +1,10 @@
 /**
  * @author Tom Wendland
  * simple state machine 
+ * 
+ * Improvements:
+ * - read only properties
+ * - types
  */
 import STATES from './States'
 

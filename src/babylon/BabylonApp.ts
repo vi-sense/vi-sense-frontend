@@ -4,7 +4,7 @@
 import * as BABYLON from 'babylonjs'
 import 'babylonjs-loaders';
 import 'babylonjs-inspector';
-import setupCamera from './scripts/camera';
+import { createFloorCamera } from './scripts/camera';
 import sensorSelectionScript from './scripts/sensorSelection';
 import { loadModel } from './scripts/loadModel';
 import CustomLoadingScreen from './scripts/loadingScreen';
@@ -28,7 +28,8 @@ export default class BabylonApp {
         this.engine.loadingScreen = loadingScreen;
         this.engine.displayLoadingUI();
 
-        setupCamera(canvas, this.engine, this.scene)
+        var camera = createFloorCamera(canvas, this.engine, this.scene)
+        this.scene.activeCamera = camera;
 
         var light = new BABYLON.HemisphericLight('light', new BABYLON.Vector3(0, 1 ,0), this.scene);
         var sphere = BABYLON.MeshBuilder.CreateSphere('sphere', {segments:16, diameter:2}, this.scene);
