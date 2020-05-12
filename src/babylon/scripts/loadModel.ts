@@ -1,6 +1,6 @@
 /**
  * @author Tom Wendland
- * 
+ *
  * This file handles the loading process of a model
  */
 import * as BABYLON from 'babylonjs'
@@ -16,7 +16,7 @@ export function loadModel(id: number, scene: BABYLON.Scene, callback: (meshes: B
 
     if(loadFromLocalFS === false){
         let API_URL = process.env.API_URL
-
+        console.log("fetch")
         fetch(API_URL + "/models/" + id).then(response => {
             response.json().then(bodyData => {
                 var url = API_URL + '/' + bodyData.Url
@@ -27,14 +27,14 @@ export function loadModel(id: number, scene: BABYLON.Scene, callback: (meshes: B
                             let buildingModel = <BABYLON.Mesh> meshes[0]
                             normalize(buildingModel)
                             callback(meshes)
-                        }, updateProgress)
+                        }, (event) => updateProgress(event, "import"))
                     })
                 })
             })
         })
     } else {
         id = parseInt(""+id) // vue probs is a string, typechecking not working here
-
+        console.log("read")
         var url: string
         switch(id){
             case 1: url = 'gltf/facility-mechanical-room/'; break
@@ -47,7 +47,7 @@ export function loadModel(id: number, scene: BABYLON.Scene, callback: (meshes: B
             let buildingModel = <BABYLON.Mesh> meshes[0]
             normalize(buildingModel)
             callback(meshes)
-        })
+        }, (event) => updateProgress(event, "import"))
     }
 }
 
@@ -65,19 +65,21 @@ function normalize(rootMesh){
     rootMesh.setPivotMatrix(BABYLON.Matrix.Identity()); // resets gizmos to origin
 }
 
-function updateProgress(event) {
+function updateProgress(event, state?:string) {
   console.log(event);
   var percentComplete;
   if (event.lengthComputable) {
     console.log("computable")
     percentComplete = event.loaded / event.total * 100;
-    console.log(percentComplete.toFixed(2) + "%")
   } else {
     console.log("not computable")
     var dlCount = event.loaded / (1024 * 1024);
     percentComplete = Math.floor(dlCount * 100.0) / 100.0;
-    console.log(percentComplete)
   }
+  console.log(percentComplete.toFixed(2) + "%")
+  if(state == "download") document.getElementById("progressText").innerHTML = "Downloading Model"
+  if(state == "import") document.getElementById("progressText").innerHTML = "Importing Model"
+  document.getElementById("progressBar").style.width = percentComplete + "%";
 }
 
 /**
@@ -101,7 +103,7 @@ function getFileFromServer (url: String, callback: (file: String) => void) {
         xmlhttp.overrideMimeType('text/plain; charset=x-user-defined')
     }
 
-    xmlhttp.onprogress = updateProgress;
+    xmlhttp.onprogress = (event) => updateProgress(event, "download");
     xmlhttp.send()
     xmlhttp.onreadystatechange = function () {
         if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {

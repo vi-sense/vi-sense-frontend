@@ -31,7 +31,14 @@ export default class CustomLoadingScreen implements ILoadingScreen {
     }
     this._loadingDiv = document.createElement("div");
     this._loadingDiv.id = "loadingScreen";
-    this._loadingDiv.innerHTML = "<div class='container'><div class='lds-ellipsis'><div></div><div></div><div></div><div></div></div><h2>" + this._loadingText + "</h2></div>";
+    this._loadingDiv.innerHTML = `
+      <div class='container'>
+        <div class='lds-ellipsis'><div></div><div></div><div></div><div></div></div>
+        <h2 id="progressText">`+this._loadingText+`</h2>
+        <div class="meter">
+          <span id="progressBar" style="width: 0%"></span>
+        </div>
+      </div>`;
     var loadingScreenCss = document.createElement('style');
     loadingScreenCss.type = 'text/css';
     loadingScreenCss.innerHTML = `
@@ -53,6 +60,26 @@ export default class CustomLoadingScreen implements ILoadingScreen {
         #loadingScreen h2 {
           font-family: 'Helvetica', sans-serif;
           color: black;
+        }
+
+        .meter {
+          width: 50%;
+        	height: 20px;
+        	position: relative;
+        	background: #000000;
+        	-moz-border-radius: 5px;
+        	-webkit-border-radius: 5px;
+        	border-radius: 5px;
+        	padding: 2px;
+        }
+
+        .meter > span {
+          display: block;
+          height: 100%;
+          border-radius: 5px;
+          background-color: rgb(43,194,83);
+          position: relative;
+          overflow: hidden;
         }
 
         .lds-ellipsis {
