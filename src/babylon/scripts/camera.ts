@@ -45,7 +45,7 @@ export default function setupCamera(canvas: HTMLCanvasElement, engine:BABYLON.En
 
 
 
-    var arcCamera = new BABYLON.ArcRotateCamera("Camera",42, 0.8, 400, BABYLON.Vector3.Zero(), scene);
+    var arcCamera = new BABYLON.ArcRotateCamera("Camera", 42, 0.8, 400, BABYLON.Vector3.Zero(), scene);
     arcCamera.attachControl(canvas, false);
     arcCamera.setTarget(new BABYLON.Vector3(0, 1, 0));
     arcCamera.radius = 5
@@ -53,11 +53,11 @@ export default function setupCamera(canvas: HTMLCanvasElement, engine:BABYLON.En
     arcCamera.upperRadiusLimit =  50 
 
 
-    document.getElementById("toggleCameraButton").addEventListener('click', () => {
+    let cbtn = document.getElementById("toggleCameraButton")
+    if(cbtn) cbtn.addEventListener('click', () => {
         if(scene.activeCamera === fpsCamera)
             scene.activeCamera = arcCamera;
         else scene.activeCamera = fpsCamera
-
     })
 
 }

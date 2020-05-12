@@ -1,13 +1,12 @@
 <template>
   <div>
     <canvas id="canvas"></canvas>
-    <div id="toggleCameraButton"></div>
   </div>
 </template>
 
 
 <style scoped>
-div, canvas {
+div:first-child, canvas {
   width: 100%;
   height: 100%;
 }
@@ -16,12 +15,15 @@ div, canvas {
 
 <script>
 import BabylonApp from "../babylon/BabylonApp";
+import StateMachine from '../statemachine/StateMachine';
+import STATES from '../statemachine/States';
 
 export default {
   props: ["id", "name"],
   data() {
     return {
-      scene: null
+      BJS: undefined,
+      SM: undefined
     };
   },
   mounted() {
@@ -31,9 +33,14 @@ export default {
     // remove the temporary variable query
     this.$router.replace({ query: { temp: undefined } });
 
+    let canvas = document.getElementById("canvas");
+    let SM = this.SM = new StateMachine()
+    let BJS = this.BJS = new BabylonApp(canvas, this.id, SM);
 
-    var canvas = document.getElementById("canvas");
-    var app = new BabylonApp(canvas, this.id);
+    SM.registerOnUpdateCallback(STATES.SELECTED_SENSOR, (value) => {
+      console.log("new sensor selected: ", value);
+    })
+    SM.set(STATES.SELECTED_SENSOR, 60)
   },
 };
 </script>
