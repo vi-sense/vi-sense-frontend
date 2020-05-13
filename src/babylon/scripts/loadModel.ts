@@ -16,17 +16,16 @@ export function loadModel(id: number, scene: BABYLON.Scene, callback: (meshes: B
 
     if(loadFromLocalFS === false){
         let API_URL = process.env.API_URL
-        console.log("fetch")
         fetch(API_URL + "/models/" + id).then(response => {
             response.json().then(bodyData => {
                 var url = API_URL + '/' + bodyData.Url
                 getFileFromServer(url, zipFile => {
                     loadAndResolveGltfFromZip(zipFile, glTFDataString => {
                         BABYLON.SceneLoader.ImportMesh('', '', `data:${glTFDataString}`, scene, (meshes, particleSystems, skeletons) => {
-                            console.log("success");
                             let buildingModel = <BABYLON.Mesh> meshes[0]
                             normalize(buildingModel)
                             callback(meshes)
+                            document.getElementById("progressBar").style.width = "100%";
                         }, (event) => updateProgress(event, "import"))
                     })
                 })
@@ -34,7 +33,6 @@ export function loadModel(id: number, scene: BABYLON.Scene, callback: (meshes: B
         })
     } else {
         id = parseInt(""+id) // vue probs is a string, typechecking not working here
-        console.log("read")
         var url: string
         switch(id){
             case 1: url = 'gltf/facility-mechanical-room/'; break
@@ -65,22 +63,26 @@ function normalize(rootMesh){
     rootMesh.setPivotMatrix(BABYLON.Matrix.Identity()); // resets gizmos to origin
 }
 
-function updateProgress(event, state?:string) {
-  console.log(event);
+
+/**
+  * Calculates the progress of downloading and importing models and updates the progressBar
+  * TODO: when importing with GLTFString the onprogress info is missing and no events are received
+  * maybe consider a different way of importing models
+  */
+function updateProgress(event, state?: String) {
   var percentComplete;
   if (event.lengthComputable) {
-    console.log("computable")
     percentComplete = event.loaded / event.total * 100;
   } else {
-    console.log("not computable")
     var dlCount = event.loaded / (1024 * 1024);
     percentComplete = Math.floor(dlCount * 100.0) / 100.0;
   }
-  console.log(percentComplete.toFixed(2) + "%")
   if(state == "download") document.getElementById("progressText").innerHTML = "Downloading Model"
   if(state == "import") document.getElementById("progressText").innerHTML = "Importing Model"
+  document.getElementById("progressBar").innerHTML = percentComplete.toFixed(0) + "%";
   document.getElementById("progressBar").style.width = percentComplete + "%";
 }
+
 
 /**
  * @author Jannik Schmitz

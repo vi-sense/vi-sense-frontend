@@ -74,13 +74,18 @@ export default class CustomLoadingScreen implements ILoadingScreen {
         }
 
         .meter > span {
-          display: block;
+          font-family: 'Helvetica', sans-serif;
+          display: flex;
+          align-items: center;
+          justify-content: center;
           height: 100%;
-          border-radius: 5px;
+          border-radius: 2px;
+          color: white;
           background-color: rgb(43,194,83);
           position: relative;
           overflow: hidden;
         }
+
 
         .lds-ellipsis {
           display: inline-block;
@@ -140,8 +145,7 @@ export default class CustomLoadingScreen implements ILoadingScreen {
       `;
     document.getElementsByTagName('head')[0].appendChild(loadingScreenCss);
     this._resizeLoadingUI();
-    //TODO: for some reason resizing on event doesnt work yet
-    //window.addEventListener("resize", this._resizeLoadingUI);
+    window.addEventListener("resize", this._resizeLoadingUI);
     document.body.appendChild(this._loadingDiv);
   }
 
