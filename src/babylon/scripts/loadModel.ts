@@ -1,14 +1,11 @@
-/**
- * @author Tom Wendland
- *
- * This file handles the loading process of a model
- */
 import * as BABYLON from 'babylonjs'
 import { degToRad } from './utils';
 var JSZip = require("jszip");
 
 
 /**
+ * @author Tom Wendland
+ * This function handles the loading process of a model
  * Load a model by a id indicating a model on our server.
  * The model can also be loaded from the local filesystem by setting loadFromLocalFS=true. The hard coded id-model mapping correspond to the database
  */
@@ -53,8 +50,9 @@ export function loadModel(id: number, scene: BABYLON.Scene, callback: (meshes: B
 
 
 /**
+ * @author Tom Wendland
  * Normalizes the position and rotation of the facility-mechanical-room
- * TODO generic normalization via bounding boxes
+ * TODO generic normalization for all models via bounding boxes
  */
 function normalize(rootMesh){
     rootMesh.rotationQuaternion = undefined // reset default rotation and use euler angles instead
@@ -66,6 +64,7 @@ function normalize(rootMesh){
 
 
 /**
+ * @author Lennard Grimm
   * Calculates the progress of downloading and importing models and updates the progressBar
   * TODO: when importing with GLTFString the onprogress info is missing and no events are received
   * maybe consider a different way of importing models
@@ -118,6 +117,7 @@ function getFileFromServer (url: String, callback: (file: String) => void) {
 
 
  /**
+  * @author Tom Wendland
   * Unpacks the zip
   * There should be a 'scene.gltf' in the zip
   * Referenced local files (textures, bin, ..) are resolved with a data url

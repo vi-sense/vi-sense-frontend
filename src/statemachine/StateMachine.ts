@@ -1,6 +1,6 @@
 /**
  * @author Tom Wendland
- * simple state machine 
+ * simple state machine to handle bidirectional communication
  * 
  * Improvements:
  * - read only properties

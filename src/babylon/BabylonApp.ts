@@ -12,7 +12,7 @@ import StateMachine from '../statemachine/StateMachine';
 import STATES from '../statemachine/States';
 
 
-export const IS_PRODUCTION: boolean = process.env.NODE_ENV === 'production' // its value is set in webpack.config.js
+export const IS_PRODUCTION: boolean = Boolean(process.env.PRODUCTION)  // its value is set in webpack.config.js
 
 export default class BabylonApp {
 
