@@ -1,3 +1,7 @@
+/**
+ * @author Tom Wendland
+ */
+
 import * as BABYLON from 'babylonjs'
 
 /**
@@ -9,8 +13,7 @@ import * as BABYLON from 'babylonjs'
  * @param canvas 
  * @param camera 
  */
-export default function setupCamera(canvas: HTMLCanvasElement, engine:BABYLON.Engine, scene: BABYLON.Scene) {
-
+export function createFloorCamera(canvas: HTMLCanvasElement, engine:BABYLON.Engine, scene: BABYLON.Scene): BABYLON.UniversalCamera{
     var fpsCamera = new BABYLON.UniversalCamera('camera1', new BABYLON.Vector3(0, 5, -15), this.scene);
     var cameraPositionY = fpsCamera.position.y
 
@@ -39,21 +42,17 @@ export default function setupCamera(canvas: HTMLCanvasElement, engine:BABYLON.En
         fpsCamera.position.y = cameraPositionY
     })
 
+    return fpsCamera
+}
 
 
-    var arcCamera = new BABYLON.ArcRotateCamera("Camera",42, 0.8, 400, BABYLON.Vector3.Zero(), scene);
+export function createArcCamera(canvas: HTMLCanvasElement, engine:BABYLON.Engine, scene: BABYLON.Scene) : BABYLON.ArcRotateCamera{
+    var arcCamera = new BABYLON.ArcRotateCamera("Camera", 42, 0.8, 400, BABYLON.Vector3.Zero(), scene);
     arcCamera.attachControl(canvas, false);
     arcCamera.setTarget(new BABYLON.Vector3(0, 1, 0));
     arcCamera.radius = 5
     arcCamera.lowerRadiusLimit = 10
     arcCamera.upperRadiusLimit =  50 
 
-
-    document.getElementById("toggleCameraButton").addEventListener('click', () => {
-        if(scene.activeCamera === fpsCamera)
-            scene.activeCamera = arcCamera;
-        else scene.activeCamera = fpsCamera
-
-    })
-
+    return arcCamera
 }

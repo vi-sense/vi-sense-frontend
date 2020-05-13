@@ -1,3 +1,4 @@
+const { CleanWebpackPlugin }  = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const path = require('path')
@@ -22,6 +23,7 @@ module.exports = {
     overlay: true
   },
   plugins: [
+    new CleanWebpackPlugin(),
     new CopyWebpackPlugin([
         { from: 'public', to: '' }, 
       ], 
@@ -31,7 +33,12 @@ module.exports = {
       template: __dirname + '/src/index.html',
       filename: 'index.html',
       inject: 'body'
-  }),
+    }),
+    new webpack.DefinePlugin({
+      'process.env': {
+        API_URL: JSON.stringify('http://visense.f4.htw-berlin.de:8080'),
+      }
+    }),
   ], 
   resolve: {
     alias: {
@@ -115,8 +122,8 @@ if (process.env.NODE_ENV === 'production') {
     new webpack.LoaderOptionsPlugin({
       minimize: true
     }),
+    // TODO uglify
   ])
-  // todo uglify
 }
 
 
