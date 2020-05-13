@@ -1,7 +1,6 @@
+// minimum required definition needed to create a custom loading screen
 interface ILoadingScreen {
-  //What happens when loading starts
   displayLoadingUI: () => void;
-  //What happens when loading stops
   hideLoadingUI: () => void;
   //default loader support. Optional!
   loadingUIBackgroundColor: string;
