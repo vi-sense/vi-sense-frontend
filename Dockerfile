@@ -5,8 +5,6 @@ WORKDIR /app
 COPY . .
 RUN npm install && npm run build
 
-FROM alpine:latest
+FROM scratch
 
 COPY --from=builder /app/dist /static
-
-CMD sh
