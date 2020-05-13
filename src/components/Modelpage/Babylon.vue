@@ -7,6 +7,7 @@
     <main>
       <aside class="sidebar">
         <a class="active" href="#home">Information Pane Dummy</a>
+        <a href="#sensor">Sensors</a>
         <router-link
             v-for="sensor in model.Sensors"
             active-class="is-active"
@@ -16,14 +17,12 @@
           {{sensor.ID}}. {{sensor.Name}}
         </router-link>
         <a href="#room">Room</a>
-        <a href="#sensor">Sensor</a>
         <a href="#pipe">Pipe</a>
         <a href="#temperature">Temperature</a>
         <a href="#pressure">Pressure</a>
       </aside>
 
       <canvas id="canvas"></canvas>
-      <div id="toggleCameraButton"></div>
     </main>
   </div>
 </template>
@@ -68,12 +67,13 @@ canvas {
 
 <script>
 import BabylonApp from "../../babylon/BabylonApp";
+import StateMachine from '../../statemachine/StateMachine';
+import STATES from '../../statemachine/States';
+
 export default {
   props: ["id", "name", "model"],
   data() {
-    return {
-      scene: null
-    };
+    return { };
   },
   mounted() {
     this.$route.meta.title = this.name;
@@ -82,8 +82,15 @@ export default {
     // remove the temporary variable query
     this.$router.replace({ query: { temp: undefined } });
 
+
     var canvas = document.getElementById("canvas");
-    var app = new BabylonApp(canvas, this.id, false);
-  }
+    var SM = new StateMachine()
+    var app = new BabylonApp(canvas, this.id, SM);
+    
+    SM.registerOnUpdateCallback(STATES.SELECTED_SENSOR, (value) => {
+      console.log("new sensor selected: ", value);
+    })
+    SM.set(STATES.SELECTED_SENSOR, 60)
+  },
 };
 </script>

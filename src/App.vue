@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <header>
+    <header v-if="$route.name != 'babylon'">
       <h1>Vi-Sense</h1>
       <h2 class="header__title title-header">
       {{ $route.meta.title }}
