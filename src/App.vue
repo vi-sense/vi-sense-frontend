@@ -3,11 +3,11 @@
     <header>
       <h1>Vi-Sense</h1>
       <h2 class="header__title title-header">
-    {{ $route.meta.title }}
- </h2>
+      {{ $route.meta.title }}
+    </h2>
     </header>
     <main>
-      <aside class="sidebar">
+      <aside class="sidebar" v-if="$route.name != 'babylon'">
         <router-link
             v-for="model in models"
             active-class="is-active"
@@ -25,7 +25,7 @@
 </template>
 
 <script>
-  import axios from 'axios'
+  import axios from 'axios';
   export default {
     data () {
       return {

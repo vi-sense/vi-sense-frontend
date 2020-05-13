@@ -3,7 +3,7 @@ import Router from 'vue-router'
 import App from './App.vue'
 import Model from './components/Model.vue'
 import Hello from './components/Hello.vue'
-import Babylon from './components/Babylon.vue'
+import Babylon from './components/Modelpage/Babylon.vue'
 Vue.use(Router)
 
 const router = new Router({
@@ -20,17 +20,17 @@ const router = new Router({
      props: true,
      meta: { title: '' },
    },
-   {
-    path: '/babylon/:id',
-    name:'babylon',
-    component: Babylon,
-    props: true,
-  }
+    {
+     path: '/babylon/:id',
+     name:'babylon',
+     component: Babylon,
+     props: true,
+   }
  ]
 })
 
 new Vue({
  el: '#app',
  render: h => h(App),
- router
+ router,
 })
