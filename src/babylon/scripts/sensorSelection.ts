@@ -1,5 +1,7 @@
 import * as BABYLON from 'babylonjs'
 import * as GUI from "babylonjs-gui";
+import StateMachine from '../../statemachine/StateMachine';
+import STATES from '../../statemachine/States';
 
 const API_URL = process.env.API_URL;
 
@@ -10,7 +12,7 @@ async function getModel(id: number) {
   return response;
 }
 
-export default async function sensorSelectionScript(scene: BABYLON.Scene, modelID, modelMeshes) {
+export default async function sensorSelectionScript(scene: BABYLON.Scene, modelID: number, modelMeshes, SM: StateMachine) {
   // GET MODEL
   let model = await getModel(modelID);
   let sensors = model.Sensors;
@@ -60,17 +62,19 @@ export default async function sensorSelectionScript(scene: BABYLON.Scene, modelI
     // select mesh on label click
     rect.onPointerDownObservable.add(function(e, p) {
       if (mesh.state == "") {
+        mesh.state = "selected";
         let mat = mesh.material as BABYLON.PBRMaterial;
         mat.albedoColor = BABYLON.Color3.Teal();
-        mesh.state = "selected";
         p.currentTarget.background = "white";
         sensorLabels[i].children[1].text = sensorLabelText;
+        SM.set(STATES.SELECTED_SENSOR, sensors[i].MeshID)
       } else {
+        mesh.state = ""
         let mat = mesh.material as BABYLON.PBRMaterial;
         mat.albedoColor = BABYLON.Color3.Purple();
-        mesh.state = ""
         p.currentTarget.background = "";
         sensorLabels[i].children[1].text = ""
+        SM.set(STATES.SELECTED_SENSOR, 0)
       }
     })
     sensorLabels.push(rect);
@@ -83,17 +87,21 @@ export default async function sensorSelectionScript(scene: BABYLON.Scene, modelI
     mesh.actionManager.registerAction(
       new BABYLON.ExecuteCodeAction(
         BABYLON.ActionManager.OnPickTrigger, async function(e) {
-          if (e.source.state === "selected") {
+          if (e.source.state === "") {
+            // select mesh
+            // SHOW RECTANGLE, UPDATE LABEL TEXT
+            e.source.state = "selected";
+            e.source.material.albedoColor = BABYLON.Color3.Teal();
+            sensorLabels[i].background = "white";
+            sensorLabels[i].children[1].text = sensorLabelText;
+            SM.set(STATES.SELECTED_SENSOR, sensors[i].MeshID)
+          } else {
+            // delselect mesh
             e.source.state = "";
             e.source.material.albedoColor = BABYLON.Color3.Purple();
             sensorLabels[i].background = "";
             sensorLabels[i].children[1].text = "";
-          } else {
-            // SHOW RECTANGLE, UPDATE LABEL TEXT
-            sensorLabels[i].background = "white";
-            sensorLabels[i].children[1].text = sensorLabelText;
-            e.source.state = "selected";
-            e.source.material.albedoColor = BABYLON.Color3.Teal();
+            SM.set(STATES.SELECTED_SENSOR, 0)
           }
         }));
 

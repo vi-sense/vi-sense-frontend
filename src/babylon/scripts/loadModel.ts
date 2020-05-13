@@ -25,6 +25,7 @@ export function loadModel(id: number, scene: BABYLON.Scene, callback: (meshes: B
                             let buildingModel = <BABYLON.Mesh> meshes[0]
                             normalize(buildingModel)
                             callback(meshes)
+                            document.getElementById("progressBar").innerHTML = "100%";
                             document.getElementById("progressBar").style.width = "100%";
                         }, (event) => updateProgress(event, "import"))
                     })

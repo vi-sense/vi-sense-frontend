@@ -35,7 +35,7 @@ export default class BabylonApp {
         var sphere = BABYLON.MeshBuilder.CreateSphere('sphere', {segments:16, diameter:2}, this.scene);
 
         loadModel(modelID, this.scene, (meshes) => {
-            sensorSelectionScript(this.scene, modelID, meshes);
+            sensorSelectionScript(this.scene, modelID, meshes, SM);
             this.engine.hideLoadingUI();
         }, !IS_PRODUCTION)
 
