@@ -31,7 +31,14 @@ export default class CustomLoadingScreen implements ILoadingScreen {
     }
     this._loadingDiv = document.createElement("div");
     this._loadingDiv.id = "loadingScreen";
-    this._loadingDiv.innerHTML = "<div class='container'><div class='lds-ellipsis'><div></div><div></div><div></div><div></div></div><h2>" + this._loadingText + "</h2></div>";
+    this._loadingDiv.innerHTML = `
+      <div class='container'>
+        <div class='lds-ellipsis'><div></div><div></div><div></div><div></div></div>
+        <h2 id="progressText">`+this._loadingText+`</h2>
+        <div class="meter">
+          <span id="progressBar" style="width: 0%"></span>
+        </div>
+      </div>`;
     var loadingScreenCss = document.createElement('style');
     loadingScreenCss.type = 'text/css';
     loadingScreenCss.innerHTML = `
@@ -54,6 +61,31 @@ export default class CustomLoadingScreen implements ILoadingScreen {
           font-family: 'Helvetica', sans-serif;
           color: black;
         }
+
+        .meter {
+          width: 50%;
+        	height: 20px;
+        	position: relative;
+        	background: #000000;
+        	-moz-border-radius: 5px;
+        	-webkit-border-radius: 5px;
+        	border-radius: 5px;
+        	padding: 2px;
+        }
+
+        .meter > span {
+          font-family: 'Helvetica', sans-serif;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          height: 100%;
+          border-radius: 2px;
+          color: white;
+          background-color: rgb(43,194,83);
+          position: relative;
+          overflow: hidden;
+        }
+
 
         .lds-ellipsis {
           display: inline-block;
@@ -113,8 +145,7 @@ export default class CustomLoadingScreen implements ILoadingScreen {
       `;
     document.getElementsByTagName('head')[0].appendChild(loadingScreenCss);
     this._resizeLoadingUI();
-    //TODO: for some reason resizing on event doesnt work yet
-    //window.addEventListener("resize", this._resizeLoadingUI);
+    window.addEventListener("resize", this._resizeLoadingUI);
     document.body.appendChild(this._loadingDiv);
   }
 
