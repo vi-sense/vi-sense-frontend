@@ -1,14 +1,14 @@
 import * as BABYLON from 'babylonjs'
 import * as GUI from "babylonjs-gui";
-import StateMachine from '../../statemachine/StateMachine';
-import STATES from '../../statemachine/States';
+import Storage from '../../storage/Storage';
+import SKEYS from '../../storage/StorageKeys';
 
 const API_URL = process.env.API_URL;
 const sensorColor = BABYLON.Color3.Purple();
 const selectedSensorColor = BABYLON.Color3.Teal();
 
 var myScene: BABYLON.Scene;
-var stateMachine: StateMachine;
+var storage: Storage;
 
 // stores all GUI Labels; a sensorLabel contains the container (rect) with its children [circle, label]
 // uses the meshID as key, access like this: sensorLabels["node505"]
@@ -67,14 +67,13 @@ async function getSensorData(id: number) {
   * This function handles the setup of basic sensor selection.
   * It instantiates GUI elements for all available sensors and adds Observables to them and their respective meshes.
   */
-export default async function setupSensorSelection(scene: BABYLON.Scene, modelID: number, modelMeshes, SM: StateMachine) {
+export default async function setupSensorSelection(scene: BABYLON.Scene, modelID: number, modelMeshes, STORE: Storage) {
   myScene = scene;
-  stateMachine = SM;
+  storage = STORE;
 
   // GET MODEL DATA
   let model = await getModelData(modelID);
   let sensors = model.Sensors;
-  console.log(sensors);
 
   for (let i = 0; i < sensors.length; i++) {
     // CURRENT MESH, all selectable meshes are colored purple
@@ -112,11 +111,11 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
     // select mesh on label click
     rect.onPointerDownObservable.add(function() {
       if (mesh.state == "") {
-        selected = stateMachine.get(STATES.SELECTED_SENSOR)
-        stateMachine.set(STATES.SELECTED_SENSOR, sensors[i].MeshID)
+        selected = storage.get(SKEYS.SELECTED_SENSOR)
+        storage.set(SKEYS.SELECTED_SENSOR, sensors[i].MeshID)
       } else {
-        selected = stateMachine.get(STATES.SELECTED_SENSOR)
-        stateMachine.set(STATES.SELECTED_SENSOR, null)
+        selected = storage.get(SKEYS.SELECTED_SENSOR)
+        storage.set(SKEYS.SELECTED_SENSOR, null)
       }
     })
     sensorLabels[sensors[i].MeshID] = rect;
@@ -131,12 +130,12 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
         BABYLON.ActionManager.OnPickTrigger, async function(e) {
           if (e.source.state === "") {
             // select mesh
-            selected = stateMachine.get(STATES.SELECTED_SENSOR)
-            stateMachine.set(STATES.SELECTED_SENSOR, sensors[i].MeshID)
+            selected = storage.get(SKEYS.SELECTED_SENSOR)
+            storage.set(SKEYS.SELECTED_SENSOR, sensors[i].MeshID)
           } else {
             // delselect mesh
-            selected = stateMachine.get(STATES.SELECTED_SENSOR)
-            stateMachine.set(STATES.SELECTED_SENSOR, null)
+            selected = storage.get(SKEYS.SELECTED_SENSOR)
+            storage.set(SKEYS.SELECTED_SENSOR, null)
           }
         }));
 

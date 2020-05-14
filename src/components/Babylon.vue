@@ -15,8 +15,8 @@ div:first-of-type, canvas {
 
 <script>
 import BabylonApp from "../babylon/BabylonApp";
-import StateMachine from '../statemachine/StateMachine';
-import STATES from '../statemachine/States';
+import Storage from '../storage/Storage';
+import SKEYS from '../storage/StorageKeys';
 import { updateSelectedSensor } from '../babylon/scripts/sensorSelection';
 
 export default {
@@ -33,14 +33,14 @@ export default {
 
 
     var canvas = document.getElementById("canvas");
-    var SM = new StateMachine()
-    var app = new BabylonApp(canvas, this.id, SM);
+    var STORE = new Storage()
+    var app = new BabylonApp(canvas, this.id, STORE);
 
-    SM.registerOnUpdateCallback(STATES.SELECTED_SENSOR, (value) => {
+    STORE.registerOnUpdateCallback(SKEYS.SELECTED_SENSOR, (value) => {
       console.log("new sensor selected: ", value);
       updateSelectedSensor(value);
     })
-    //SM.set(STATES.SELECTED_SENSOR, 60)
+    //SM.set(SKEYS.SELECTED_SENSOR, 60)
   },
 };
 </script>

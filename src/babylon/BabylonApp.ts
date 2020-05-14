@@ -8,8 +8,8 @@ import { createFloorCamera } from './scripts/camera';
 import setupSensorSelection from './scripts/sensorSelection';
 import { loadModel } from './scripts/loadModel';
 import CustomLoadingScreen from './scripts/loadingScreen';
-import StateMachine from '../statemachine/StateMachine';
-import STATES from '../statemachine/States';
+import Storage from '../storage/Storage';
+import SKEYS from '../storage/StorageKeys';
 
 
 export const IS_PRODUCTION: boolean = Boolean(process.env.PRODUCTION)  // its value is set in webpack.config.js
@@ -19,7 +19,7 @@ export default class BabylonApp {
     engine: BABYLON.Engine
     scene: BABYLON.Scene
 
-    constructor(canvas: HTMLCanvasElement, modelID: number, SM: StateMachine){
+    constructor(canvas: HTMLCanvasElement, modelID: number, STORE: Storage){
         this.engine = new BABYLON.Engine(canvas, true);
         this.scene = new BABYLON.Scene(this.engine);
         //this.scene.debugLayer.show();
@@ -35,7 +35,7 @@ export default class BabylonApp {
         var sphere = BABYLON.MeshBuilder.CreateSphere('sphere', {segments:16, diameter:2}, this.scene);
 
         loadModel(modelID, this.scene, (meshes) => {
-            setupSensorSelection(this.scene, modelID, meshes, SM);
+            setupSensorSelection(this.scene, modelID, meshes, STORE);
             this.engine.hideLoadingUI();
         }, !IS_PRODUCTION)
 

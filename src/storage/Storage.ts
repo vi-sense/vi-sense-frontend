@@ -5,16 +5,18 @@
  * Improvements:
  * - read only properties
  * - types
+ * 
+ * Are custom public functions better? e.g. getSelectedSensors()
  */
-import STATES from './States'
+import SKEYS from './StorageKeys'
 
-export default class StateMachine{
+export default class Storage{
 
     #values: Array<any>
     #callbacks: Array<Array<Function>>
 
     constructor(){        
-        let enumCount = STATES.__LENGTH        
+        let enumCount = SKEYS.__LENGTH        
         this.#values = new Array(enumCount)
         this.#callbacks = [...Array(enumCount)].map(e => Array());
     }
@@ -31,6 +33,11 @@ export default class StateMachine{
         return this.#values[key]
     }
 
+    /**
+     * Register a action that should be executed when a value has changes
+     * @param key 
+     * @param callback 
+     */
     registerOnUpdateCallback(key: number, callback: (data: any) => void){
         if(callback instanceof Function)
             this.#callbacks[key].push(callback)
