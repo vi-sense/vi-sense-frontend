@@ -26,6 +26,16 @@ var selected;
   */
 export function updateSelectedSensor(meshID: string) {
   if (myScene) {
+    // deselect previously selected mesh
+    if(selected) {
+      let mesh = myScene.getMeshByName(selected);
+      mesh.state = "";
+      let mat = mesh.material as BABYLON.PBRMaterial;
+      mat.albedoColor = sensorColor;
+      sensorLabels[mesh.name].background = "";
+      sensorLabels[mesh.name].children[1].text = "";
+    }
+    // select mesh with passed meshID
     if (meshID) {
       let mesh = myScene.getMeshByName(meshID);
       mesh.state = "selected";
@@ -34,13 +44,6 @@ export function updateSelectedSensor(meshID: string) {
       sensorLabels[meshID].background = "white";
       let text = sensorData[meshID].Name + "\n" + sensorData[meshID].Data[sensorData[meshID].Data.length - 1].Value.toString() + sensorData[meshID].MeasurementUnit;
       sensorLabels[meshID].children[1].text = text;
-    } else {
-      let mesh = myScene.getMeshByName(selected);
-      mesh.state = "";
-      let mat = mesh.material as BABYLON.PBRMaterial;
-      mat.albedoColor = sensorColor;
-      sensorLabels[mesh.name].background = "";
-      sensorLabels[mesh.name].children[1].text = "";
     }
   }
 }
@@ -64,7 +67,7 @@ async function getSensorData(id: number) {
   * This function handles the setup of basic sensor selection.
   * It instantiates GUI elements for all available sensors and adds Observables to them and their respective meshes.
   */
-export default async function sensorSelectionScript(scene: BABYLON.Scene, modelID: number, modelMeshes, SM: StateMachine) {
+export default async function setupSensorSelection(scene: BABYLON.Scene, modelID: number, modelMeshes, SM: StateMachine) {
   myScene = scene;
   stateMachine = SM;
 
@@ -109,6 +112,7 @@ export default async function sensorSelectionScript(scene: BABYLON.Scene, modelI
     // select mesh on label click
     rect.onPointerDownObservable.add(function() {
       if (mesh.state == "") {
+        selected = stateMachine.get(STATES.SELECTED_SENSOR)
         stateMachine.set(STATES.SELECTED_SENSOR, sensors[i].MeshID)
       } else {
         selected = stateMachine.get(STATES.SELECTED_SENSOR)
@@ -127,6 +131,7 @@ export default async function sensorSelectionScript(scene: BABYLON.Scene, modelI
         BABYLON.ActionManager.OnPickTrigger, async function(e) {
           if (e.source.state === "") {
             // select mesh
+            selected = stateMachine.get(STATES.SELECTED_SENSOR)
             stateMachine.set(STATES.SELECTED_SENSOR, sensors[i].MeshID)
           } else {
             // delselect mesh

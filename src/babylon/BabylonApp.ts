@@ -5,7 +5,7 @@ import * as BABYLON from 'babylonjs'
 import 'babylonjs-loaders';
 import 'babylonjs-inspector';
 import { createFloorCamera } from './scripts/camera';
-import sensorSelectionScript from './scripts/sensorSelection';
+import setupSensorSelection from './scripts/sensorSelection';
 import { loadModel } from './scripts/loadModel';
 import CustomLoadingScreen from './scripts/loadingScreen';
 import StateMachine from '../statemachine/StateMachine';
@@ -35,7 +35,7 @@ export default class BabylonApp {
         var sphere = BABYLON.MeshBuilder.CreateSphere('sphere', {segments:16, diameter:2}, this.scene);
 
         loadModel(modelID, this.scene, (meshes) => {
-            sensorSelectionScript(this.scene, modelID, meshes, SM);
+            setupSensorSelection(this.scene, modelID, meshes, SM);
             this.engine.hideLoadingUI();
         }, !IS_PRODUCTION)
 
