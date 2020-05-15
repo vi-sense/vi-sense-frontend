@@ -37,7 +37,7 @@ module.exports = {
     new webpack.DefinePlugin({
       'process.env': {
         PRODUCTION: process.env.NODE_ENV === 'production',
-        API_URL: JSON.stringify('http://visense.f4.htw-berlin.de:8080'),
+        API_URL: JSON.stringify(process.env.API_URL),
       }
     }),
   ], 
