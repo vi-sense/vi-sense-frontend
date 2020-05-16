@@ -2,6 +2,7 @@ on:
   push:
     branches:
       - master
+      - go_frontend_server
   pull_request:
     branches:
       - master

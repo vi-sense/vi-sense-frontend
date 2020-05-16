@@ -25,5 +25,5 @@ func (fs defaultFileDir) Open(name string) (http.File, error){
 func main() {
 	// Simple static webserver:
 	fs := defaultFileDir{http.Dir(os.Getenv("STATIC_DIR"))}
-	log.Fatal(http.ListenAndServe(":8081", http.FileServer(fs)))
+	log.Fatal(http.ListenAndServe(":" + os.Getenv("PORT"), http.FileServer(fs)))
 }
