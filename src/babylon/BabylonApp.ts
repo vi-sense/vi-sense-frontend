@@ -1,7 +1,8 @@
 /**
  * @author Tom Wendland
  */
-import * as BABYLON from 'babylonjs'
+import * as BABYLON from 'babylonjs';
+import * as MATS from 'babylonjs-materials';
 import 'babylonjs-loaders';
 import 'babylonjs-inspector';
 import { createFloorCamera } from './scripts/camera';

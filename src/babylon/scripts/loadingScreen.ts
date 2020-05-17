@@ -80,7 +80,7 @@ export default class CustomLoadingScreen implements ILoadingScreen {
           height: 100%;
           border-radius: 2px;
           color: white;
-          background-color: rgb(43,194,83);
+          background-color: #42b983;
           position: relative;
           overflow: hidden;
         }

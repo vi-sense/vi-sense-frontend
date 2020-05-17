@@ -1,5 +1,6 @@
-import * as BABYLON from 'babylonjs'
+import * as BABYLON from 'babylonjs';
 import * as GUI from "babylonjs-gui";
+import * as MATS from 'babylonjs-materials';
 import Storage from '../../storage/Storage';
 import SKEYS from '../../storage/StorageKeys';
 
@@ -9,6 +10,7 @@ const selectedSensorColor = BABYLON.Color3.Teal();
 
 var myScene: BABYLON.Scene;
 var storage: Storage;
+var highlight;
 
 // stores all GUI Labels; a sensorLabel contains the container (rect) with its children [circle, label]
 // uses the meshID as key, access like this: sensorLabels["node505"]
@@ -27,9 +29,12 @@ var selected;
 export function updateSelectedSensor(meshID: string) {
   if (myScene) {
     // deselect previously selected mesh
-    if(selected) {
+    if (selected) {
       let mesh = myScene.getMeshByName(selected);
       mesh.state = "";
+      highlight.removeMesh(mesh.subMeshes[0].getRenderingMesh());
+      //mesh.showBoundingBox = false;
+      mesh.renderOutline = false;
       let mat = mesh.material as BABYLON.PBRMaterial;
       mat.albedoColor = sensorColor;
       sensorLabels[mesh.name].background = "";
@@ -39,6 +44,12 @@ export function updateSelectedSensor(meshID: string) {
     if (meshID) {
       let mesh = myScene.getMeshByName(meshID);
       mesh.state = "selected";
+      highlight.addMesh(mesh.subMeshes[0].getRenderingMesh(), BABYLON.Color3.Black());
+      //mesh.showBoundingBox = true;
+      mesh = mesh.subMeshes[0].getRenderingMesh()
+      mesh.outlineWidth = .05;
+      mesh.outlineColor = BABYLON.Color3.Black();
+      mesh.renderOutline = true;
       let mat = mesh.material as BABYLON.PBRMaterial;
       mat.albedoColor = selectedSensorColor;
       sensorLabels[meshID].background = "white";
@@ -70,6 +81,12 @@ async function getSensorData(id: number) {
 export default async function setupSensorSelection(scene: BABYLON.Scene, modelID: number, modelMeshes, STORE: Storage) {
   myScene = scene;
   storage = STORE;
+  highlight = new BABYLON.HighlightLayer("highlight", myScene);
+  highlight.alphaBlendingMode = 0
+  highlight.innerGlow = true
+  highlight.outerGlow = false
+  highlight.blurHorizontalSize = 1
+  highlight.blurVerticalSize = 1
 
   // GET MODEL DATA
   let model = await getModelData(modelID);
@@ -80,6 +97,13 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
     let mesh = scene.getMeshByName(sensors[i].MeshID);
     let mat = mesh.material as BABYLON.PBRMaterial;
     mat.albedoColor = sensorColor;
+
+    //QPRJU9#12 - sine water flow
+    //JN2BSF#54 - turbulence fire
+    //imported using the node material editor: https://nme.babylonjs.com/#QPRJU9#12
+    BABYLON.NodeMaterial.ParseFromSnippetAsync("QPRJU9#12", myScene).then(nodeMaterial => {
+      mesh.material = nodeMaterial;
+    });
 
     // GET SENSORDATA
     let data = await getSensorData(sensors[i].ID);
