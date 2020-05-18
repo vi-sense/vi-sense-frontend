@@ -36,7 +36,7 @@ module.exports = {
     }),
     new webpack.DefinePlugin({
       'process.env': {
-        PRODUCTION: process.env.NODE_ENV === 'production',
+        PRODUCTION: process.env.NODE_ENV === 'production', 
         API_URL: JSON.stringify(process.env.API_URL),
       }
     }),
@@ -113,17 +113,10 @@ module.exports = {
 
 
 if (process.env.NODE_ENV === 'production') {
-  // http://vue-loader.vuejs.org/en/workflow/production.html
   module.exports.plugins = (module.exports.plugins || []).concat([
-    new webpack.DefinePlugin({
-      'process.env': {
-        NODE_ENV: '"production"'
-      }
-    }),
     new webpack.LoaderOptionsPlugin({
       minimize: true
-    }),
-    // TODO uglify
+    })
   ])
 }
 
