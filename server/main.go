@@ -25,5 +25,9 @@ func (fs defaultFileDir) Open(name string) (http.File, error){
 func main() {
 	// Simple static webserver:
 	fs := defaultFileDir{http.Dir(os.Getenv("STATIC_DIR"))}
-	log.Fatal(http.ListenAndServe(":" + os.Getenv("PORT"), http.FileServer(fs)))
+	if os.Getenv("CERT_PATH") == "" || os.Getenv("KEY_PATH") == ""{
+		log.Fatal(http.ListenAndServe(":" + os.Getenv("PORT"), http.FileServer(fs)))
+	}else {
+		log.Fatal(http.ListenAndServeTLS(":" + os.Getenv("PORT"), os.Getenv("CERT_PATH"), os.Getenv("KEY_PATH"), http.FileServer(fs)))
+	}
 }
