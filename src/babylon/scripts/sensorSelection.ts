@@ -21,6 +21,7 @@ var sensorLabels = [];
 var sensorData = [];
 var selected;
 
+
 /**
   * This is the callback function used for (de)selecting meshes via Vue or Babylon
   * Update the selection state of a mesh by passing its meshID (e.g. "node505")
@@ -59,20 +60,6 @@ export function updateSelectedSensor(meshID: string) {
   }
 }
 
-async function getModelData(id: number) {
-  let response = await fetch(API_URL + "/models/" + id)
-    .then(res => { return res.json() })
-    .catch(err => { throw new Error("Can not load model data") });
-  return response;
-}
-
-async function getSensorData(id: number) {
-  let response = await fetch(API_URL + "/sensors/" + id)
-    .then(res => { return res.json() })
-    .catch(err => { throw new Error("Can not load sensor data") });
-  return response;
-}
-
 
 /**
   * This function handles the setup of basic sensor selection.
@@ -87,6 +74,11 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
   highlight.outerGlow = false
   highlight.blurHorizontalSize = 1
   highlight.blurVerticalSize = 1
+
+  STORE.registerOnUpdateCallback(SKEYS.SELECTED_SENSOR, (value) => {
+    console.log("new sensor selected: ", value);
+    updateSelectedSensor(value);
+  })
 
   // GET MODEL DATA
   let model = await getModelData(modelID);
@@ -189,4 +181,19 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
         )
       ));
   }
+}
+
+
+async function getModelData(id: number) {
+  let response = await fetch(API_URL + "/models/" + id)
+    .then(res => { return res.json() })
+    .catch(err => { throw new Error("Can not load model data") });
+  return response;
+}
+
+async function getSensorData(id: number) {
+  let response = await fetch(API_URL + "/sensors/" + id)
+    .then(res => { return res.json() })
+    .catch(err => { throw new Error("Can not load sensor data") });
+  return response;
 }
