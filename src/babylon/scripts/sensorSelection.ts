@@ -10,7 +10,7 @@ const selectedSensorColor = BABYLON.Color3.Teal();
 
 var myScene: BABYLON.Scene;
 var storage: Storage;
-var highlight;
+var highlight: BABYLON.HighlightLayer;
 
 // stores all GUI Labels; a sensorLabel contains the container (rect) with its children [circle, label]
 // uses the meshID as key, access like this: sensorLabels["node505"]
@@ -68,17 +68,18 @@ export function updateSelectedSensor(meshID: string) {
 export default async function setupSensorSelection(scene: BABYLON.Scene, modelID: number, modelMeshes, STORE: Storage) {
   myScene = scene;
   storage = STORE;
-  highlight = new BABYLON.HighlightLayer("highlight", myScene);
-  highlight.alphaBlendingMode = 0
-  highlight.innerGlow = true
-  highlight.outerGlow = false
-  highlight.blurHorizontalSize = 1
-  highlight.blurVerticalSize = 1
 
   STORE.registerOnUpdateCallback(SKEYS.SELECTED_SENSOR, (value) => {
     console.log("new sensor selected: ", value);
     updateSelectedSensor(value);
   })
+
+  // setup of highlight layer
+  highlight = new BABYLON.HighlightLayer("highlight", myScene);
+  highlight.innerGlow = true
+  highlight.outerGlow = false
+  highlight.blurHorizontalSize = 1
+  highlight.blurVerticalSize = 1
 
   // GET MODEL DATA
   let model = await getModelData(modelID);
@@ -93,7 +94,7 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
     //QPRJU9#12 - sine water flow
     //JN2BSF#54 - turbulence fire
     //imported using the node material editor: https://nme.babylonjs.com/#QPRJU9#12
-    BABYLON.NodeMaterial.ParseFromSnippetAsync("QPRJU9#12", myScene).then(nodeMaterial => {
+    BABYLON.NodeMaterial.ParseFromSnippetAsync("QPRJU9#16", myScene).then(nodeMaterial => {
       mesh.material = nodeMaterial;
     });
 
