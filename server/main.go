@@ -27,6 +27,7 @@ func main() {
 	fs := defaultFileDir{http.Dir(os.Getenv("STATIC_DIR"))}
 	err := http.ListenAndServeTLS(":" + os.Getenv("PORT"), "/certs/live/visense.f4.htw-berlin.de/fullchain.pem", "/certs/live/visense.f4.htw-berlin.de/privkey.pem", http.FileServer(fs)) //try to serve https
 	if err != nil {
+		log.Println(err)
 		log.Fatal(http.ListenAndServe(":"+os.Getenv("PORT"), http.FileServer(fs))) //try to serve http
 	}
 }
