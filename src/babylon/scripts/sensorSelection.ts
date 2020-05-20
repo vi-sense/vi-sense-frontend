@@ -54,8 +54,8 @@ export function updateSelectedSensor(meshID: string) {
       let mat = mesh.material as BABYLON.PBRMaterial;
       mat.albedoColor = selectedSensorColor;
       sensorLabels[meshID].background = "white";
-      let text = sensorData[meshID].Name + "\n" + sensorData[meshID].Data[sensorData[meshID].Data.length - 1].Value.toString() + sensorData[meshID].MeasurementUnit;
-      sensorLabels[meshID].children[1].text = text;
+      // + "\n" + sensorData[meshID].data[sensorData[meshID].data.length - 1].value.toString() + sensorData[meshID].measurement_unit;
+      sensorLabels[meshID].children[1].text = sensorData[meshID].name;
     }
   }
 }
@@ -83,11 +83,11 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
 
   // GET MODEL DATA
   let model = await getModelData(modelID);
-  let sensors = model.Sensors;
+  let sensors = model.sensors;
 
   for (let i = 0; i < sensors.length; i++) {
     // CURRENT MESH, all selectable meshes are colored purple
-    let mesh = scene.getMeshByName(sensors[i].MeshID);
+    let mesh = scene.getMeshByName(sensors[i].mesh_id);
     let mat = mesh.material as BABYLON.PBRMaterial;
     mat.albedoColor = sensorColor;
 
@@ -97,13 +97,12 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
     //4EQZYW - temperature gradient
     //imported using the node material editor: https://nme.babylonjs.com/#QPRJU9#12
     await BABYLON.NodeMaterial.ParseFromSnippetAsync("QPRJU9#16", myScene).then(nodeMaterial => {
-      console.log(nodeMaterial);
       mesh.material = nodeMaterial;
     });
 
     // GET SENSORDATA
-    let data = await getSensorData(sensors[i].ID);
-    sensorData[sensors[i].MeshID] = data;
+    let data = await getSensorData(sensors[i].id);
+    sensorData[sensors[i].mesh_id] = data;
 
     // GUI SETUP
     let advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
@@ -132,13 +131,13 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
     rect.onPointerDownObservable.add(function() {
       if (mesh.state == "") {
         selected = storage.get(SKEYS.SELECTED_SENSOR)
-        storage.set(SKEYS.SELECTED_SENSOR, sensors[i].MeshID)
+        storage.set(SKEYS.SELECTED_SENSOR, sensors[i].mesh_id)
       } else {
         selected = storage.get(SKEYS.SELECTED_SENSOR)
         storage.set(SKEYS.SELECTED_SENSOR, null)
       }
     })
-    sensorLabels[sensors[i].MeshID] = rect;
+    sensorLabels[sensors[i].mesh_id] = rect;
     rect.addControl(label);
     rect.linkWithMesh(mesh);
 
@@ -151,7 +150,7 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
           if (e.source.state === "") {
             // select mesh
             selected = storage.get(SKEYS.SELECTED_SENSOR)
-            storage.set(SKEYS.SELECTED_SENSOR, sensors[i].MeshID)
+            storage.set(SKEYS.SELECTED_SENSOR, sensors[i].mesh_id)
           } else {
             // delselect mesh
             selected = storage.get(SKEYS.SELECTED_SENSOR)

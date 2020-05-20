@@ -86,10 +86,10 @@ import axios from "axios";
 export default {
   props: ["id", "name", "model"],
   data() {
-    return { 
+    return {
       sensorData: null,
       endpoint: "http://visense.f4.htw-berlin.de:8080/sensors/"
-    
+
     };
   },
   mounted() {
@@ -102,11 +102,6 @@ export default {
     var canvas = document.getElementById("canvas");
     var SM = new StateMachine();
     var app = new BabylonApp(canvas, this.id, SM);
-
-    SM.registerOnUpdateCallback(STATES.SELECTED_SENSOR, value => {
-      console.log("new sensor selected: ", value);
-    });
-    SM.set(STATES.SELECTED_SENSOR, 60);
 
   },
   methods: {
