@@ -4,35 +4,37 @@ import App from './App.vue'
 import Model from './components/Model.vue'
 import Hello from './components/Hello.vue'
 import Babylon from './components/Modelpage/Babylon.vue'
+import Vuetify from './plugins/vuetify' // path to vuetify export
 Vue.use(Router)
 Vue.config.productionTip = false
 
 
 const router = new Router({
- routes: [
-   {
-     path: '/',
-     name:'home',
-     component: Hello,
-   },
-   {
-     path: '/model/:id',
-     name:'model',
-     component: Model,
-     props: true,
-     meta: { title: '' },
-   },
+  routes: [
     {
-     path: '/babylon/:id',
-     name:'babylon',
-     component: Babylon,
-     props: true,
-   }
- ]
+      path: '/',
+      name: 'home',
+      component: Hello,
+    },
+    {
+      path: '/model/:id',
+      name: 'model',
+      component: Model,
+      props: true,
+      meta: { title: '' },
+    },
+    {
+      path: '/babylon/:id',
+      name: 'babylon',
+      component: Babylon,
+      props: true,
+    }
+  ]
 })
 
 new Vue({
- el: '#app',
- render: h => h(App),
- router,
+  el: '#app',
+  Vuetify,
+  render: h => h(App),
+  router,
 })

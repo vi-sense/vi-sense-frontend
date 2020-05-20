@@ -1,4 +1,4 @@
-const { CleanWebpackPlugin }  = require('clean-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const path = require('path')
@@ -25,8 +25,8 @@ module.exports = {
   plugins: [
     new CleanWebpackPlugin(),
     new CopyWebpackPlugin([
-        { from: 'public', to: '' }, 
-      ], 
+      { from: 'public', to: '' },
+    ],
       { ignore: ['.gitignore'] }
     ),
     new HtmlWebpackPlugin({
@@ -39,7 +39,7 @@ module.exports = {
         API_URL: JSON.stringify('http://visense.f4.htw-berlin.de:8080'),
       }
     }),
-  ], 
+  ],
   resolve: {
     alias: {
       'vue$': 'vue/dist/vue.esm.js'
@@ -68,11 +68,27 @@ module.exports = {
         ],
       },
       {
-        test: /\.sass$/,
+        test: /\.s(c|a)ss$/,
         use: [
           'vue-style-loader',
           'css-loader',
-          'sass-loader?indentedSyntax'
+          {
+            loader: 'sass-loader',
+            // Requires sass-loader@^7.0.0
+            options: {
+              implementation: require('sass'),
+              fiber: require('fibers'),
+              indentedSyntax: true // optional
+            },
+            // Requires sass-loader@^8.0.0
+            options: {
+              implementation: require('sass'),
+              sassOptions: {
+                fiber: require('fibers'),
+                indentedSyntax: true // optional
+              },
+            },
+          },
         ],
       },
       {

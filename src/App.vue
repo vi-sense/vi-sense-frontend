@@ -12,9 +12,9 @@
             v-for="model in models"
             active-class="is-active"
             class="link"
-            :key="model.ID"
-            :to="{ name: 'model', params: { id: model.ID } }">
-          {{model.ID}}. {{model.Name}}
+            :key="model.id"
+            :to="{ name: 'model', params: { id: model.id } }">
+          {{model.id}}. {{model.name}}
         </router-link>
       </aside>
       <div class="content">
