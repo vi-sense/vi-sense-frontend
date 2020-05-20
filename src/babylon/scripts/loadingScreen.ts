@@ -31,7 +31,7 @@ export default class CustomLoadingScreen implements ILoadingScreen {
     this._loadingDiv = document.createElement("div");
     this._loadingDiv.id = "loadingScreen";
     this._loadingDiv.innerHTML = `
-      <div class='container'>
+      <div class='loadingScreenContainer'>
         <div class='lds-ellipsis'><div></div><div></div><div></div><div></div></div>
         <h2 id="progressText">`+this._loadingText+`</h2>
         <div class="meter">
@@ -41,7 +41,7 @@ export default class CustomLoadingScreen implements ILoadingScreen {
     var loadingScreenCss = document.createElement('style');
     loadingScreenCss.type = 'text/css';
     loadingScreenCss.innerHTML = `
-        .container {
+        .loadingScreenContainer {
           height: 100%;
           display: flex;
           flex-direction: column;
@@ -59,6 +59,7 @@ export default class CustomLoadingScreen implements ILoadingScreen {
         #loadingScreen h2 {
           font-family: 'Helvetica', sans-serif;
           color: black;
+          padding: 20px;
         }
 
         .meter {

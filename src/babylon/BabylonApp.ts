@@ -25,7 +25,7 @@ export default class BabylonApp {
         this.scene = new BABYLON.Scene(this.engine);
         //this.scene.debugLayer.show();
 
-        var loadingScreen = new CustomLoadingScreen(canvas, "Loading Model");
+        var loadingScreen = new CustomLoadingScreen(canvas, "");
         this.engine.loadingScreen = loadingScreen;
         this.engine.displayLoadingUI();
 
