@@ -4,7 +4,7 @@
       <h1>Vi-Sense Modelpage</h1>
       <h2 class="header__title title-header">{{ $route.meta.title }}</h2>
     </header>
-    <main>
+    <main class="main">
       <aside class="sidebar">
         <a class="active" href="#home">Information Pane</a>
         <a href="#sensor">Sensors</a>
@@ -33,6 +33,12 @@ div,
 canvas {
   width: 100%;
   height: 100%;
+}
+
+.main{
+
+  width:100%;
+  height:100%;
 }
 
 .expansion {
@@ -73,8 +79,8 @@ canvas {
 
 <script>
 import BabylonApp from "../../babylon/BabylonApp";
-import StateMachine from "../../statemachine/StateMachine";
-import STATES from "../../statemachine/States";
+import StateMachine from "../../storage/Storage";
+import STATES from "../../storage/StorageKeys";
 import axios from "axios";
 
 export default {
