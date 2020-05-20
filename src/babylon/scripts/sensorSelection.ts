@@ -47,7 +47,7 @@ export function updateSelectedSensor(meshID: string) {
       mesh.state = "selected";
       highlight.addMesh(mesh.subMeshes[0].getRenderingMesh(), BABYLON.Color3.Black());
       //mesh.showBoundingBox = true;
-      mesh = mesh.subMeshes[0].getRenderingMesh()
+      mesh = mesh.subMeshes[0].getRenderingMesh();
       mesh.outlineWidth = .05;
       mesh.outlineColor = BABYLON.Color3.Black();
       mesh.renderOutline = true;
@@ -92,9 +92,12 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
     mat.albedoColor = sensorColor;
 
     //QPRJU9#12 - sine water flow
+    //QPRJU9#16 - sine color change
     //JN2BSF#54 - turbulence fire
+    //4EQZYW - temperature gradient
     //imported using the node material editor: https://nme.babylonjs.com/#QPRJU9#12
-    BABYLON.NodeMaterial.ParseFromSnippetAsync("QPRJU9#16", myScene).then(nodeMaterial => {
+    await BABYLON.NodeMaterial.ParseFromSnippetAsync("QPRJU9#16", myScene).then(nodeMaterial => {
+      console.log(nodeMaterial);
       mesh.material = nodeMaterial;
     });
 
@@ -156,31 +159,31 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
           }
         }));
 
-    // on hover enter, change color to teal
-    mesh.actionManager.registerAction(
-      new BABYLON.InterpolateValueAction(
-        BABYLON.ActionManager.OnPointerOverTrigger,
-        mesh.material,
-        'albedoColor',
-        selectedSensorColor,
-        200
-      ));
-
-    // on hover leave, change color back to purple if mesh is not selected
-    mesh.actionManager.registerAction(
-      new BABYLON.InterpolateValueAction(
-        BABYLON.ActionManager.OnPointerOutTrigger,
-        mesh.material,
-        'albedoColor',
-        sensorColor,
-        200,
-        new BABYLON.PredicateCondition(
-          mesh.actionManager as BABYLON.ActionManager,
-          function() {
-            return mesh.state !== "selected";
-          }
-        )
-      ));
+    // // on hover enter, change color to teal
+    // mesh.actionManager.registerAction(
+    //   new BABYLON.InterpolateValueAction(
+    //     BABYLON.ActionManager.OnPointerOverTrigger,
+    //     mesh.material,
+    //     'albedoColor',
+    //     selectedSensorColor,
+    //     200
+    //   ));
+    //
+    // // on hover leave, change color back to purple if mesh is not selected
+    // mesh.actionManager.registerAction(
+    //   new BABYLON.InterpolateValueAction(
+    //     BABYLON.ActionManager.OnPointerOutTrigger,
+    //     mesh.material,
+    //     'albedoColor',
+    //     sensorColor,
+    //     200,
+    //     new BABYLON.PredicateCondition(
+    //       mesh.actionManager as BABYLON.ActionManager,
+    //       function() {
+    //         return mesh.state !== "selected";
+    //       }
+    //     )
+    //   ));
   }
 }
 
