@@ -1,20 +1,20 @@
 <template>
   <div id="app">
-    <header>
+    <header v-if="$route.name != 'babylon'">
       <h1>Vi-Sense</h1>
       <h2 class="header__title title-header">
-    {{ $route.meta.title }}
- </h2>
+      {{ $route.meta.title }}
+    </h2>
     </header>
     <main>
-      <aside class="sidebar">
+      <aside class="sidebar" v-if="$route.name != 'babylon'">
         <router-link
             v-for="model in models"
             active-class="is-active"
             class="link"
-            :key="model.ID"
-            :to="{ name: 'model', params: { id: model.ID } }">
-          {{model.ID}}. {{model.Name}}
+            :key="model.id"
+            :to="{ name: 'model', params: { id: model.id } }">
+          {{model.id}}. {{model.name}}
         </router-link>
       </aside>
       <div class="content">
@@ -25,7 +25,7 @@
 </template>
 
 <script>
-  import axios from 'axios'
+  import axios from 'axios';
   export default {
     data () {
       return {

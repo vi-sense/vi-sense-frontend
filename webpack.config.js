@@ -1,4 +1,4 @@
-const { CleanWebpackPlugin }  = require('clean-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const path = require('path')
@@ -25,8 +25,8 @@ module.exports = {
   plugins: [
     new CleanWebpackPlugin(),
     new CopyWebpackPlugin([
-        { from: 'public', to: '' }, 
-      ], 
+      { from: 'public', to: '' },
+    ],
       { ignore: ['.gitignore'] }
     ),
     new HtmlWebpackPlugin({
@@ -36,11 +36,11 @@ module.exports = {
     }),
     new webpack.DefinePlugin({
       'process.env': {
-        PRODUCTION: process.env.NODE_ENV === 'production',
+        PRODUCTION: process.env.NODE_ENV === 'production', 
         API_URL: JSON.stringify(process.env.API_URL),
       }
     }),
-  ], 
+  ],
   resolve: {
     alias: {
       'vue$': 'vue/dist/vue.esm.js'
@@ -69,11 +69,27 @@ module.exports = {
         ],
       },
       {
-        test: /\.sass$/,
+        test: /\.s(c|a)ss$/,
         use: [
           'vue-style-loader',
           'css-loader',
-          'sass-loader?indentedSyntax'
+          {
+            loader: 'sass-loader',
+            // Requires sass-loader@^7.0.0
+            options: {
+              implementation: require('sass'),
+              fiber: require('fibers'),
+              indentedSyntax: true // optional
+            },
+            // Requires sass-loader@^8.0.0
+            options: {
+              implementation: require('sass'),
+              sassOptions: {
+                fiber: require('fibers'),
+                indentedSyntax: true // optional
+              },
+            },
+          },
         ],
       },
       {
@@ -113,17 +129,10 @@ module.exports = {
 
 
 if (process.env.NODE_ENV === 'production') {
-  // http://vue-loader.vuejs.org/en/workflow/production.html
   module.exports.plugins = (module.exports.plugins || []).concat([
-    new webpack.DefinePlugin({
-      'process.env': {
-        NODE_ENV: '"production"'
-      }
-    }),
     new webpack.LoaderOptionsPlugin({
       minimize: true
-    }),
-    // TODO uglify
+    })
   ])
 }
 

@@ -1,10 +1,10 @@
 <template lang="html">
   <div class="model" v-if="model">
-    <h1 class="model__title">{{ model.Name }}</h1>
-    <p class="model__body">{{ model.Description }}</p>
-    <p  class="model__id">{{ model.ID }}</p>
-    <img class="model__image" :src="'http://visense.f4.htw-berlin.de:8080/' + model.ImageUrl">
-    <router-link :to="{name: 'babylon', params: {id: model.ID, name: model.Name}}">See 3D Model</router-link>
+    <h1 class="model__title">{{ model.name }}</h1>
+    <p class="model__body">{{ model.description }}</p>
+    <p  class="model__id">{{ model.id }}</p>
+    <img class="model__image" :src="'http://visense.f4.htw-berlin.de:8080/' + model.image_url">
+    <router-link :to="{name: 'babylon', params: {id: model.id, name: model.name, model: model}}">See 3D Model</router-link>
   </div>
 </template>
 
