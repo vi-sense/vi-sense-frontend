@@ -1,35 +1,81 @@
 import * as BABYLON from 'babylonjs'
 import * as GUI from "babylonjs-gui";
+import Storage from '../../storage/Storage';
+import SKEYS from '../../storage/StorageKeys';
 
 const API_URL = process.env.API_URL;
+const sensorColor = BABYLON.Color3.Purple();
+const selectedSensorColor = BABYLON.Color3.Teal();
 
-async function getModel(id: number) {
-  let response = await fetch(API_URL + "/models/" + id)
-    .then(res => { return res.json() })
-    .catch(err => { throw new Error("Can not load model data") });
-  return response;
+var myScene: BABYLON.Scene;
+var storage: Storage;
+
+// stores all GUI Labels; a sensorLabel contains the container (rect) with its children [circle, label]
+// uses the meshID as key, access like this: sensorLabels["node505"]
+var sensorLabels = [];
+
+// stores all fetched sensor data
+// uses the meshID as key, access like this: sensorData["node505"]
+var sensorData = [];
+var selected;
+
+
+/**
+  * This is the callback function used for (de)selecting meshes via Vue or Babylon
+  * Update the selection state of a mesh by passing its meshID (e.g. "node505")
+  * Changes the color of the mesh, and the text displayed in the label
+  */
+export function updateSelectedSensor(meshID: string) {
+  if (myScene) {
+    // deselect previously selected mesh
+    if (selected) {
+      let mesh = myScene.getMeshByName(selected);
+      mesh.state = "";
+      let mat = mesh.material as BABYLON.PBRMaterial;
+      mat.albedoColor = sensorColor;
+      sensorLabels[mesh.name].background = "";
+      sensorLabels[mesh.name].children[1].text = "";
+    }
+    // select mesh with passed meshID
+    if (meshID) {
+      let mesh = myScene.getMeshByName(meshID);
+      mesh.state = "selected";
+      let mat = mesh.material as BABYLON.PBRMaterial;
+      mat.albedoColor = selectedSensorColor;
+      sensorLabels[meshID].background = "white";
+      let text = sensorData[meshID].Name + "\n" + sensorData[meshID].Data[sensorData[meshID].Data.length - 1].Value.toString() + sensorData[meshID].MeasurementUnit;
+      sensorLabels[meshID].children[1].text = text;
+    }
+  }
 }
 
-export default async function sensorSelectionScript(scene: BABYLON.Scene, modelID, modelMeshes) {
-  // GET MODEL
-  let model = await getModel(modelID);
-  let sensors = model.Sensors;
 
-  // save label containers for later reference
-  // sensorLabel is the container (rect) with its children [circle, label]
-  let sensorLabels = [];
+/**
+  * This function handles the setup of basic sensor selection.
+  * It instantiates GUI elements for all available sensors and adds Observables to them and their respective meshes.
+  */
+export default async function setupSensorSelection(scene: BABYLON.Scene, modelID: number, modelMeshes, STORE: Storage) {
+  myScene = scene;
+  storage = STORE;
+
+  STORE.registerOnUpdateCallback(SKEYS.SELECTED_SENSOR, (value) => {
+    console.log("new sensor selected: ", value);
+    updateSelectedSensor(value);
+  })
+
+  // GET MODEL DATA
+  let model = await getModelData(modelID);
+  let sensors = model.Sensors;
 
   for (let i = 0; i < sensors.length; i++) {
     // CURRENT MESH, all selectable meshes are colored purple
     let mesh = scene.getMeshByName(sensors[i].MeshID);
     let mat = mesh.material as BABYLON.PBRMaterial;
-    mat.albedoColor = BABYLON.Color3.Purple();
+    mat.albedoColor = sensorColor;
 
     // GET SENSORDATA
-    let sensorData = await fetch(API_URL + "/sensors/" + sensors[i].ID)
-      .then(res => { return res.json() })
-      .catch(err => { throw new Error("Can not load sensor data") });
-    let sensorLabelText = sensorData.Name + "\n" + sensorData.Data[sensorData.Data.length - 1].Value.toString() + sensorData.MeasurementUnit;
+    let data = await getSensorData(sensors[i].ID);
+    sensorData[sensors[i].MeshID] = data;
 
     // GUI SETUP
     let advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
@@ -49,31 +95,22 @@ export default async function sensorSelectionScript(scene: BABYLON.Scene, modelI
     rect.addControl(circle);
 
     let label = new GUI.TextBlock();
-    //label.textWrapping = true;
     label.resizeToFit = true;
-    label.paddingRightInPixels = 20;
-    label.paddingLeftInPixels = 20;
-    label.onTextChangedObservable.add(function(evt, picked) {
-      //evt.parent.widthInPixels = evt.parent.widthInPixels + 50;
-    })
+    //padding doesnt work when resizeToFit = true;
+    //label.paddingRightInPixels = 20;
+    //label.paddingLeftInPixels = 20;
 
     // select mesh on label click
-    rect.onPointerDownObservable.add(function(e, p) {
+    rect.onPointerDownObservable.add(function() {
       if (mesh.state == "") {
-        let mat = mesh.material as BABYLON.PBRMaterial;
-        mat.albedoColor = BABYLON.Color3.Teal();
-        mesh.state = "selected";
-        p.currentTarget.background = "white";
-        sensorLabels[i].children[1].text = sensorLabelText;
+        selected = storage.get(SKEYS.SELECTED_SENSOR)
+        storage.set(SKEYS.SELECTED_SENSOR, sensors[i].MeshID)
       } else {
-        let mat = mesh.material as BABYLON.PBRMaterial;
-        mat.albedoColor = BABYLON.Color3.Purple();
-        mesh.state = ""
-        p.currentTarget.background = "";
-        sensorLabels[i].children[1].text = ""
+        selected = storage.get(SKEYS.SELECTED_SENSOR)
+        storage.set(SKEYS.SELECTED_SENSOR, null)
       }
     })
-    sensorLabels.push(rect);
+    sensorLabels[sensors[i].MeshID] = rect;
     rect.addControl(label);
     rect.linkWithMesh(mesh);
 
@@ -83,17 +120,14 @@ export default async function sensorSelectionScript(scene: BABYLON.Scene, modelI
     mesh.actionManager.registerAction(
       new BABYLON.ExecuteCodeAction(
         BABYLON.ActionManager.OnPickTrigger, async function(e) {
-          if (e.source.state === "selected") {
-            e.source.state = "";
-            e.source.material.albedoColor = BABYLON.Color3.Purple();
-            sensorLabels[i].background = "";
-            sensorLabels[i].children[1].text = "";
+          if (e.source.state === "") {
+            // select mesh
+            selected = storage.get(SKEYS.SELECTED_SENSOR)
+            storage.set(SKEYS.SELECTED_SENSOR, sensors[i].MeshID)
           } else {
-            // SHOW RECTANGLE, UPDATE LABEL TEXT
-            sensorLabels[i].background = "white";
-            sensorLabels[i].children[1].text = sensorLabelText;
-            e.source.state = "selected";
-            e.source.material.albedoColor = BABYLON.Color3.Teal();
+            // delselect mesh
+            selected = storage.get(SKEYS.SELECTED_SENSOR)
+            storage.set(SKEYS.SELECTED_SENSOR, null)
           }
         }));
 
@@ -103,7 +137,7 @@ export default async function sensorSelectionScript(scene: BABYLON.Scene, modelI
         BABYLON.ActionManager.OnPointerOverTrigger,
         mesh.material,
         'albedoColor',
-        BABYLON.Color3.Teal(),
+        selectedSensorColor,
         200
       ));
 
@@ -113,7 +147,7 @@ export default async function sensorSelectionScript(scene: BABYLON.Scene, modelI
         BABYLON.ActionManager.OnPointerOutTrigger,
         mesh.material,
         'albedoColor',
-        BABYLON.Color3.Purple(),
+        sensorColor,
         200,
         new BABYLON.PredicateCondition(
           mesh.actionManager as BABYLON.ActionManager,
@@ -123,4 +157,19 @@ export default async function sensorSelectionScript(scene: BABYLON.Scene, modelI
         )
       ));
   }
+}
+
+
+async function getModelData(id: number) {
+  let response = await fetch(API_URL + "/models/" + id)
+    .then(res => { return res.json() })
+    .catch(err => { throw new Error("Can not load model data") });
+  return response;
+}
+
+async function getSensorData(id: number) {
+  let response = await fetch(API_URL + "/sensors/" + id)
+    .then(res => { return res.json() })
+    .catch(err => { throw new Error("Can not load sensor data") });
+  return response;
 }
