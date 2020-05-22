@@ -11,7 +11,8 @@ RUN mkdir public
 ENTRYPOINT npm run dev_docker
 
 FROM base AS builder
-COPY . .
+COPY *.* ./
+COPY src src
 RUN npm run build
 
 #build go static file server minimal image
@@ -28,18 +29,19 @@ FROM golang@sha256:244a736db4a1d2611d257e7403c729663ce2eb08d4628868f9d9ef2735496
 RUN apk update && apk add --no-cache git ca-certificates tzdata && update-ca-certificates
 
 # Create appuser
-ENV USER=appuser
-ENV UID=10001
+# ENV USER=appuser
+# ENV UID=10001
 
 # See https://stackoverflow.com/a/55757473/12429735
-RUN adduser \
-    --disabled-password \
-    --gecos "" \
-    --home "/nonexistent" \
-    --shell "/sbin/nologin" \
-    --no-create-home \
-    --uid "${UID}" \
-    "${USER}"
+#RUN adduser \
+#    --disabled-password \
+#    --gecos "" \
+#    --home "/nonexistent" \
+#    --shell "/sbin/nologin" \
+#    --no-create-home \
+#    --uid "${UID}" \
+#    "${USER}"
+
 WORKDIR $GOPATH/src/mypackage/myapp/
 
 # use modules
@@ -70,7 +72,7 @@ COPY --from=gobuilder /etc/group /etc/group
 # Copy our static executable
 COPY --from=gobuilder /go/bin/visense-frontend /go/bin/visense-frontend
 # Use an unprivileged user.
-USER appuser:appuser
+# USER appuser:appuser
 
 #Copy the vue static files
 COPY --from=builder /app/dist /static

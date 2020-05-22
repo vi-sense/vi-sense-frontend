@@ -1,9 +1,14 @@
 package main
 
 import (
+	"github.com/adrianosela/certcache"
+	"golang.org/x/crypto/acme/autocert"
 	"log"
 	"net/http"
 	"os"
+	"strings"
+	"time"
+	"github.com/adrianosela/sslmgr"
 )
 
 type defaultFileDir struct {
@@ -25,9 +30,30 @@ func (fs defaultFileDir) Open(name string) (http.File, error){
 func main() {
 	// Simple static webserver:
 	fs := defaultFileDir{http.Dir(os.Getenv("STATIC_DIR"))}
-	err := http.ListenAndServeTLS(":" + os.Getenv("PORT"), "/certs/live/visense.f4.htw-berlin.de/fullchain.pem", "/certs/live/visense.f4.htw-berlin.de/privkey.pem", http.FileServer(fs)) //try to serve https
+	ss, err := sslmgr.NewServer(sslmgr.ServerConfig{
+		Hostnames: []string{"visense.f4.htw-berlin.de"},
+		HTTPPort:  ":" + os.Getenv("PORT"),
+		HTTPSPort: ":" + os.Getenv("HTTPS_PORT"),
+		Handler:   http.FileServer(fs),
+		ServeSSLFunc: func() bool {
+			return strings.ToLower(os.Getenv("PROD")) == "true"
+		},
+		CertCache: certcache.NewLayered(
+			certcache.NewLogger(),
+			autocert.DirCache("/certcache"),
+		),
+		ReadTimeout:         5 * time.Second,
+		WriteTimeout:        5 * time.Second,
+		IdleTimeout:         25 * time.Second,
+		GracefulnessTimeout: 5 * time.Second,
+		GracefulShutdownErrHandler: func(e error) {
+			log.Fatal(e)
+		},
+	})
+
 	if err != nil {
-		log.Println(err)
-		log.Fatal(http.ListenAndServe(":"+os.Getenv("PORT"), http.FileServer(fs))) //try to serve http
+		panic(err)
 	}
+
+	ss.ListenAndServe()
 }
