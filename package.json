@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "license": "MIT",
   "scripts": {
-    "build": "cross-env NODE_ENV=production API_URL='http://visense.f4.htw-berlin.de:8080' webpack --progress --hide-modules",
+    "build": "cross-env NODE_ENV=production API_URL='https://visense.f4.htw-berlin.de:44344' webpack --progress --hide-modules",
     "dev": "cross-env NODE_ENV=development API_URL='http://visense.f4.htw-berlin.de:8080' webpack-dev-server --open --hot",
     "dev_docker" : "cross-env NODE_ENV=production API_URL='http://localhost:8080' webpack-dev-server --open --hot --host 0.0.0.0 --port 8081"
   },
