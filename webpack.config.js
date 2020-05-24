@@ -3,6 +3,9 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const path = require('path')
 const webpack = require('webpack')
+//const VuetifyLoaderPlugin = require('vuetify-loader/lib/plugin')
+
+
 
 module.exports = {
   entry: './src/main.js',
@@ -75,12 +78,6 @@ module.exports = {
           'css-loader',
           {
             loader: 'sass-loader',
-            // Requires sass-loader@^7.0.0
-            options: {
-              implementation: require('sass'),
-              fiber: require('fibers'),
-              indentedSyntax: true // optional
-            },
             // Requires sass-loader@^8.0.0
             options: {
               implementation: require('sass'),

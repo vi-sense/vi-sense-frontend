@@ -4,7 +4,12 @@ import App from './App.vue'
 import Model from './components/Model.vue'
 import Hello from './components/Hello.vue'
 import Babylon from './components/Modelpage/Babylon.vue'
-import Vuetify from './plugins/vuetify' // path to vuetify export
+import vuetify from './plugins/vuetify' // path to vuetify export
+
+
+//Vue.use(Vuetify);
+
+
 Vue.use(Router)
 Vue.config.productionTip = false
 
@@ -32,9 +37,10 @@ const router = new Router({
   ]
 })
 
+
 new Vue({
-  el: '#app',
-  Vuetify,
-  render: h => h(App),
+  vuetify,
   router,
-})
+  el: '#app',
+  render: h => h(App),
+}).$mount('#app')

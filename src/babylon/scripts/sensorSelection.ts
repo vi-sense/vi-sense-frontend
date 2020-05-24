@@ -11,21 +11,21 @@ var myScene: BABYLON.Scene;
 var storage: Storage;
 
 // stores all GUI Labels; a sensorLabel contains the container (rect) with its children [circle, label]
-// uses the meshID as key, access like this: sensorLabels["node505"]
+// uses the mesh_id as key, access like this: sensorLabels["node505"]
 var sensorLabels = [];
 
 // stores all fetched sensor data
-// uses the meshID as key, access like this: sensorData["node505"]
+// uses the mesh_id as key, access like this: sensorData["node505"]
 var sensorData = [];
 var selected;
 
 
 /**
   * This is the callback function used for (de)selecting meshes via Vue or Babylon
-  * Update the selection state of a mesh by passing its meshID (e.g. "node505")
+  * Update the selection state of a mesh by passing its mesh_id (e.g. "node505")
   * Changes the color of the mesh, and the text displayed in the label
   */
-export function updateSelectedSensor(meshID: string) {
+export function updateSelectedSensor(mesh_id: string) {
   if (myScene) {
     // deselect previously selected mesh
     if (selected) {
@@ -36,15 +36,15 @@ export function updateSelectedSensor(meshID: string) {
       sensorLabels[mesh.name].background = "";
       sensorLabels[mesh.name].children[1].text = "";
     }
-    // select mesh with passed meshID
-    if (meshID) {
-      let mesh = myScene.getMeshByName(meshID);
+    // select mesh with passed mesh_id
+    if (mesh_id) {
+      let mesh = myScene.getMeshByName(mesh_id);
       mesh.state = "selected";
       let mat = mesh.material as BABYLON.PBRMaterial;
       mat.albedoColor = selectedSensorColor;
-      sensorLabels[meshID].background = "white";
-      let text = sensorData[meshID].Name + "\n" + sensorData[meshID].Data[sensorData[meshID].Data.length - 1].Value.toString() + sensorData[meshID].MeasurementUnit;
-      sensorLabels[meshID].children[1].text = text;
+      sensorLabels[mesh_id].background = "white";
+      let text = sensorData[mesh_id].name + "\n" + sensorData[mesh_id].data[sensorData[mesh_id].data.length - 1].Value.toString() + sensorData[mesh_id].MeasurementUnit;
+      sensorLabels[mesh_id].children[1].text = text;
     }
   }
 }
@@ -65,17 +65,17 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
 
   // GET MODEL DATA
   let model = await getModelData(modelID);
-  let sensors = model.Sensors;
+  let sensors = model.sensors;
 
   for (let i = 0; i < sensors.length; i++) {
     // CURRENT MESH, all selectable meshes are colored purple
-    let mesh = scene.getMeshByName(sensors[i].MeshID);
+    let mesh = scene.getMeshByName(sensors[i].mesh_id);
     let mat = mesh.material as BABYLON.PBRMaterial;
     mat.albedoColor = sensorColor;
 
     // GET SENSORDATA
-    let data = await getSensorData(sensors[i].ID);
-    sensorData[sensors[i].MeshID] = data;
+    let data = await getSensorData(sensors[i].id);
+    sensorData[sensors[i].mesh_id] = data;
 
     // GUI SETUP
     let advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
@@ -104,13 +104,13 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
     rect.onPointerDownObservable.add(function() {
       if (mesh.state == "") {
         selected = storage.get(SKEYS.SELECTED_SENSOR)
-        storage.set(SKEYS.SELECTED_SENSOR, sensors[i].MeshID)
+        storage.set(SKEYS.SELECTED_SENSOR, sensors[i].mesh_id)
       } else {
         selected = storage.get(SKEYS.SELECTED_SENSOR)
         storage.set(SKEYS.SELECTED_SENSOR, null)
       }
     })
-    sensorLabels[sensors[i].MeshID] = rect;
+    sensorLabels[sensors[i].mesh_id] = rect;
     rect.addControl(label);
     rect.linkWithMesh(mesh);
 
@@ -123,7 +123,7 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
           if (e.source.state === "") {
             // select mesh
             selected = storage.get(SKEYS.SELECTED_SENSOR)
-            storage.set(SKEYS.SELECTED_SENSOR, sensors[i].MeshID)
+            storage.set(SKEYS.SELECTED_SENSOR, sensors[i].mesh_id)
           } else {
             // delselect mesh
             selected = storage.get(SKEYS.SELECTED_SENSOR)

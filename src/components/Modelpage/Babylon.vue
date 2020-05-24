@@ -1,29 +1,30 @@
 <template>
-  <div id="model">
-    <header>
-      <h1>Vi-Sense Modelpage</h1>
-      <h2 class="header__title title-header">{{ $route.meta.title }}</h2>
-    </header>
-    <main class="main">
-      <aside class="sidebar">
-        <a class="active" href="#home">Information Pane</a>
-        <a href="#sensor">Sensors</a>
-        <v-expansion-panels focusable>
-          <v-expansion-panel class="expansion" v-for="sensor in model.sensors" :key="sensor.id">
-            <v-expansion-panel-header>{{sensor.name}}</v-expansion-panel-header>
-            <v-expansion-panel-content>Description: {{sensor.description}}
-            </v-expansion-panel-content>
-          </v-expansion-panel>
-        </v-expansion-panels>
-        <a href="#room">Room</a>
-        <a href="#pipe">Pipe</a>
-        <a href="#temperature">Temperature</a>
-        <a href="#pressure">Pressure</a>
-      </aside>
+  <v-app>
+    <div id="model">
+      <header>
+        <h1>Vi-Sense Modelpage</h1>
+        <h2 class="header__title title-header">{{ $route.meta.title }}</h2>
+      </header>
+      <main class="main">
+        <aside class="sidebar">
+          <a class="active" href="#home">Information Pane</a>
+          <a href="#sensor">Sensoren</a>
+          <v-expansion-panels class="expansion" focusable>
+            <v-expansion-panel v-for="sensor in sensorData" :key="sensor.id">
+              <v-expansion-panel-header>{{sensor.name}}</v-expansion-panel-header>
+              <v-expansion-panel-content>Description: {{sensor.description}}</v-expansion-panel-content>
+            </v-expansion-panel>
+          <a href="#room">Room</a>
+          <a href="#pipe">Pipe</a>
+          <a href="#temperature">Temperature</a>
+          <a href="#pressure">Pressure</a>
+          </v-expansion-panels>
+        </aside>
 
-      <canvas id="canvas"></canvas>
-    </main>
-  </div>
+        <canvas id="canvas"></canvas>
+      </main>
+    </div>
+  </v-app>
 </template>
 
 
@@ -35,17 +36,14 @@ canvas {
   height: 100%;
 }
 
-.main{
-
-  width:100%;
-  height:100%;
+.main {
+  width: 100%;
+  height: 100%;
 }
 
 .expansion {
-
-  max-height:30%;
-  max-width:100%;
-
+  max-height: 10%;
+  max-width: auto;
 }
 
 .sidebar {
@@ -84,12 +82,12 @@ import STATES from "../../storage/StorageKeys";
 import axios from "axios";
 
 export default {
-  props: ["id", "name", "model"],
+  props: ["id", "name", "sensors"],
   data() {
-    return { 
-      sensorData: null,
-      endpoint: "http://visense.f4.htw-berlin.de:8080/sensors/"
-    
+    return {
+      sensorData: []
+      //sensorData: null,
+      //endpoint: "http://visense.f4.htw-berlin.de:8080/sensors/"
     };
   },
   mounted() {
@@ -104,33 +102,34 @@ export default {
     var app = new BabylonApp(canvas, this.id, SM);
 
     SM.registerOnUpdateCallback(STATES.SELECTED_SENSOR, value => {
-      console.log("new sensor selected: ", value);
+      //console.log("new sensor selected: ", value);
     });
     SM.set(STATES.SELECTED_SENSOR, 60);
-
   },
   methods: {
     onItemClick(event, item) {
-      console.log("WTF");
+      //console.log("WTF");
     },
     getSensor(id) {
       axios(this.endpoint + id)
         .then(response => {
           this.sensorData = response.data;
-          console.log(this.sensorData);
+          //console.log(this.sensorData);
         })
         .catch(error => {
           console.log("-----error-------");
           console.log(error);
         });
-    },
+    }
   },
-    created() {
-    this.getSensor(this.id);
+  created() {
+    //this.getSensor(this.id);
+    //console.log(this.sensors);
+    this.sensorData = this.sensors;
   },
   watch: {
     $route() {
-      this.getSensor(this.id);
+      //this.getSensor(this.id);
     }
   }
 };
