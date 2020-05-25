@@ -21,6 +21,8 @@ var sensorLabels = [];
 var sensorData = [];
 var selected;
 
+var cam;
+
 
 /**
   * This is the callback function used for (de)selecting meshes via Vue or Babylon
@@ -68,6 +70,8 @@ export function updateSelectedSensor(meshID: string) {
 export default async function setupSensorSelection(scene: BABYLON.Scene, modelID: number, modelMeshes, STORE: Storage) {
   myScene = scene;
   storage = STORE;
+  cam = scene.activeCamera as BABYLON.UniversalCamera;
+  console.log(cam);
 
   STORE.registerOnUpdateCallback(SKEYS.SELECTED_SENSOR, (value) => {
     console.log("new sensor selected: ", value);
@@ -151,12 +155,16 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
             // select mesh
             selected = storage.get(SKEYS.SELECTED_SENSOR)
             storage.set(SKEYS.SELECTED_SENSOR, sensors[i].mesh_id)
+            console.log(e.source.getBoundingInfo().boundingSphere.centerWorld);
+            //cam.setTarget(e.source.getBoundingInfo().boundingSphere.centerWorld);
+            focusOn(e.source.getBoundingInfo().boundingSphere.centerWorld, e.source);
           } else {
             // delselect mesh
             selected = storage.get(SKEYS.SELECTED_SENSOR)
             storage.set(SKEYS.SELECTED_SENSOR, null)
           }
         }));
+
 
     // // on hover enter, change color to teal
     // mesh.actionManager.registerAction(
@@ -185,6 +193,21 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
     //   ));
   }
 }
+
+function focusOn(tar, mesh) {
+  var speed = 45;
+  var ease = new BABYLON.CubicEase();
+  ease.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEINOUT);
+  
+  mesh.computeWorldMatrix();
+  var matrix = mesh.getWorldMatrix(true);
+  var local_position = new BABYLON.Vector3(0, 0, -5);
+  var global_position = BABYLON.Vector3.TransformCoordinates(local_position, matrix);
+  console.log(global_position);
+
+  BABYLON.Animation.CreateAndStartAnimation('at4', cam, 'position', speed, 120, cam.position, tar, 0, ease);
+  BABYLON.Animation.CreateAndStartAnimation('at5', cam, 'target', speed, 120, cam.target, mesh, 0, ease);
+};
 
 
 async function getModelData(id: number) {
