@@ -69,8 +69,8 @@ COPY --from=gobuilder /etc/group /etc/group
 
 # Copy our static executable
 COPY --from=gobuilder /go/bin/visense-frontend /go/bin/visense-frontend
-# Use an unprivileged user.
-USER appuser:appuser
+# Use an unprivileged user. commented out because of access to ssh certificates
+#USER appuser:appuser
 
 #Copy the vue static files
 COPY --from=builder /app/dist /static
