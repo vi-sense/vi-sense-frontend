@@ -5,7 +5,7 @@
   "scripts": {
     "build": "cross-env NODE_ENV=production API_URL='https://visense.f4.htw-berlin.de:44344' webpack --progress --hide-modules",
     "dev": "cross-env NODE_ENV=development API_URL='https://visense.f4.htw-berlin.de:44344' webpack-dev-server --open --hot",
-    "dev_docker" : "cross-env NODE_ENV=production API_URL='http://localhost:8080' webpack-dev-server --open --hot --host 0.0.0.0 --port 8081"
+    "dev_docker": "cross-env NODE_ENV=production API_URL='http://localhost:8080' webpack-dev-server --open --hot --host 0.0.0.0 --port 8081"
   },
   "browserslist": [
     "> 1%",
@@ -30,6 +30,7 @@
     "ts-loader": "^7.0.1",
     "typescript": "^3.8.3",
     "vue": "^2.5.11",
+    "vue-apexcharts": "^1.5.3",
     "vue-loader": "^14.2.2",
     "vue-router": "^3.1.6",
     "vue-template-compiler": "^2.4.4",
@@ -38,11 +39,13 @@
     "webpack-dev-server": "^3.10.3"
   },
   "dependencies": {
+    "apexcharts": "^3.19.2",
     "axios": "^0.19.2",
     "babylonjs": "^4.1.0",
     "babylonjs-gui": "^4.1.0",
     "babylonjs-inspector": "^4.1.0",
     "babylonjs-loaders": "^4.1.0",
+    "d3": "^5.16.0",
     "jszip": "^3.4.0"
   }
 }
