@@ -3,6 +3,7 @@ import * as GUI from "babylonjs-gui";
 import * as MATS from 'babylonjs-materials';
 import Storage from '../../storage/Storage';
 import SKEYS from '../../storage/StorageKeys';
+import { focusOnMesh } from './focusOnMesh';
 
 const API_URL = process.env.API_URL;
 const sensorColor = BABYLON.Color3.Purple();
@@ -21,10 +22,9 @@ var sensorLabels = [];
 var sensorData = [];
 var selected;
 
-var cam;
-
 
 /**
+  * @author Lennard Grimm
   * This is the callback function used for (de)selecting meshes via Vue or Babylon
   * Update the selection state of a mesh by passing its meshID (e.g. "node505")
   * Changes the color of the mesh, and the text displayed in the label
@@ -64,17 +64,15 @@ export function updateSelectedSensor(meshID: string) {
 
 
 /**
+  * @author Lennard Grimm
   * This function handles the setup of basic sensor selection.
   * It instantiates GUI elements for all available sensors and adds Observables to them and their respective meshes.
   */
 export default async function setupSensorSelection(scene: BABYLON.Scene, modelID: number, modelMeshes, STORE: Storage) {
   myScene = scene;
   storage = STORE;
-  cam = scene.activeCamera as BABYLON.UniversalCamera;
-  console.log(cam);
 
   STORE.registerOnUpdateCallback(SKEYS.SELECTED_SENSOR, (value) => {
-    console.log("new sensor selected: ", value);
     updateSelectedSensor(value);
   })
 
@@ -155,9 +153,10 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
             // select mesh
             selected = storage.get(SKEYS.SELECTED_SENSOR)
             storage.set(SKEYS.SELECTED_SENSOR, sensors[i].mesh_id)
-            console.log(e.source.getBoundingInfo().boundingSphere.centerWorld);
-            //cam.setTarget(e.source.getBoundingInfo().boundingSphere.centerWorld);
-            focusOn(e.source.getBoundingInfo().boundingSphere.centerWorld, e.source);
+            
+            let target = e.source.getBoundingInfo().boundingSphere.centerWorld;
+            focusOnMesh(scene.activeCamera as BABYLON.UniversalCamera, target);
+            //focusOn(e.source.getBoundingInfo().boundingSphere.centerWorld, e.source);
           } else {
             // delselect mesh
             selected = storage.get(SKEYS.SELECTED_SENSOR)
@@ -193,21 +192,6 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
     //   ));
   }
 }
-
-function focusOn(tar, mesh) {
-  var speed = 45;
-  var ease = new BABYLON.CubicEase();
-  ease.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEINOUT);
-  
-  mesh.computeWorldMatrix();
-  var matrix = mesh.getWorldMatrix(true);
-  var local_position = new BABYLON.Vector3(0, 0, -5);
-  var global_position = BABYLON.Vector3.TransformCoordinates(local_position, matrix);
-  console.log(global_position);
-
-  BABYLON.Animation.CreateAndStartAnimation('at4', cam, 'position', speed, 120, cam.position, tar, 0, ease);
-  BABYLON.Animation.CreateAndStartAnimation('at5', cam, 'target', speed, 120, cam.target, mesh, 0, ease);
-};
 
 
 async function getModelData(id: number) {

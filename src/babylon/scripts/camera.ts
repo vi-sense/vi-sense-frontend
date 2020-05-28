@@ -39,7 +39,7 @@ export function createFloorCamera(canvas: HTMLCanvasElement, engine:BABYLON.Engi
     );
 
     engine.runRenderLoop(() => {
-        fpsCamera.position.y = cameraPositionY
+        //fpsCamera.position.y = cameraPositionY
     })
 
     return fpsCamera
