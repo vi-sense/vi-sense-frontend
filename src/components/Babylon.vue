@@ -1,7 +1,9 @@
 <template>
   <div>
-    <canvas id="canvas"></canvas>
-    <Timeline id="timeline"/>
+    <canvas id="babyloncanvas"></canvas>
+    <div id="timeline">
+      <Timeline/>
+    </div>
   </div>
 </template>
 
@@ -12,14 +14,14 @@ div:first-of-type {
   height: 100%;
 }
 
-#canvas{
+#babyloncanvas{
   width: 100%;
-  height: 70%;
+  height: 50%;
 }
 
 #timeline{
   width: 100%;
-  height: 30%;
+  height: 50%;
 }
 </style>
 
@@ -46,7 +48,7 @@ export default {
     this.$router.replace({ query: { temp: undefined } });
 
 
-    var canvas = document.getElementById("canvas");
+    var canvas = document.getElementById("babyloncanvas");
     var STORE = new Storage()
     var app = new BabylonApp(canvas, this.id, STORE);
   },

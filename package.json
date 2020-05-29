@@ -39,7 +39,6 @@
     "webpack-dev-server": "^3.10.3"
   },
   "dependencies": {
-    "apexcharts": "^3.19.2",
     "axios": "^0.19.2",
     "babylonjs": "^4.1.0",
     "babylonjs-gui": "^4.1.0",
