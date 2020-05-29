@@ -15,12 +15,11 @@ export default {
   data() {
     return {
       model: null,
-      endpoint: "http://visense.f4.htw-berlin.de:8080/models/" // here put the endpoint of all the models from backend
     };
   },
   methods: {
     getModel(id) {
-      axios(this.endpoint + id)
+      axios.get(process.env.API_URL+"/models" + id)
         .then(response => {
           this.model = response.data;
         })
