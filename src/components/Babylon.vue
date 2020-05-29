@@ -11,13 +11,16 @@
           <a href="#sensor">Sensoren</a>
           <v-expansion-panels class="expansion" focusable>
             <v-expansion-panel v-for="sensor in sensorData" :key="sensor.id">
-              <v-expansion-panel-header>{{sensor.name}}</v-expansion-panel-header>
+              <v-expansion-panel-header>
+                <v-checkbox v-model="checkbox" :label="`Checkbox 1: ${checkbox.toString()}`"></v-checkbox>
+                {{sensor.name}}
+              </v-expansion-panel-header>
               <v-expansion-panel-content>Description: {{sensor.description}}</v-expansion-panel-content>
             </v-expansion-panel>
-          <a href="#room">Room</a>
-          <a href="#pipe">Pipe</a>
-          <a href="#temperature">Temperature</a>
-          <a href="#pressure">Pressure</a>
+            <a href="#room">Room</a>
+            <a href="#pipe">Pipe</a>
+            <a href="#temperature">Temperature</a>
+            <a href="#pressure">Pressure</a>
           </v-expansion-panels>
         </aside>
 
@@ -85,9 +88,8 @@ export default {
   props: ["id", "name", "sensors"],
   data() {
     return {
+      checkbox: true,
       sensorData: []
-      //sensorData: null,
-      //endpoint: "http://visense.f4.htw-berlin.de:8080/sensors/"
     };
   },
   mounted() {
@@ -114,7 +116,6 @@ export default {
       axios(this.endpoint + id)
         .then(response => {
           this.sensorData = response.data;
-          //console.log(this.sensorData);
         })
         .catch(error => {
           console.log("-----error-------");
