@@ -2,7 +2,8 @@
  * @author Tom Wendland
  */
 
-import * as BABYLON from 'babylonjs'
+import * as BABYLON from 'babylonjs';
+import FloorCamera from './floorCamera';
 
 /**
  * Prety simple and hacky FPS camera script locked to XZ-axis movement
@@ -14,35 +15,34 @@ import * as BABYLON from 'babylonjs'
  * @param camera 
  */
 export function createFloorCamera(canvas: HTMLCanvasElement, engine:BABYLON.Engine, scene: BABYLON.Scene): BABYLON.UniversalCamera{
-    var fpsCamera = new BABYLON.UniversalCamera('camera1', new BABYLON.Vector3(0, 5, -15), this.scene);
-    var cameraPositionY = fpsCamera.position.y
+    var cam = new FloorCamera('camera1', new BABYLON.Vector3(0, 5, -15), this.scene);
 
-    fpsCamera.setTarget(new BABYLON.Vector3(0, cameraPositionY, 0));
-    fpsCamera.attachControl(canvas, false);
-    fpsCamera.keysUp.push(87); 
-    fpsCamera.keysLeft.push(65);
-    fpsCamera.keysRight.push(68);
-    fpsCamera.keysDown.push(83);
-    fpsCamera.speed = 0.6;
-    fpsCamera.angularSensibility = 3000
+    cam.setTarget(new BABYLON.Vector3(0, cam.fixedY, 0));
+    cam.attachControl(canvas, false);
+    cam.keysUp.push(87); 
+    cam.keysLeft.push(65);
+    cam.keysRight.push(68);
+    cam.keysDown.push(83);
+    cam.speed = 0.6;
+    cam.angularSensibility = 3000
 
     scene.actionManager = new BABYLON.ActionManager(scene);
     scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnKeyDownTrigger, e => {	
-        // In babylon version 4.2 (in alpha rn) we could do camera.keyDownwars and camera.keyUpwards							
+        // In babylon version 4.2 (in alpha rn) we could do camera.keyDownwars and camera.keyUpwards						
         if(e.sourceEvent.keyCode == 69){                
-            fpsCamera.position.y = cameraPositionY+=2
+            cam.position.y = cam.fixedY+=2
         }
         if(e.sourceEvent.keyCode == 81){
-            fpsCamera.position.y = cameraPositionY-=2
+            cam.position.y = cam.fixedY-=2
         }
       })
     );
 
     engine.runRenderLoop(() => {
-        //fpsCamera.position.y = cameraPositionY
+        cam.position.y = cam.fixedY
     })
 
-    return fpsCamera
+    return cam
 }
 
 

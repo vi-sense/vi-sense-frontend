@@ -4,6 +4,7 @@ import * as MATS from 'babylonjs-materials';
 import Storage from '../../storage/Storage';
 import SKEYS from '../../storage/StorageKeys';
 import { focusOnMesh } from './focusOnMesh';
+import FloorCamera from './floorCamera';
 
 const API_URL = process.env.API_URL;
 const sensorColor = BABYLON.Color3.Purple();
@@ -98,9 +99,9 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
     //JN2BSF#54 - turbulence fire
     //4EQZYW - temperature gradient
     //imported using the node material editor: https://nme.babylonjs.com/#QPRJU9#12
-    await BABYLON.NodeMaterial.ParseFromSnippetAsync("QPRJU9#16", myScene).then(nodeMaterial => {
-      mesh.material = nodeMaterial;
-    });
+    // await BABYLON.NodeMaterial.ParseFromSnippetAsync("QPRJU9#16", myScene).then(nodeMaterial => {
+    //   mesh.material = nodeMaterial;
+    // });
 
     // GET SENSORDATA
     let data = await getSensorData(sensors[i].id);
@@ -134,6 +135,9 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
       if (mesh.state == "") {
         selected = storage.get(SKEYS.SELECTED_SENSOR)
         storage.set(SKEYS.SELECTED_SENSOR, sensors[i].mesh_id)
+        
+        let target = mesh.getBoundingInfo().boundingSphere.centerWorld;
+        focusOnMesh(scene, target);
       } else {
         selected = storage.get(SKEYS.SELECTED_SENSOR)
         storage.set(SKEYS.SELECTED_SENSOR, null)
@@ -155,7 +159,7 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
             storage.set(SKEYS.SELECTED_SENSOR, sensors[i].mesh_id)
             
             let target = e.source.getBoundingInfo().boundingSphere.centerWorld;
-            focusOnMesh(scene.activeCamera as BABYLON.UniversalCamera, target);
+            focusOnMesh(scene, target);
             //focusOn(e.source.getBoundingInfo().boundingSphere.centerWorld, e.source);
           } else {
             // delselect mesh
