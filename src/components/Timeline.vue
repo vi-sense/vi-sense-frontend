@@ -1,6 +1,5 @@
 <template>
-    <div id="chartWrapper">
-    </div>
+    <div id="chartWrapper"></div>
 </template>
 
 
@@ -22,7 +21,6 @@ import SKEYS from '../storage/StorageKeys';
 
 
 export default {
-  props: ["id"],
   data() {
     return { }
   },
@@ -40,13 +38,13 @@ export default {
     async getModelData(id) {
         let response = await fetch(process.env.API_URL + `/models/${id}`)
             .then(res => { return res.json() })
-            .catch(err => { throw new Error("Can not load model data") });
+            .catch(err => { throw err });
         return response;
     },
     async getSensorData(id) {
         let response = await fetch(process.env.API_URL + `/sensors/${id}/data`)
             .then(res => { return res.json() })
-            .catch(err => { throw new Error("Can not load sensor data") });
+            .catch(err => { throw err });
         return response;
     },
   }
