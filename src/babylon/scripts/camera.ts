@@ -30,10 +30,10 @@ export function createFloorCamera(canvas: HTMLCanvasElement, engine:BABYLON.Engi
     scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnKeyDownTrigger, e => {	
         // In babylon version 4.2 (in alpha rn) we could do camera.keyDownwars and camera.keyUpwards						
         if(e.sourceEvent.keyCode == 69){                
-            cam.position.y = cam.fixedY+=2
+            cam.position.y = cam.fixedY += cam.step
         }
         if(e.sourceEvent.keyCode == 81){
-            cam.position.y = cam.fixedY-=2
+            cam.position.y = cam.fixedY -= cam.step
         }
       })
     );

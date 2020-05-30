@@ -42,8 +42,10 @@ export async function focusOnMesh(scene: BABYLON.Scene, target: BABYLON.Vector3)
     camera.animations.push(animateTarget);
     camera.animations.push(animatePosition);
 
-    let a = scene.beginAnimation(camera, 0, 120, false);
-    await a.waitAsync();
-    camera.lockedTarget = undefined;
-    camera.fixedY = targetWithDistance.y;
+    let a = scene.beginAnimation(camera, 0, 90, false);
+    a.onAnimationEnd = () => {
+        camera.lockedTarget = undefined;
+        camera.fixedY = camera.position.clone().y;
+        //camera.fixedY = targetWithDistance.y;
+    };
 };

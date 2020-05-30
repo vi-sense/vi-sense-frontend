@@ -141,6 +141,8 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
       } else {
         selected = storage.get(SKEYS.SELECTED_SENSOR)
         storage.set(SKEYS.SELECTED_SENSOR, null)
+
+        scene.stopAnimation(scene.activeCamera);
       }
     })
     sensorLabels[sensors[i].mesh_id] = rect;
@@ -149,7 +151,6 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
 
     // REGISTER MESH ACTIONS
     mesh.actionManager = new BABYLON.ActionManager(scene);
-    // change mesh color on click, change state, display sensor data
     mesh.actionManager.registerAction(
       new BABYLON.ExecuteCodeAction(
         BABYLON.ActionManager.OnPickTrigger, async function(e) {
@@ -160,11 +161,12 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
             
             let target = e.source.getBoundingInfo().boundingSphere.centerWorld;
             focusOnMesh(scene, target);
-            //focusOn(e.source.getBoundingInfo().boundingSphere.centerWorld, e.source);
           } else {
             // delselect mesh
             selected = storage.get(SKEYS.SELECTED_SENSOR)
             storage.set(SKEYS.SELECTED_SENSOR, null)
+
+            scene.stopAnimation(scene.activeCamera);
           }
         }));
 

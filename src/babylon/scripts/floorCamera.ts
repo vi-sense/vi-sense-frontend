@@ -2,6 +2,7 @@ import * as BABYLON from 'babylonjs';
 
 export default class FloorCamera extends BABYLON.UniversalCamera {
     public fixedY: number;
+    public step: number = 2;
 
     /**
      * @param name Define the name of the camera in the scene
