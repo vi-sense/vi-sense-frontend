@@ -15,11 +15,11 @@ var storage: Storage;
 var highlight: BABYLON.HighlightLayer;
 
 // stores all GUI Labels; a sensorLabel contains the container (rect) with its children [circle, label]
-// uses the meshID as key, access like this: sensorLabels["node505"]
+// uses the mesh_id as key, access like this: sensorLabels["node505"]
 var sensorLabels = [];
 
 // stores all fetched sensor data
-// uses the meshID as key, access like this: sensorData["node505"]
+// uses the mesh_id as key, access like this: sensorData["node505"]
 var sensorData = [];
 var selected;
 
@@ -27,38 +27,41 @@ var selected;
 /**
   * @author Lennard Grimm
   * This is the callback function used for (de)selecting meshes via Vue or Babylon
-  * Update the selection state of a mesh by passing its meshID (e.g. "node505")
+  * Update the selection state of a mesh by passing its mesh_id (e.g. "node505")
   * Changes the color of the mesh, and the text displayed in the label
   */
-export function updateSelectedSensor(meshID: string) {
+export function updateSelectedSensor(mesh_id: string) {
   if (myScene) {
     // deselect previously selected mesh
     if (selected) {
       let mesh = myScene.getMeshByName(selected);
       mesh.state = "";
       highlight.removeMesh(mesh.subMeshes[0].getRenderingMesh());
-      //mesh.showBoundingBox = false;
       mesh.renderOutline = false;
       let mat = mesh.material as BABYLON.PBRMaterial;
       mat.albedoColor = sensorColor;
       sensorLabels[mesh.name].background = "";
       sensorLabels[mesh.name].children[1].text = "";
+      // stop camera animations
+      myScene.stopAnimation(myScene.activeCamera);
     }
-    // select mesh with passed meshID
-    if (meshID) {
-      let mesh = myScene.getMeshByName(meshID);
+    // select mesh with passed mesh_id
+    if (mesh_id) {
+      let mesh = myScene.getMeshByName(mesh_id);
       mesh.state = "selected";
       highlight.addMesh(mesh.subMeshes[0].getRenderingMesh(), BABYLON.Color3.Black());
-      //mesh.showBoundingBox = true;
       mesh = mesh.subMeshes[0].getRenderingMesh();
       mesh.outlineWidth = .05;
       mesh.outlineColor = BABYLON.Color3.Black();
       mesh.renderOutline = true;
       let mat = mesh.material as BABYLON.PBRMaterial;
       mat.albedoColor = selectedSensorColor;
-      sensorLabels[meshID].background = "white";
-      // + "\n" + sensorData[meshID].data[sensorData[meshID].data.length - 1].value.toString() + sensorData[meshID].measurement_unit;
-      sensorLabels[meshID].children[1].text = sensorData[meshID].name;
+      sensorLabels[mesh_id].background = "white";
+      // + "\n" + sensorData[mesh_id].data[sensorData[mesh_id].data.length - 1].value.toString() + sensorData[mesh_id].measurement_unit;
+      sensorLabels[mesh_id].children[1].text = sensorData[mesh_id].name;
+      // start camera animation
+      let target = mesh.getBoundingInfo().boundingSphere.centerWorld;
+      focusOnMesh(myScene, target);
     }
   }
 }
@@ -135,14 +138,9 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
       if (mesh.state == "") {
         selected = storage.get(SKEYS.SELECTED_SENSOR)
         storage.set(SKEYS.SELECTED_SENSOR, sensors[i].mesh_id)
-        
-        let target = mesh.getBoundingInfo().boundingSphere.centerWorld;
-        focusOnMesh(scene, target);
       } else {
         selected = storage.get(SKEYS.SELECTED_SENSOR)
         storage.set(SKEYS.SELECTED_SENSOR, null)
-
-        scene.stopAnimation(scene.activeCamera);
       }
     })
     sensorLabels[sensors[i].mesh_id] = rect;
@@ -158,15 +156,10 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
             // select mesh
             selected = storage.get(SKEYS.SELECTED_SENSOR)
             storage.set(SKEYS.SELECTED_SENSOR, sensors[i].mesh_id)
-            
-            let target = e.source.getBoundingInfo().boundingSphere.centerWorld;
-            focusOnMesh(scene, target);
           } else {
             // delselect mesh
             selected = storage.get(SKEYS.SELECTED_SENSOR)
             storage.set(SKEYS.SELECTED_SENSOR, null)
-
-            scene.stopAnimation(scene.activeCamera);
           }
         }));
 
