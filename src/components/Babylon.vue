@@ -10,14 +10,21 @@
           <a class="active" href="#home">Information Pane</a>
           <a href="#sensor">Sensoren</a>
           <v-expansion-panels class="expansion" focusable>
-            <v-expansion-panel v-for="sensor in sensorData" :key="sensor.id">
-              <v-expansion-panel-header>{{sensor.name}}</v-expansion-panel-header>
+            <v-expansion-panel v-for="(sensor, index) in sensorData" :key="sensor.id">
+              <v-expansion-panel-header>
+                    <v-checkbox
+                      @change="onItemChecked(index)"
+                      :key="sensor.id"
+                      v-model="checkboxes[index].checked"
+                    ></v-checkbox>
+                {{sensor.name}}
+              </v-expansion-panel-header>
               <v-expansion-panel-content>Description: {{sensor.description}}</v-expansion-panel-content>
             </v-expansion-panel>
-          <a href="#room">Room</a>
-          <a href="#pipe">Pipe</a>
-          <a href="#temperature">Temperature</a>
-          <a href="#pressure">Pressure</a>
+            <a href="#room">Room</a>
+            <a href="#pipe">Pipe</a>
+            <a href="#temperature">Temperature</a>
+            <a href="#pressure">Pressure</a>
           </v-expansion-panels>
         </aside>
 
@@ -42,7 +49,7 @@ canvas {
 }
 
 .expansion {
-  max-height: 10%;
+  max-height: 25%;
   max-width: auto;
 }
 
@@ -76,18 +83,17 @@ canvas {
 
 
 <script>
-import BabylonApp from "../../babylon/BabylonApp";
-import StateMachine from "../../storage/Storage";
-import STATES from "../../storage/StorageKeys";
+import BabylonApp from "../babylon/BabylonApp";
+import Storage from "../storage/Storage";
+import STATES from "../storage/StorageKeys";
 import axios from "axios";
 
 export default {
   props: ["id", "name", "sensors"],
   data() {
     return {
+      checkboxes: [],
       sensorData: []
-      //sensorData: null,
-      //endpoint: "http://visense.f4.htw-berlin.de:8080/sensors/"
     };
   },
   mounted() {
@@ -98,23 +104,28 @@ export default {
     this.$router.replace({ query: { temp: undefined } });
 
     var canvas = document.getElementById("canvas");
-    var SM = new StateMachine();
+    var SM = new Storage();
     var app = new BabylonApp(canvas, this.id, SM);
 
     SM.registerOnUpdateCallback(STATES.SELECTED_SENSOR, value => {
-      //console.log("new sensor selected: ", value);
+      console.log("new sensor selected: ", value);
     });
     SM.set(STATES.SELECTED_SENSOR, 60);
   },
   methods: {
-    onItemClick(event, item) {
-      //console.log("WTF");
+    onItemChecked(id) {
+      var SM = new Storage();
+      if(this.checkboxes[id].checked == true){
+
+        SM.set(STATES.SELECTED_SENSOR, id);
+        console.log("new sensor selected: ", id);
+
+      }
     },
     getSensor(id) {
       axios(this.endpoint + id)
         .then(response => {
           this.sensorData = response.data;
-          //console.log(this.sensorData);
         })
         .catch(error => {
           console.log("-----error-------");
@@ -126,6 +137,11 @@ export default {
     //this.getSensor(this.id);
     //console.log(this.sensors);
     this.sensorData = this.sensors;
+    this.checkboxes = this.sensorData.map(sensor => {
+        return {
+          checked: false
+        }
+      });
   },
   watch: {
     $route() {

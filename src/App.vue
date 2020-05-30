@@ -30,7 +30,6 @@
     data () {
       return {
         models: [],
-        endpoint: 'http://visense.f4.htw-berlin.de:8080/models' // here put the endpoint of all the models from backend
       }
     },
     created() {
@@ -38,12 +37,11 @@
     },
     methods: {
       getAllModels() {
-        axios.get(this.endpoint)
+        axios.get(process.env.API_URL+"/models")
           .then(response => {
             this.models = response.data;
           })
           .catch(error => {
-            console.log('-----error-------');
             console.log(error);
           })
       }
@@ -104,6 +102,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 100%;
   }
   .link {
     display: block;
