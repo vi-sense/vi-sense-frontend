@@ -10,9 +10,13 @@
           <a class="active" href="#home">Information Pane</a>
           <a href="#sensor">Sensoren</a>
           <v-expansion-panels class="expansion" focusable>
-            <v-expansion-panel v-for="sensor in sensorData" :key="sensor.id">
+            <v-expansion-panel v-for="(sensor, index) in sensorData" :key="sensor.id">
               <v-expansion-panel-header>
-                <v-checkbox v-model="checkbox" :label="`Checkbox 1: ${checkbox.toString()}`"></v-checkbox>
+                    <v-checkbox
+                      @change="onItemChecked(index)"
+                      :key="sensor.id"
+                      v-model="checkboxes[index].checked"
+                    ></v-checkbox>
                 {{sensor.name}}
               </v-expansion-panel-header>
               <v-expansion-panel-content>Description: {{sensor.description}}</v-expansion-panel-content>
@@ -45,7 +49,7 @@ canvas {
 }
 
 .expansion {
-  max-height: 10%;
+  max-height: 25%;
   max-width: auto;
 }
 
@@ -80,7 +84,7 @@ canvas {
 
 <script>
 import BabylonApp from "../babylon/BabylonApp";
-import StateMachine from "../storage/Storage";
+import Storage from "../storage/Storage";
 import STATES from "../storage/StorageKeys";
 import axios from "axios";
 
@@ -88,7 +92,7 @@ export default {
   props: ["id", "name", "sensors"],
   data() {
     return {
-      checkbox: true,
+      checkboxes: [],
       sensorData: []
     };
   },
@@ -100,17 +104,23 @@ export default {
     this.$router.replace({ query: { temp: undefined } });
 
     var canvas = document.getElementById("canvas");
-    var SM = new StateMachine();
+    var SM = new Storage();
     var app = new BabylonApp(canvas, this.id, SM);
 
     SM.registerOnUpdateCallback(STATES.SELECTED_SENSOR, value => {
-      //console.log("new sensor selected: ", value);
+      console.log("new sensor selected: ", value);
     });
     SM.set(STATES.SELECTED_SENSOR, 60);
   },
   methods: {
-    onItemClick(event, item) {
-      //console.log("WTF");
+    onItemChecked(id) {
+      var SM = new Storage();
+      if(this.checkboxes[id].checked == true){
+
+        SM.set(STATES.SELECTED_SENSOR, id);
+        console.log("new sensor selected: ", id);
+
+      }
     },
     getSensor(id) {
       axios(this.endpoint + id)
@@ -127,6 +137,11 @@ export default {
     //this.getSensor(this.id);
     //console.log(this.sensors);
     this.sensorData = this.sensors;
+    this.checkboxes = this.sensorData.map(sensor => {
+        return {
+          checked: false
+        }
+      });
   },
   watch: {
     $route() {
