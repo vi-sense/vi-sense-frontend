@@ -2,7 +2,7 @@
   <div>
     <canvas id="babyloncanvas"></canvas>
     <div id="timeline">
-      <Timeline/>
+      <Timeline :STORE="STORE" />
     </div>
   </div>
 </template>
@@ -16,12 +16,12 @@ div:first-of-type {
 
 #babyloncanvas{
   width: 100%;
-  height: 50%;
+  height: 60%;
 }
 
 #timeline{
   width: 100%;
-  height: 50%;
+  height: 40%;
 }
 </style>
 
@@ -38,7 +38,9 @@ export default {
     Timeline
   },
   data() {
-    return { };
+    return {
+      STORE: new Storage()
+     };
   },
   mounted() {
     this.$route.meta.title = this.name;
@@ -47,10 +49,8 @@ export default {
     // remove the temporary variable query
     this.$router.replace({ query: { temp: undefined } });
 
-
     var canvas = document.getElementById("babyloncanvas");
-    var STORE = new Storage()
-    var app = new BabylonApp(canvas, this.id, STORE);
+    var app = new BabylonApp(canvas, this.id, this.STORE);
   },
 };
 </script>
