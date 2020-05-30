@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"net/http"
 	"os"
 )
@@ -22,12 +21,24 @@ func (fs defaultFileDir) Open(name string) (http.File, error){
 	}
 	return file, err
 }
+
+func redirectTLS(w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, "https://visense.f4.htw-berlin.de:443"+r.RequestURI, http.StatusMovedPermanently)
+}
+
 func main() {
 	// Simple static webserver:
 	fs := defaultFileDir{http.Dir(os.Getenv("STATIC_DIR"))}
-	err := http.ListenAndServeTLS(":" + os.Getenv("HTTPS_PORT"), "/certs/live/visense.f4.htw-berlin.de/fullchain.pem", "/certs/live/visense.f4.htw-berlin.de/privkey.pem", http.FileServer(fs)) //try to serve https
-	if err != nil {
-		log.Println(err)
-		log.Fatal(http.ListenAndServe(":"+os.Getenv("HTTP_PORT"), http.FileServer(fs))) //try to serve http
+
+	go func(){
+		err := http.ListenAndServe(":" + os.Getenv("HTTP_PORT"), http.HandlerFunc(redirectTLS))
+		if err != nil {
+			panic(err)
+		}
+	}()
+
+	errHttps := http.ListenAndServeTLS(":" + os.Getenv("HTTPS_PORT"), "/certs/live/visense.f4.htw-berlin.de/fullchain.pem", "/certs/live/visense.f4.htw-berlin.de/privkey.pem", http.FileServer(fs))
+	if errHttps != nil {
+		panic(errHttps)
 	}
 }
