@@ -1,13 +1,16 @@
 /**
  * @author Tom Wendland
- * simple state machine to handle bidirectional communication
+ * simple state machine to handle bidirectional communication. 
+ * for now its only suitable to store primitve data 
  * 
- * Improvements:
+ * Storage Improvements:
  * - read only properties
  * - types
+ * - how to handle arrays?
  * 
- * Are custom public functions better? e.g. getSelectedSensors()
- */
+ * Next step: custom event classes implementing a interface? like i did in fpa
+ * da kann das rückgabe objekt dann individuell gestaltet werden
+ **/
 import SKEYS from './StorageKeys'
 
 export default class Storage{
@@ -22,6 +25,7 @@ export default class Storage{
     }
 
     set(key: number, value: any){
+        if(key == SKEYS.SELECTED_SENSOR) throw new Error("Please dont use the SELECTED_SENSOR key anymore, use the build in sensor selection functions of the store instead")
         this.#values[key] = value
         let callbackList = this.#callbacks[key]
         for(let c of callbackList){
@@ -30,7 +34,9 @@ export default class Storage{
     }
 
     get(key: number): any{
-        return this.#values[key]
+        if(key == SKEYS.SELECTED_SENSOR) throw new Error("Please dont use the SELECTED_SENSOR key anymore, use the build in sensor selection functions of the store instead")
+        let value = this.#values[key]
+        return value
     }
 
     /**
@@ -39,8 +45,57 @@ export default class Storage{
      * @param callback 
      */
     registerOnUpdateCallback(key: number, callback: (data: any) => void){
+        if(key == SKEYS.SELECTED_SENSOR) throw new Error("Please dont use the SELECTED_SENSOR key anymore, use the build in sensor selection functions of the store instead")
         if(callback instanceof Function)
             this.#callbacks[key].push(callback)
+        else 
+            throw new Error("Thats not a callback function")
+    }
+
+
+
+
+
+
+    #selectedSensors = []
+    #sensorSelectionCallbacks = []
+
+    selectSensor(id){
+        let index = this.#selectedSensors.indexOf(id);
+
+        if(index == -1){
+            this.#selectedSensors.push(id)
+            for(let c of this.#sensorSelectionCallbacks){
+                c(id, "new")
+            }
+            return true
+        }
+        else{
+            return false
+        }
+    }
+    unselectSensor(id){
+        let index = this.#selectedSensors.indexOf(id);
+
+        if(index != -1){
+            this.#selectedSensors = this.#selectedSensors.splice(index, 1);
+            for(let c of this.#sensorSelectionCallbacks){
+                c(id, "removed")
+            }
+            return true
+        }
+        else{
+            return false
+        }
+    }
+
+    getSelectedSensors(){
+        return this.#selectedSensors.slice() // return only a copy to prevent the client to have the internal array reference
+    }
+
+    onSensorSelectionChanged(callback: (sensorId: number, action: String) => void){
+        if(callback instanceof Function)
+            this.#sensorSelectionCallbacks.push(callback)
         else 
             throw new Error("Thats not a callback function")
     }
