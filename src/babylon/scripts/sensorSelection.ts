@@ -1,10 +1,7 @@
 import * as BABYLON from 'babylonjs';
 import * as GUI from "babylonjs-gui";
-import * as MATS from 'babylonjs-materials';
 import Storage from '../../storage/Storage';
-import SKEYS from '../../storage/StorageKeys';
 import { focusOnMesh } from './focusOnMesh';
-import FloorCamera from './floorCamera';
 
 const API_URL = process.env.API_URL;
 const sensorColor = BABYLON.Color3.Purple();
@@ -18,11 +15,7 @@ var highlight: BABYLON.HighlightLayer;
 // uses the mesh_id as key, access like this: sensorLabels["node505"]
 var sensorLabels = [];
 
-// stores all fetched sensor data
-// uses the mesh_id as key, access like this: sensorData["node505"]
-var sensorData = [];
-var selected;
-
+var sensors = [];
 
 /**
   * @author Lennard Grimm
@@ -30,24 +23,10 @@ var selected;
   * Update the selection state of a mesh by passing its mesh_id (e.g. "node505")
   * Changes the color of the mesh, and the text displayed in the label
   */
-export function updateSelectedSensor(mesh_id: string) {
-  if (myScene) {
-    // deselect previously selected mesh
-    if (selected) {
-      let mesh = myScene.getMeshByName(selected);
-      mesh.state = "";
-      highlight.removeMesh(mesh.subMeshes[0].getRenderingMesh());
-      mesh.renderOutline = false;
-      let mat = mesh.material as BABYLON.PBRMaterial;
-      mat.albedoColor = sensorColor;
-      sensorLabels[mesh.name].background = "";
-      sensorLabels[mesh.name].children[1].text = "";
-      // stop camera animations
-      myScene.stopAnimation(myScene.activeCamera);
-    }
-    // select mesh with passed mesh_id
-    if (mesh_id) {
-      let mesh = myScene.getMeshByName(mesh_id);
+export async function updateSelectedSensor(sensor_id: number, action: String) {
+    let sensor = await getSensorData(sensor_id);
+    if(action == "new") {
+      let mesh = myScene.getMeshByName(sensor.mesh_id);
       mesh.state = "selected";
       highlight.addMesh(mesh.subMeshes[0].getRenderingMesh(), BABYLON.Color3.Black());
       mesh = mesh.subMeshes[0].getRenderingMesh();
@@ -56,14 +35,24 @@ export function updateSelectedSensor(mesh_id: string) {
       mesh.renderOutline = true;
       let mat = mesh.material as BABYLON.PBRMaterial;
       mat.albedoColor = selectedSensorColor;
-      sensorLabels[mesh_id].background = "white";
-      // + "\n" + sensorData[mesh_id].data[sensorData[mesh_id].data.length - 1].value.toString() + sensorData[mesh_id].measurement_unit;
-      sensorLabels[mesh_id].children[1].text = sensorData[mesh_id].name;
+      sensorLabels[sensor_id].background = "white";
+      sensorLabels[sensor_id].children[1].text = sensor.name;
       // start camera animation
       let target = mesh.getBoundingInfo().boundingSphere.centerWorld;
       focusOnMesh(myScene, target);
+    } 
+    else if (action == "removed") {
+      let mesh = myScene.getMeshByName(sensor.mesh_id);
+      mesh.state = "";
+      highlight.removeMesh(mesh.subMeshes[0].getRenderingMesh());
+      mesh.renderOutline = false;
+      let mat = mesh.material as BABYLON.PBRMaterial;
+      mat.albedoColor = sensorColor;
+      sensorLabels[sensor_id].background = "";
+      sensorLabels[sensor_id].children[1].text = "";
+      // stop camera animations
+      myScene.stopAnimation(myScene.activeCamera);
     }
-  }
 }
 
 
@@ -76,8 +65,8 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
   myScene = scene;
   storage = STORE;
 
-  STORE.registerOnUpdateCallback(SKEYS.SELECTED_SENSOR, (value) => {
-    updateSelectedSensor(value);
+  storage.onSensorSelectionChanged((id, action) => {
+    updateSelectedSensor(id, action);
   })
 
   // setup of highlight layer
@@ -89,7 +78,7 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
 
   // GET MODEL DATA
   let model = await getModelData(modelID);
-  let sensors = model.sensors;
+  sensors = model.sensors;
 
   for (let i = 0; i < sensors.length; i++) {
     // CURRENT MESH, all selectable meshes are colored purple
@@ -105,10 +94,6 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
     // await BABYLON.NodeMaterial.ParseFromSnippetAsync("QPRJU9#16", myScene).then(nodeMaterial => {
     //   mesh.material = nodeMaterial;
     // });
-
-    // GET SENSORDATA
-    let data = await getSensorData(sensors[i].id);
-    sensorData[sensors[i].mesh_id] = data;
 
     // GUI SETUP
     let advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
@@ -136,14 +121,12 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
     // select mesh on label click
     rect.onPointerDownObservable.add(function() {
       if (mesh.state == "") {
-        selected = storage.get(SKEYS.SELECTED_SENSOR)
-        storage.set(SKEYS.SELECTED_SENSOR, sensors[i].mesh_id)
+        storage.selectSensor(sensors[i].id)
       } else {
-        selected = storage.get(SKEYS.SELECTED_SENSOR)
-        storage.set(SKEYS.SELECTED_SENSOR, null)
+        storage.unselectSensor(sensors[i].id)
       }
     })
-    sensorLabels[sensors[i].mesh_id] = rect;
+    sensorLabels[sensors[i].id] = rect;
     rect.addControl(label);
     rect.linkWithMesh(mesh);
 
@@ -153,13 +136,9 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
       new BABYLON.ExecuteCodeAction(
         BABYLON.ActionManager.OnPickTrigger, async function(e) {
           if (e.source.state === "") {
-            // select mesh
-            selected = storage.get(SKEYS.SELECTED_SENSOR)
-            storage.set(SKEYS.SELECTED_SENSOR, sensors[i].mesh_id)
+            storage.selectSensor(sensors[i].id)
           } else {
-            // delselect mesh
-            selected = storage.get(SKEYS.SELECTED_SENSOR)
-            storage.set(SKEYS.SELECTED_SENSOR, null)
+            storage.unselectSensor(sensors[i].id)
           }
         }));
 

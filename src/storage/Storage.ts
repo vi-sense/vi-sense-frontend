@@ -62,7 +62,6 @@ export default class Storage{
 
     selectSensor(id){
         let index = this.#selectedSensors.indexOf(id);
-
         if(index == -1){
             this.#selectedSensors.push(id)
             for(let c of this.#sensorSelectionCallbacks){
@@ -76,9 +75,8 @@ export default class Storage{
     }
     unselectSensor(id){
         let index = this.#selectedSensors.indexOf(id);
-
         if(index != -1){
-            this.#selectedSensors = this.#selectedSensors.splice(index, 1);
+            this.#selectedSensors.splice(index, 1);
             for(let c of this.#sensorSelectionCallbacks){
                 c(id, "removed")
             }

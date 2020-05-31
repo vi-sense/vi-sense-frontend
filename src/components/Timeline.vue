@@ -42,9 +42,9 @@ export default {
         }
       })
 
-      setTimeout(() => this.STORE.selectSensor(1), 1000)
-      setTimeout(() => this.STORE.selectSensor(4), 2000)
-      setTimeout(() => this.STORE.unselectSensor(4), 8000)
+      //setTimeout(() => this.STORE.selectSensor(1), 1000)
+      //setTimeout(() => this.STORE.selectSensor(4), 2000)
+      //setTimeout(() => this.STORE.unselectSensor(4), 8000)
   },
   methods: {
     transformData(api_json_data){
