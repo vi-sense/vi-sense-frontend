@@ -45,10 +45,7 @@ export default {
     };
     this.getModelData(this.id).then(res=>{
       this.title = res.name
-    }) 
-
-    console.log(this.$route.meta.title);
-    
+    })     
   },
   mounted() {
     var canvas = document.getElementById("babyloncanvas");
