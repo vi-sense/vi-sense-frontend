@@ -9,7 +9,7 @@
         <aside class="sidebar">
           <a class="active" href="#home">Information Pane</a>
           <a href="#sensor">Sensoren</a>
-          <v-expansion-panels class="expansion" focusable>
+          <v-expansion-panels class="condensed" focusable>
             <v-expansion-panel v-for="(sensor, index) in sensorData" :key="sensor.id">
               <v-expansion-panel-header>
                 <v-checkbox
@@ -51,9 +51,13 @@ canvas {
   height: 100%;
 }
 
-.expansion {
-  max-height: 25%;
-  max-width: auto;
+.condensed {
+  max-height: 15%;
+}
+
+.v-expansion-panels:not(.v-expansion-panels--accordion):not(.v-expansion-panels--tile)
+  > .v-expansion-panel--active {
+  height: auto;
 }
 
 .sidebar {
@@ -95,18 +99,13 @@ export default {
   props: ["id", "name", "sensors"],
   data() {
     return {
+      model: [],
       checkboxes: [],
       sensorData: [],
       endpoint: process.env.API_URL + "/"
     };
   },
   mounted() {
-    this.$route.meta.title = this.name;
-    // add a temporary variable
-    this.$router.replace({ query: { temp: Date.now() } });
-    // remove the temporary variable query
-    this.$router.replace({ query: { temp: undefined } });
-
     var canvas = document.getElementById("canvas");
     var SM = new Storage();
     var app = new BabylonApp(canvas, this.id, SM);
@@ -130,7 +129,18 @@ export default {
     getSensor(id) {
       axios(this.endpoint + "models/" + id)
         .then(response => {
-          this.sensorData = response.data;
+          this.model = response.data;
+          this.sensorData = this.model.sensors;
+          this.checkboxes = this.sensorData.map(sensor => {
+            return {
+              checked: false
+            };
+          });
+          this.$route.meta.title = this.model.name;
+          // add a temporary variable
+          this.$router.replace({ query: { temp: Date.now() } });
+          // remove the temporary variable query
+          this.$router.replace({ query: { temp: undefined } });
         })
         .catch(error => {
           console.log(error);
@@ -138,14 +148,8 @@ export default {
     }
   },
   created() {
-    //this.getSensor(this.id);
-    console.log(this.sensors);
-    this.sensorData = this.sensors;
-    this.checkboxes = this.sensorData.map(sensor => {
-      return {
-        checked: false
-      };
-    });
+    this.getSensor(this.id);
+    //console.log("WTF:" + this.model);
   },
   watch: {
     $route() {
