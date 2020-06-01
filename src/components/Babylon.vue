@@ -149,7 +149,6 @@ export default {
   },
   created() {
     this.getSensor(this.id);
-    //console.log("WTF:" + this.model);
   },
   watch: {
     $route() {
