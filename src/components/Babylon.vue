@@ -12,14 +12,17 @@
           <v-expansion-panels class="expansion" focusable>
             <v-expansion-panel v-for="(sensor, index) in sensorData" :key="sensor.id">
               <v-expansion-panel-header>
-                    <v-checkbox
-                      @change="onItemChecked(index)"
-                      :key="sensor.id"
-                      v-model="checkboxes[index].checked"
-                    ></v-checkbox>
+                <v-checkbox
+                  @change="onItemChecked(index)"
+                  :key="sensor.id"
+                  v-model="checkboxes[index].checked"
+                ></v-checkbox>
                 {{sensor.name}}
               </v-expansion-panel-header>
-              <v-expansion-panel-content>Description: {{sensor.description}}</v-expansion-panel-content>
+              <v-expansion-panel-content>
+                Description: {{sensor.description}}
+                <v-btn color="primary" rounded @click.prevent="startCameraMove(index)">Go to Sensor</v-btn>
+              </v-expansion-panel-content>
             </v-expansion-panel>
             <a href="#room">Room</a>
             <a href="#pipe">Pipe</a>
@@ -93,7 +96,8 @@ export default {
   data() {
     return {
       checkboxes: [],
-      sensorData: []
+      sensorData: [],
+      endpoint: process.env.API_URL + "/"
     };
   },
   mounted() {
@@ -115,33 +119,33 @@ export default {
   methods: {
     onItemChecked(id) {
       var SM = new Storage();
-      if(this.checkboxes[id].checked == true){
-
+      if (this.checkboxes[id].checked == true) {
         SM.set(STATES.SELECTED_SENSOR, id);
         console.log("new sensor selected: ", id);
-
       }
     },
+    startCameraMove(id) {
+      console.log("startID:" + id);
+    },
     getSensor(id) {
-      axios(this.endpoint + id)
+      axios(this.endpoint + "models/" + id)
         .then(response => {
           this.sensorData = response.data;
         })
         .catch(error => {
-          console.log("-----error-------");
           console.log(error);
         });
     }
   },
   created() {
     //this.getSensor(this.id);
-    //console.log(this.sensors);
+    console.log(this.sensors);
     this.sensorData = this.sensors;
     this.checkboxes = this.sensorData.map(sensor => {
-        return {
-          checked: false
-        }
-      });
+      return {
+        checked: false
+      };
+    });
   },
   watch: {
     $route() {
