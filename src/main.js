@@ -2,24 +2,23 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import App from './App.vue'
 import Model from './components/Model.vue'
-import Hello from './components/Hello.vue'
+import Welcome from './components/Welcome.vue'
 import Babylon from './components/Babylon.vue'
-import vuetify from './plugins/vuetify' // path to vuetify export
+import Vuetify from 'vuetify'
+import 'vuetify/dist/vuetify.min.css'
 
-
-//Vue.use(Vuetify);
-
-
-Vue.use(Router)
 Vue.config.productionTip = false
 
+Vue.use(Vuetify)
+let vuetify = new Vuetify({})
 
+Vue.use(Router)
 const router = new Router({
   routes: [
     {
       path: '/',
-      name: 'home',
-      component: Hello,
+      name: 'welcome',
+      component: Welcome,
     },
     {
       path: '/model/:id',
@@ -36,7 +35,6 @@ const router = new Router({
     }
   ]
 })
-
 
 new Vue({
   vuetify,

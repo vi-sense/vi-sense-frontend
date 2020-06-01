@@ -1,11 +1,8 @@
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const { CleanWebpackPlugin }  = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const path = require('path')
 const webpack = require('webpack')
-//const VuetifyLoaderPlugin = require('vuetify-loader/lib/plugin')
-
-
 
 module.exports = {
   entry: './src/main.js',
@@ -28,8 +25,8 @@ module.exports = {
   plugins: [
     new CleanWebpackPlugin(),
     new CopyWebpackPlugin([
-      { from: 'public', to: '' },
-    ],
+        { from: 'public', to: '' }, 
+      ], 
       { ignore: ['.gitignore'] }
     ),
     new HtmlWebpackPlugin({
@@ -43,7 +40,7 @@ module.exports = {
         API_URL: JSON.stringify(process.env.API_URL),
       }
     }),
-  ],
+  ], 
   resolve: {
     alias: {
       'vue$': 'vue/dist/vue.esm.js'
@@ -53,8 +50,20 @@ module.exports = {
   module: {
     rules: [
       {
+        test: /\.js$/,
+        loader: 'babel-loader',
+        exclude: /node_modules/
+      },
+      {
         test: /\.ts$/,
         use: 'ts-loader',
+      },
+      {
+        test: /\.(png|jpg|gif|svg)$/,
+        loader: 'file-loader',
+        options: {
+          name: '[name].[ext]?[hash]'
+        }
       },
       {
         test: /\.css$/,
@@ -72,12 +81,26 @@ module.exports = {
         ],
       },
       {
+        test: /\.sass$/,
+        use: [
+          'vue-style-loader',
+          'css-loader',
+          'sass-loader?indentedSyntax'
+        ],
+      },
+      {
         test: /\.s(c|a)ss$/,
         use: [
           'vue-style-loader',
           'css-loader',
           {
             loader: 'sass-loader',
+            // Requires sass-loader@^7.0.0
+            options: {
+              implementation: require('sass'),
+              fiber: require('fibers'),
+              indentedSyntax: true // optional
+            },
             // Requires sass-loader@^8.0.0
             options: {
               implementation: require('sass'),
@@ -107,18 +130,6 @@ module.exports = {
           }
         }
       },
-      {
-        test: /\.js$/,
-        loader: 'babel-loader',
-        exclude: /node_modules/
-      },
-      {
-        test: /\.(png|jpg|gif|svg)$/,
-        loader: 'file-loader',
-        options: {
-          name: '[name].[ext]?[hash]'
-        }
-      }
     ]
   },
 }
@@ -132,5 +143,3 @@ if (process.env.NODE_ENV === 'production') {
     })
   ])
 }
-
-
