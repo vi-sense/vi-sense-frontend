@@ -2,34 +2,11 @@
   <div>
     <header>
       <h1>Vi-Sense Modelpage</h1>
-      <h2>{{ $route.meta.title }}</h2>
+      <p>{{ $route.meta.title }}</p>
     </header>
 
     <main>
-      <div id="informationpane">
-        <a class="active" href="#home">Information Pane</a>
-        <a href="#sensor">Sensoren</a>
-        <v-expansion-panels class="condensed" focusable>
-          <v-expansion-panel v-for="(sensor, index) in sensorData" :key="sensor.id">
-            <v-expansion-panel-header>
-              <v-checkbox
-                @change="onItemChecked(index)"
-                :key="sensor.id"
-                v-model="checkboxes[index].checked"
-              ></v-checkbox>
-              {{sensor.name}}
-            </v-expansion-panel-header>
-            <v-expansion-panel-content>
-              Description: {{sensor.description}}
-              <v-btn color="primary" rounded @click.prevent="startCameraMove(index)">Go to Sensor</v-btn>
-            </v-expansion-panel-content>
-          </v-expansion-panel>
-          <a href="#room">Room</a>
-          <a href="#pipe">Pipe</a>
-          <a href="#temperature">Temperature</a>
-          <a href="#pressure">Pressure</a>
-        </v-expansion-panels>
-      </div>
+      <InformationPane id="informationpane" :modeID="id" :STORE="STORE"/>
 
       <div id="mainpane">
         <div id="canvaswrapper">
@@ -39,7 +16,6 @@
           <Timeline :STORE="STORE" />
         </div>
       </div>
-
     </main>
   </div>
 </template>
@@ -48,65 +24,41 @@
 <script>
 import BabylonApp from "./BabylonApp";
 import Timeline from "./Timeline";
+import InformationPane from "./InformationPane";
 import Storage from "../storage/Storage";
 import axios from "axios";
 
 export default {
-  props: ["id", "name"],
+  props: ["id"],
   components: {
-    Timeline
+    Timeline, InformationPane
   },
   data() {
     return {
       STORE: new Storage(),
-      model: [],
-      checkboxes: [],
-      sensorData: [],
-      endpoint: process.env.API_URL + "/"
+      title: ""
     };
   },
-  created() {
-    this.getSensor(this.id);
-    // TODO implement Store onSensorSelection
+  created(){
+    this.getModelData(this.id).then(res=>{
+      this.title = res.title
+    }) 
+    window.onbeforeunload = function () {
+        return "Do you really want to close?";
+    };
   },
   mounted() {
     var canvas = document.getElementById("babyloncanvas");
     var app = new BabylonApp(canvas, this.id, this.STORE);
   },
   methods: {
-    onItemChecked(id) {
-      if (this.checkboxes[id].checked == true) {
-        this.STORE.selectSensor(id);
-      }
-      else if (this.checkboxes[id].checked == false) {
-        this.STORE.unselectSensor(id);
-      }
+    async getModelData(id) {
+        let response = await fetch(process.env.API_URL + `/models/${id}`)
+            .then(res => { return res.json() })
+            .catch(err => { throw err });
+        return response;
     },
-    startCameraMove(id) {
-      // TODO connect with lennarts stuff properly
-      console.log("startID:" + id);
-    },
-    getSensor(id) {
-      axios(this.endpoint + "models/" + id)
-        .then(response => {
-          this.model = response.data;
-          this.sensorData = this.model.sensors;
-          this.checkboxes = this.sensorData.map(sensor => {
-            return {
-              checked: false
-            };
-          });
-          this.$route.meta.title = this.model.name;
-          // add a temporary variable
-          this.$router.replace({ query: { temp: Date.now() } });
-          // remove the temporary variable query
-          this.$router.replace({ query: { temp: undefined } });
-        })
-        .catch(error => {
-          console.log(error);
-        });
-    }
-  },
+  }
 };
 </script>
 
@@ -114,19 +66,21 @@ export default {
 <style scoped lang="scss">
 
 header{
-  height: 15%;
+  height: 10%;
   width: 100%;
 }
 
 main{
-  height: 85%;
+  height: 90%;
   width: 100%;
   display: flex; // idk why but its not working with regular inline-block so i used flex as a quickfix..
 
   #mainpane{
     height: 100%;
     width: 80%;
-
+    border: 1px solid grey;
+    box-sizing: border-box;
+    
     #canvaswrapper{
       width: 100%;
       height: 70%;
@@ -145,38 +99,8 @@ main{
     display: inline-block;
     height: 100%;
     width: 20%;
+    border: 1px solid grey;
+    box-sizing: border-box;
   }
-}
-
-
-#informationpane {
-  background-color: #969494;
-  overflow: scroll;
-
-  a {
-    display: block;
-    color: black;
-    padding: 16px;
-    text-decoration: none;
-  
-    .active {
-      background-color: #4caf50;
-      color: white;
-    }
-  
-    &:hover:not(.active) {
-      background-color: #555;
-      color: white;
-    }
-  }
-}
-
-.condensed {
-  max-height: 15%;
-}
-
-.v-expansion-panels:not(.v-expansion-panels--accordion):not(.v-expansion-panels--tile)
-  > .v-expansion-panel--active {
-  height: auto;
 }
 </style>
