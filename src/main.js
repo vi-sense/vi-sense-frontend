@@ -1,38 +1,54 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import Vuetify from 'vuetify'
+import 'vuetify/dist/vuetify.min.css'
 import App from './App.vue'
-import Model from './components/Model.vue'
-import Hello from './components/Hello.vue'
-import Babylon from './components/Babylon.vue'
-Vue.use(Router)
+import Startpage from './startpage/Startpage.vue'
+import Welcome from './startpage/Welcome.vue'
+import Model from './startpage/Model.vue'
+import Modelpage from './modelpage/Modelpage.vue'
+
+
 Vue.config.productionTip = false
 
+Vue.use(Vuetify)
+let vuetify = new Vuetify({})
 
+Vue.use(Router)
 const router = new Router({
- routes: [
-   {
-     path: '/',
-     name:'home',
-     component: Hello,
-   },
-   {
-     path: '/model/:id',
-     name:'model',
-     component: Model,
-     props: true,
-     meta: { title: '' },
-   },
-   {
-    path: '/babylon/:id',
-    name:'babylon',
-    component: Babylon,
-    props: true,
-  }
- ]
+  routes: [
+    {
+      path: '/modelpage/:id',
+      name: 'modelpage',
+      component: Modelpage,
+      props: true,
+    },
+    {
+      path: '/',
+      component: Startpage,
+      children:[
+        {
+          path: '/',
+          name: 'welcome',
+          component: Welcome,
+          props: true,
+          meta: { title: '' },
+        },
+        {
+          path: '/model/:id',
+          name: 'model',
+          component: Model,
+          props: true,
+          meta: { title: '' },
+        }
+      ]
+    }
+  ]
 })
 
 new Vue({
- el: '#app',
- render: h => h(App),
- router
-})
+  vuetify,
+  router,
+  el: '#app',
+  render: h => h(App),
+}).$mount('#app')

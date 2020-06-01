@@ -15,8 +15,6 @@ div:first-of-type {
 
 
 <script>
-import Storage from '../storage/Storage';
-import SKEYS from '../storage/StorageKeys';
 import Timeline from './timeline/Timeline.js';
 
 export default {

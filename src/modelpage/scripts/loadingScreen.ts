@@ -16,9 +16,9 @@ export default class CustomLoadingScreen implements ILoadingScreen {
   private _loadingDiv: HTMLDivElement;
 
   /***
-     * @param _renderingCanvas defines the canvas used to render the scene
-     * @param _loadingText defines the default text to display
-     */
+   * @param _renderingCanvas defines the canvas used to render the scene
+   * @param _loadingText defines the default text to display
+   */
   constructor(private _renderingCanvas: HTMLCanvasElement, private _loadingText: string) { }
 
   // css loader by https://loading.io/css/

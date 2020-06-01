@@ -9,7 +9,6 @@ import setupSensorSelection from './scripts/sensorSelection';
 import { loadModel } from './scripts/loadModel';
 import CustomLoadingScreen from './scripts/loadingScreen';
 import Storage from '../storage/Storage';
-import SKEYS from '../storage/StorageKeys';
 
 
 export const IS_PRODUCTION: boolean = Boolean(process.env.PRODUCTION)  // its value is set in webpack.config.js
