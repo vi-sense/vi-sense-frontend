@@ -2,7 +2,7 @@
   <div>
     <header>
       <h1>Vi-Sense Modelpage</h1>
-      <p>{{ $route.meta.title }}</p>
+      <p>{{ title }}</p>
     </header>
 
     <main>
@@ -40,12 +40,15 @@ export default {
     };
   },
   created(){
-    this.getModelData(this.id).then(res=>{
-      this.title = res.title
-    }) 
     window.onbeforeunload = function () {
-        return "Do you really want to close?";
+      return "Do you really want to close?";
     };
+    this.getModelData(this.id).then(res=>{
+      this.title = res.name
+    }) 
+
+    console.log(this.$route.meta.title);
+    
   },
   mounted() {
     var canvas = document.getElementById("babyloncanvas");
