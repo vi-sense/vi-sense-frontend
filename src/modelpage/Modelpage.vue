@@ -1,10 +1,12 @@
 <template>
   <v-app>
     <div id="model">
+
       <header>
         <h1>Vi-Sense Modelpage</h1>
         <h2 class="header__title title-header">{{ $route.meta.title }}</h2>
       </header>
+
       <main class="main">
         <aside class="sidebar">
           <a class="active" href="#home">Information Pane</a>
@@ -90,7 +92,7 @@ canvas {
 
 
 <script>
-import BabylonApp from "../babylon/BabylonApp";
+import BabylonApp from "./BabylonApp";
 import Storage from "../storage/Storage";
 import STATES from "../storage/StorageKeys";
 import axios from "axios";

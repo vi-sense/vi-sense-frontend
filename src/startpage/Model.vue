@@ -4,7 +4,7 @@
     <p class="model__body">{{ model.description }}</p>
     <p  class="model__id">{{ model.id }}</p>
     <img class="model__image" :src="this.endpoint + model.image_url">
-    <router-link :to="{name: 'babylon', params: {id: model.id, name: model.name, sensors: model.sensors}}">See 3D Model</router-link>
+    <router-link :to="{name: 'modelpage', params: {id: model.id, name: model.name, sensors: model.sensors}}">See 3D Model</router-link>
   </div>
 </template>
 
