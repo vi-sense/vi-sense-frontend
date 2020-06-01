@@ -117,10 +117,12 @@ export default {
   },
   methods: {
     onItemChecked(id) {
-      var SM = new Storage();
       if (this.checkboxes[id].checked == true) {
-        SM.set(STATES.SELECTED_SENSOR, id);
+        this.STORE.selectSensor(id);
         console.log("new sensor selected: ", id);
+      }
+      else if (this.checkboxes[id].checked == false) {
+        this.Store.unselectSensor(id);
       }
     },
     startCameraMove(id) {
