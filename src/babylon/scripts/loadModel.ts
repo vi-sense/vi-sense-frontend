@@ -10,14 +10,7 @@ var JSZip = require("jszip");
  * The model can also be loaded from the local filesystem by setting loadFromLocalFS=true. The hard coded id-model mapping correspond to the database
  */
 export function loadModel(id: number, scene: BABYLON.Scene, callback: (meshes: BABYLON.AbstractMesh[]) => void, loadFromLocalFS: boolean = false) {
-/*
-    BABYLON.SceneLoader.ImportMesh("", "gltf/", "pgn-model.glb", scene, (meshes, particleSystems, skeletons) => {
-        let buildingModel = <BABYLON.Mesh> meshes[0]
-        scene.createDefaultEnvironment();
-        callback(meshes)
-    }, (event) => updateProgress(event, "import"))
-    */
-
+    
     if(loadFromLocalFS === false){
         let API_URL = process.env.API_URL
         fetch(API_URL + "/models/" + id).then(response => {

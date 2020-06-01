@@ -2,6 +2,7 @@ import * as BABYLON from 'babylonjs';
 import * as GUI from "babylonjs-gui";
 import Storage from '../../storage/Storage';
 import { focusOnMesh } from './focusOnMesh';
+import { pulsatingShader } from './shaders';
 
 const API_URL = process.env.API_URL;
 const sensorColor = BABYLON.Color3.Purple();
@@ -55,6 +56,15 @@ export async function updateSelectedSensor(sensor_id: number, action: String) {
     }
 }
 
+export async function moveToMesh(scene: BABYLON.Scene, mesh_id: string) {
+  let mesh = scene.getMeshByName(mesh_id);
+  let target = mesh.getBoundingInfo().boundingSphere.centerWorld;
+  focusOnMesh(scene, target);
+}
+
+export function stopCameraAnimation(scene: BABYLON.Scene) {
+  scene.stopAnimation(scene.activeCamera);
+}
 
 /**
   * @author Lennard Grimm
@@ -83,8 +93,8 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
   for (let i = 0; i < sensors.length; i++) {
     // CURRENT MESH, all selectable meshes are colored purple
     let mesh = scene.getMeshByName(sensors[i].mesh_id);
-    let mat = mesh.material as BABYLON.PBRMaterial;
-    mat.albedoColor = sensorColor;
+    // let mat = mesh.material as BABYLON.PBRMaterial;
+    // mat.albedoColor = sensorColor;
 
     //QPRJU9#12 - sine water flow
     //QPRJU9#16 - sine color change
@@ -94,7 +104,8 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
     // await BABYLON.NodeMaterial.ParseFromSnippetAsync("QPRJU9#16", myScene).then(nodeMaterial => {
     //   mesh.material = nodeMaterial;
     // });
-
+    mesh.material = pulsatingShader();
+    
     // GUI SETUP
     let advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
     let rect = new GUI.Rectangle();

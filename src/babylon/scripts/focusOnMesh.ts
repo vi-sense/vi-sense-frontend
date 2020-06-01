@@ -7,9 +7,7 @@ import FloorCamera from './floorCamera';
  */
 export async function focusOnMesh(scene: BABYLON.Scene, target: BABYLON.Vector3) {
     let camera = scene.activeCamera as FloorCamera;
-    let speed = 10;
-    let frameRate = 30;
-    var ease = new BABYLON.CubicEase();
+    let ease = new BABYLON.CubicEase();
     ease.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEINOUT);
 
     let distanceFromMesh = 5;
@@ -22,18 +20,15 @@ export async function focusOnMesh(scene: BABYLON.Scene, target: BABYLON.Vector3)
     targetWithDistance.y = Math.round(targetWithDistance.y);
     let currentTarget = camera.getTarget();
 
-    //BABYLON.Animation.CreateAndStartAnimation('anim1', camera, 'lockedTarget', speed, frameRate, currentTarget, target, 0, ease);
-    //BABYLON.Animation.CreateAndStartAnimation('anim2', camera, 'position', speed, frameRate, camera.position, targetWithDistance, 0, ease);
-    
-    var animateTarget = new BABYLON.Animation("anim1", "lockedTarget", 30, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
-    var targetKeys = [];
+    let animateTarget = new BABYLON.Animation("anim1", "lockedTarget", 30, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
+    let targetKeys = [];
     targetKeys.push({ frame: 0, value: currentTarget });
     targetKeys.push({ frame: 90, value: target });
     animateTarget.setKeys(targetKeys);
     animateTarget.setEasingFunction(ease);
 
-    var animatePosition = new BABYLON.Animation("anim2", "position", 30, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
-    var positionKeys = [];
+    let animatePosition = new BABYLON.Animation("anim2", "position", 30, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
+    let positionKeys = [];
     positionKeys.push({ frame: 0, value: camera.position });
     positionKeys.push({ frame: 90, value: targetWithDistance });
     animatePosition.setKeys(positionKeys);
