@@ -3,6 +3,7 @@ import * as GUI from "babylonjs-gui";
 import * as MATS from 'babylonjs-materials';
 import Storage from '../../storage/Storage';
 import SKEYS from '../../storage/StorageKeys';
+import {Color3} from "babylonjs/Maths/math.color";
 
 const API_URL = process.env.API_URL;
 const sensorColor = BABYLON.Color3.Purple();
@@ -12,8 +13,10 @@ var myScene: BABYLON.Scene;
 var storage: Storage;
 var highlight: BABYLON.HighlightLayer;
 var arrow_svg = require('../../assets/arrow.svg');
+var colors = ["#638475","#90e39a","#ddf093","#f6d0b1","#ce4760"]
 
-// stores all GUI Labels; a sensorLabel contains the container (rect) with its children [circle, label]
+
+// stores all GUI Labels; a sensorLabel contains the container (stackPane) with its children [circle, rect]
 // uses the meshID as key, access like this: sensorLabels["node505"]
 var sensorLabels = [];
 
@@ -39,8 +42,8 @@ export function updateSelectedSensor(meshID: string) {
       mesh.renderOutline = false;
       let mat = mesh.material as BABYLON.PBRMaterial;
       mat.albedoColor = sensorColor;
-      sensorLabels[mesh.name].background = "";
-      sensorLabels[mesh.name].children[1].text = "";
+      sensorLabels[mesh.name].children[1].isVisible = false;
+      sensorLabels[mesh.name].children[1].children[0].text = "";
     }
     // select mesh with passed meshID
     if (meshID) {
@@ -54,12 +57,13 @@ export function updateSelectedSensor(meshID: string) {
       mesh.renderOutline = true;
       let mat = mesh.material as BABYLON.PBRMaterial;
       mat.albedoColor = selectedSensorColor;
-      sensorLabels[meshID].background = "white";
+      sensorLabels[meshID].children[1].isVisible = true;
       // + "\n" + sensorData[meshID].data[sensorData[meshID].data.length - 1].value.toString() + sensorData[meshID].measurement_unit;
-      sensorLabels[meshID].children[1].text = sensorData[meshID].name;
+      sensorLabels[meshID].children[1].children[0].text = sensorData[meshID].name;
     }
   }
 }
+
 
 
 /**
@@ -107,33 +111,44 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
 
     // GUI SETUP
     let advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
-    let rect = new GUI.Rectangle();
-    rect.thickness = 0;
-    rect.adaptHeightToChildren = true;
-    rect.adaptWidthToChildren = true;
-    rect.isPointerBlocker = true;
-    advancedTexture.addControl(rect);
+    let stackPanel = new GUI.StackPanel();
+    stackPanel.isVertical = true;
+    stackPanel.isPointerBlocker = true;
+    advancedTexture.addControl(stackPanel);
 
     let arrow = new GUI.Image("arrow" ,arrow_svg)
     arrow.stretch = GUI.Image.STRETCH_UNIFORM
-    arrow.width = "70px"
-    arrow.height = "70px"
+    arrow.width = "50px"
+    arrow.height = "50px"
+    arrow.rotation = -Math.atan(sensors[i].latest_data.gradient * 1000)
+
     let circle = new GUI.Ellipse();
     circle.width = "70px";
     circle.height = "70px";
-    circle.alpha = 0.8;
-    circle.background = "white";
-    circle.thickness = 2;
-    rect.addControl(arrow)
+    circle.alpha = 1;
+    circle.background = colors[i%colors.length];
+    circle.addControl(arrow)
+    stackPanel.addControl(circle)
 
+    let rect = new GUI.Rectangle();
+    rect.width = "140px"
+    rect.height = "35px"
+    rect.isVisible = false
+    rect.background = "white"
+    stackPanel.addControl(rect)
     let label = new GUI.TextBlock();
-    label.resizeToFit = true;
+    rect.addControl(label)
+    // label.resizeToFit = true;
     //padding doesnt work when resizeToFit = true;
     //label.paddingRightInPixels = 20;
     //label.paddingLeftInPixels = 20;
 
+    sensorLabels[sensors[i].mesh_id] = stackPanel;
+    stackPanel.addControl(rect);
+    stackPanel.linkWithMesh(mesh);
+
     // select mesh on label click
-    rect.onPointerDownObservable.add(function() {
+    stackPanel.onPointerDownObservable.add(function() {
       if (mesh.state == "") {
         selected = storage.get(SKEYS.SELECTED_SENSOR)
         storage.set(SKEYS.SELECTED_SENSOR, sensors[i].mesh_id)
@@ -142,9 +157,6 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
         storage.set(SKEYS.SELECTED_SENSOR, null)
       }
     })
-    sensorLabels[sensors[i].mesh_id] = rect;
-    rect.addControl(label);
-    rect.linkWithMesh(mesh);
 
     // REGISTER MESH ACTIONS
     mesh.actionManager = new BABYLON.ActionManager(scene);
@@ -204,4 +216,8 @@ async function getSensorData(id: number) {
     .then(res => { return res.json() })
     .catch(err => { throw new Error("Can not load sensor data") });
   return response;
+}
+
+function raiseToRad(raise: number){
+  return Math.atan(raise)
 }
