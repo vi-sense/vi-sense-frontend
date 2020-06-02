@@ -11,6 +11,7 @@ const selectedSensorColor = BABYLON.Color3.Teal();
 var myScene: BABYLON.Scene;
 var storage: Storage;
 var highlight: BABYLON.HighlightLayer;
+var arrow_svg = require('../../assets/arrow.svg');
 
 // stores all GUI Labels; a sensorLabel contains the container (rect) with its children [circle, label]
 // uses the meshID as key, access like this: sensorLabels["node505"]
@@ -113,13 +114,17 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
     rect.isPointerBlocker = true;
     advancedTexture.addControl(rect);
 
+    let arrow = new GUI.Image("arrow" ,arrow_svg)
+    arrow.stretch = GUI.Image.STRETCH_UNIFORM
+    arrow.width = "70px"
+    arrow.height = "70px"
     let circle = new GUI.Ellipse();
     circle.width = "70px";
     circle.height = "70px";
     circle.alpha = 0.8;
     circle.background = "white";
     circle.thickness = 2;
-    rect.addControl(circle);
+    rect.addControl(arrow)
 
     let label = new GUI.TextBlock();
     label.resizeToFit = true;
