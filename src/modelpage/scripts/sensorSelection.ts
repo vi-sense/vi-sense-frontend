@@ -39,7 +39,7 @@ export async function updateSelectedSensor(sensor_id: number, action: String) {
     mesh.renderOutline = true;
     let mat = mesh.material as BABYLON.PBRMaterial;
     mat.albedoColor = selectedSensorColor;
-    sensorLabels[sensor_id].children[1].isVisible = true;
+    sensorLabels[sensor_id].children[1].alpha = 1;
     sensorLabels[sensor_id].children[1].children[0].text = sensor.name;
   }
   else if (action == "removed") {
@@ -49,7 +49,7 @@ export async function updateSelectedSensor(sensor_id: number, action: String) {
     mesh.renderOutline = false;
     let mat = mesh.material as BABYLON.PBRMaterial;
     mat.albedoColor = sensorColor;
-    sensorLabels[sensor_id].children[1].isVisible = false;
+    sensorLabels[sensor_id].children[1].alpha = 0;
     sensorLabels[sensor_id].children[1].children[0].text = "";
   }
 }
@@ -139,7 +139,7 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
     let rect = new GUI.Rectangle();
     rect.width = "160px"
     rect.height = "35px"
-    rect.isVisible = false
+    rect.alpha = 0
     rect.background = "white"
     stackPanel.addControl(rect)
     let label = new GUI.TextBlock();
