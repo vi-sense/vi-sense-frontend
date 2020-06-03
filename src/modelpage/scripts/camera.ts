@@ -24,7 +24,7 @@ export function createFloorCamera(canvas: HTMLCanvasElement, engine:BABYLON.Engi
     cam.keysRight.push(68);
     cam.keysDown.push(83);
     cam.speed = 0.6;
-    cam.angularSensibility = 3000
+    cam.angularSensibility = 3000;
 
     scene.actionManager = new BABYLON.ActionManager(scene);
     scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnKeyDownTrigger, e => {	
@@ -34,6 +34,12 @@ export function createFloorCamera(canvas: HTMLCanvasElement, engine:BABYLON.Engi
         }
         if(e.sourceEvent.keyCode == 81){
             cam.position.y = cam.fixedY -= cam.step
+        }
+        if (e.sourceEvent.keyCode == 173) {
+            cam.fov += 0.1
+        }
+        if (e.sourceEvent.keyCode == 171) {
+            cam.fov -= 0.1
         }
       })
     );

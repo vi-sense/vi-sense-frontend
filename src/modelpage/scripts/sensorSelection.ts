@@ -38,9 +38,6 @@ export async function updateSelectedSensor(sensor_id: number, action: String) {
       mat.albedoColor = selectedSensorColor;
       sensorLabels[sensor_id].background = "white";
       sensorLabels[sensor_id].children[1].text = sensor.name;
-      // start camera animation
-      let target = mesh.getBoundingInfo().boundingSphere.centerWorld;
-      focusOnMesh(myScene, target);
     } 
     else if (action == "removed") {
       let mesh = myScene.getMeshByName(sensor.mesh_id);
@@ -56,14 +53,11 @@ export async function updateSelectedSensor(sensor_id: number, action: String) {
     }
 }
 
-export async function moveToMesh(scene: BABYLON.Scene, mesh_id: string) {
-  let mesh = scene.getMeshByName(mesh_id);
+export async function moveToMesh(scene: BABYLON.Scene, sensor_id: number) {
+  let sensor = await getSensorData(sensor_id);
+  let mesh = scene.getMeshByName(sensor.mesh_id);
   let target = mesh.getBoundingInfo().boundingSphere.centerWorld;
   focusOnMesh(scene, target);
-}
-
-export function stopCameraAnimation(scene: BABYLON.Scene) {
-  scene.stopAnimation(scene.activeCamera);
 }
 
 /**
@@ -77,6 +71,11 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
 
   storage.onSensorSelectionChanged((id, action) => {
     updateSelectedSensor(id, action);
+  })
+
+  storage.registerOnUpdateCallback(2, (id) => {
+    if (id == null) myScene.stopAnimation(myScene.activeCamera);
+    else moveToMesh(myScene, id);
   })
 
   // setup of highlight layer
