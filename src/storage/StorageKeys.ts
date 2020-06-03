@@ -7,6 +7,7 @@
 enum SKEYS {
     SELECTED_SENSOR=0,
     SELECTED_TIME=1,
+    CAMERA_DRIVE_SENSOR=2,
     __LENGTH = Object.keys(SKEYS).length/2
 }
 export default SKEYS

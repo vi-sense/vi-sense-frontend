@@ -4,12 +4,13 @@
     <p class="model__body">{{ model.description }}</p>
     <p  class="model__id">{{ model.id }}</p>
     <img class="model__image" :src="this.endpoint + model.image_url">
-    <router-link :to="{name: 'babylon', params: {id: model.id, name: model.name}}">See 3D Model</router-link>
+    <router-link :to="{name: 'modelpage', params: {id: model.id}}">See 3D Model</router-link>
   </div>
 </template>
 
 <script>
 import axios from "axios";
+
 export default {
   props: ["id"],
   data() {
@@ -40,7 +41,7 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
+<style scoped lang="scss">
 .model {
   position: relative;
   max-width: 500px;

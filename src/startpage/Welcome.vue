@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="greeting">
     <h2>
       Welcome to vi-sense start page
@@ -7,7 +7,7 @@
   </div>
 </template>
 
-<style lang="scss">
+<style scoped lang="scss">
   .greeting {
     display: flex;
     align-items: center;

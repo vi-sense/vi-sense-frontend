@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<body>
+    <div id="chartWrapper"></div>
+</body>
+</html>
+
+<style>
+html, body{
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 80%;
+}
+html{
+    padding: 2%;
+    box-sizing: border-box
+}
+#chartWrapper{
+    width: 100%;
+    height: 100%;
+}
+</style>
+
+<script>
+import Timeline from './Timeline.js'
+
+const API_URL = "https://visense.f4.htw-berlin.de:44344/"
+
+const parent = document.querySelector("#chartWrapper")
+const timeline = new Timeline(parent)
+
+
+fetch(API_URL + `sensors/1/data`)
+.then(res => { return res.json() })
+.then(json => { timeline.plotGraph(transformData(json), 1) })
+
+fetch(API_URL + `sensors/2/data`)
+.then(res => { return res.json() })
+.then(json => { timeline.plotGraph(transformData(json), 2) })  
+
+fetch(API_URL + `sensors/4/data`)
+.then(res => { return res.json() })
+.then(json => { timeline.plotGraph(transformData(json), 4) })  
+
+setTimeout(()=>  timeline.removeGraph(1), 2000)
+
+function transformData(api_data_json){
+    let data = []
+    for(var d of api_data_json){
+        data.push({date: new Date(d.date), value: d.value})        
+    }  
+    return data
+}
+</script>
