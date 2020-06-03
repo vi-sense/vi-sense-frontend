@@ -14,13 +14,11 @@
             </v-expansion-panel-header>
             <v-expansion-panel-content>
                 Description: {{sensor.description}}
-                <v-btn color="primary" rounded @click.prevent="startCameraMove(index)">Go to Sensor</v-btn>
+                <v-btn color="primary" rounded @click.prevent="startCameraMove(sensor.id)">Go to Sensor</v-btn>
             </v-expansion-panel-content>
             </v-expansion-panel>
-            <a href="#room">Room</a>
-            <a href="#pipe">Pipe</a>
-            <a href="#temperature">Temperature</a>
-            <a href="#pressure">Pressure</a>
+            <a href="#room">Rooms</a>
+            <a href="#pipe">Buildings</a>
         </v-expansion-panels>
     </div>
 </template>
@@ -28,6 +26,7 @@
 
 <script>
 import axios from "axios";
+import SKEYS from '../storage/StorageKeys'
 
 export default {
   props: ["modeID", "STORE"],
@@ -44,15 +43,15 @@ export default {
 
     this.STORE.getSelectedSensors((sensorIds)=>{
       for(let id of sensorIds){
-        ; // TODO check sensor checkbox passiert im normalfall nicht aber der vollständigkeit halber
+         this.checkboxes[id].checked; // TODO check sensor checkbox passiert im normalfall nicht aber der vollständigkeit halber
       }   
     })
     
     this.STORE.onSensorSelectionChanged((sensorId, action) => {
       if(action == "new")
-        ; // TODO check sensor checkbox
+        this.checkboxes[sensorId].checked;
       else if(action == "removed"){
-        ; // TODO uncheck sensor sensor
+        this.checkboxes[sensorId].unchecked;
       }
     })
   },
@@ -66,8 +65,7 @@ export default {
       }
     },
     startCameraMove(id) {
-      // TODO connect with lennarts stuff properly
-      console.log("startID:" + id);
+      this.STORE.set(SKEYS.CAMERA_DRIVE_SENSOR, id);
     },
     loadSensorData(id) {
       axios(this.endpoint + "models/" + id)
@@ -128,5 +126,11 @@ export default {
 .v-expansion-panels:not(.v-expansion-panels--accordion):not(.v-expansion-panels--tile)
   > .v-expansion-panel--active {
   height: auto;
+}
+
+.v-btn__content {
+
+  color: black;
+
 }
 </style>
