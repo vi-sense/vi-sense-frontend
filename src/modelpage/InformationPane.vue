@@ -6,7 +6,7 @@
             <v-expansion-panel v-for="(sensor, index) in sensorData" :key="sensor.id">
             <v-expansion-panel-header>
                 <v-checkbox
-                @change="onItemChecked(index)"
+                @change="onItemChecked(sensor.id, index)"
                 :key="sensor.id"
                 v-model="checkboxes[index].checked"
                 ></v-checkbox>
@@ -56,16 +56,17 @@ export default {
     })
   },
   methods: {
-    onItemChecked(id) {
-      if (this.checkboxes[id].checked == true) {
+    onItemChecked(id, index) {
+      if (this.checkboxes[index].checked == true) {
         this.STORE.selectSensor(id);
       }
-      else if (this.checkboxes[id].checked == false) {
+      else if (this.checkboxes[index].checked == false) {
         this.STORE.unselectSensor(id);
       }
     },
     startCameraMove(id) {
       this.STORE.set(SKEYS.CAMERA_DRIVE_SENSOR, id);
+      console.log("id:" + id);
     },
     loadSensorData(id) {
       axios(this.endpoint + "models/" + id)
@@ -128,9 +129,9 @@ export default {
   height: auto;
 }
 
-.v-btn__content {
+.v-btn .v-btn--contained .v-btn--rounded .theme--light .v-size--default primary {
 
-  color: black;
+  color: black !important;
 
 }
 </style>
