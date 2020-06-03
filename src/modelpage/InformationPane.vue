@@ -48,10 +48,10 @@ export default {
     })
     
     this.STORE.onSensorSelectionChanged((sensorId, action) => {
-      if(action == "new")
-        this.checkboxes[sensorId].checked;
-      else if(action == "removed"){
-        this.checkboxes[sensorId].unchecked;
+      if(action == "new") {
+        this.checkboxes[sensorId-1].checked = true;
+      } else if(action == "removed"){
+        this.checkboxes[sensorId-1].checked = false;
       }
     })
   },
@@ -66,7 +66,6 @@ export default {
     },
     startCameraMove(id) {
       this.STORE.set(SKEYS.CAMERA_DRIVE_SENSOR, id);
-      console.log("id:" + id);
     },
     loadSensorData(id) {
       axios(this.endpoint + "models/" + id)

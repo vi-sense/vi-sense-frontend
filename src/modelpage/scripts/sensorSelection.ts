@@ -13,19 +13,22 @@ var storage: Storage;
 var highlight: BABYLON.HighlightLayer;
 
 // stores all GUI Labels; a sensorLabel contains the container (rect) with its children [circle, label]
-// uses the mesh_id as key, access like this: sensorLabels["node505"]
-var sensorLabels = [];
+// uses the sensor_id as key
+var sensorLabels = {};
 
-var sensors = [];
+// stores all sensors with sensor_id as key
+var savedSensors = {};
 
 /**
   * @author Lennard Grimm
   * This is the callback function used for (de)selecting meshes via Vue or Babylon
-  * Update the selection state of a mesh by passing its mesh_id (e.g. "node505")
+  * Update the selection state of a mesh by passing the respective sensor_id
   * Changes the color of the mesh, and the text displayed in the label
   */
 export async function updateSelectedSensor(sensor_id: number, action: String) {
-    let sensor = await getSensorData(sensor_id);
+    console.log(savedSensors);
+    let sensor = savedSensors[sensor_id];
+    console.log(sensor)
     if(action == "new") {
       let mesh = myScene.getMeshByName(sensor.mesh_id);
       mesh.state = "selected";
@@ -48,13 +51,11 @@ export async function updateSelectedSensor(sensor_id: number, action: String) {
       mat.albedoColor = sensorColor;
       sensorLabels[sensor_id].background = "";
       sensorLabels[sensor_id].children[1].text = "";
-      // stop camera animations
-      myScene.stopAnimation(myScene.activeCamera);
     }
 }
 
 export async function moveToMesh(scene: BABYLON.Scene, sensor_id: number) {
-  let sensor = await getSensorData(sensor_id);
+  let sensor = savedSensors[sensor_id];
   let mesh = scene.getMeshByName(sensor.mesh_id);
   let target = mesh.getBoundingInfo().boundingSphere.centerWorld;
   focusOnMesh(scene, target);
@@ -87,9 +88,10 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
 
   // GET MODEL DATA
   let model = await getModelData(modelID);
-  sensors = model.sensors;
+  let sensors = model.sensors;
 
   for (let i = 0; i < sensors.length; i++) {
+    savedSensors[sensors[i].id] = sensors[i]
     // CURRENT MESH, all selectable meshes are colored purple
     let mesh = scene.getMeshByName(sensors[i].mesh_id);
     // let mat = mesh.material as BABYLON.PBRMaterial;
