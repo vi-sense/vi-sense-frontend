@@ -4,14 +4,14 @@ WORKDIR /app
 
 COPY package.json .
 RUN npm install
+COPY *.* ./
 
 FROM base AS develop
-COPY *.* ./
 RUN mkdir public
 ENTRYPOINT npm run dev_docker
 
 FROM base AS builder
-COPY . .
+COPY src src
 RUN npm run build
 
 #build go static file server minimal image

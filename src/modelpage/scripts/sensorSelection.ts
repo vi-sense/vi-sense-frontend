@@ -11,6 +11,8 @@ const selectedSensorColor = BABYLON.Color3.Teal();
 var myScene: BABYLON.Scene;
 var storage: Storage;
 var highlight: BABYLON.HighlightLayer;
+var arrow_svg = require('../../assets/arrow.svg');
+var colors = ["#638475","#90e39a","#ddf093","#f6d0b1","#ce4760"]
 
 // stores all GUI Labels; a sensorLabel contains the container (rect) with its children [circle, label]
 // uses the sensor_id as key
@@ -26,32 +28,30 @@ var savedSensors = {};
   * Changes the color of the mesh, and the text displayed in the label
   */
 export async function updateSelectedSensor(sensor_id: number, action: String) {
-    console.log(savedSensors);
-    let sensor = savedSensors[sensor_id];
-    console.log(sensor)
-    if(action == "new") {
-      let mesh = myScene.getMeshByName(sensor.mesh_id);
-      mesh.state = "selected";
-      highlight.addMesh(mesh.subMeshes[0].getRenderingMesh(), BABYLON.Color3.Black());
-      mesh = mesh.subMeshes[0].getRenderingMesh();
-      mesh.outlineWidth = .05;
-      mesh.outlineColor = BABYLON.Color3.Black();
-      mesh.renderOutline = true;
-      let mat = mesh.material as BABYLON.PBRMaterial;
-      mat.albedoColor = selectedSensorColor;
-      sensorLabels[sensor_id].background = "white";
-      sensorLabels[sensor_id].children[1].text = sensor.name;
-    } 
-    else if (action == "removed") {
-      let mesh = myScene.getMeshByName(sensor.mesh_id);
-      mesh.state = "";
-      highlight.removeMesh(mesh.subMeshes[0].getRenderingMesh());
-      mesh.renderOutline = false;
-      let mat = mesh.material as BABYLON.PBRMaterial;
-      mat.albedoColor = sensorColor;
-      sensorLabels[sensor_id].background = "";
-      sensorLabels[sensor_id].children[1].text = "";
-    }
+  let sensor = savedSensors[sensor_id];
+  if(action == "new") {
+    let mesh = myScene.getMeshByName(sensor.mesh_id);
+    mesh.state = "selected";
+    highlight.addMesh(mesh.subMeshes[0].getRenderingMesh(), BABYLON.Color3.Black());
+    mesh = mesh.subMeshes[0].getRenderingMesh();
+    mesh.outlineWidth = .05;
+    mesh.outlineColor = BABYLON.Color3.Black();
+    mesh.renderOutline = true;
+    let mat = mesh.material as BABYLON.PBRMaterial;
+    mat.albedoColor = selectedSensorColor;
+    sensorLabels[sensor_id].children[1].isVisible = true;
+    sensorLabels[sensor_id].children[1].children[0].text = sensor.name;
+  }
+  else if (action == "removed") {
+    let mesh = myScene.getMeshByName(sensor.mesh_id);
+    mesh.state = "";
+    highlight.removeMesh(mesh.subMeshes[0].getRenderingMesh());
+    mesh.renderOutline = false;
+    let mat = mesh.material as BABYLON.PBRMaterial;
+    mat.albedoColor = sensorColor;
+    sensorLabels[sensor_id].children[1].isVisible = false;
+    sensorLabels[sensor_id].children[1].children[0].text = "";
+  }
 }
 
 export async function moveToMesh(scene: BABYLON.Scene, sensor_id: number) {
@@ -60,6 +60,7 @@ export async function moveToMesh(scene: BABYLON.Scene, sensor_id: number) {
   let target = mesh.getBoundingInfo().boundingSphere.centerWorld;
   focusOnMesh(scene, target);
 }
+
 
 /**
   * @author Lennard Grimm
@@ -106,41 +107,53 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
     //   mesh.material = nodeMaterial;
     // });
     mesh.material = pulsatingShader();
-    
+
     // GUI SETUP
     let advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
-    let rect = new GUI.Rectangle();
-    rect.thickness = 0;
-    rect.adaptHeightToChildren = true;
-    rect.adaptWidthToChildren = true;
-    rect.isPointerBlocker = true;
-    advancedTexture.addControl(rect);
+    let stackPanel = new GUI.StackPanel();
+    stackPanel.isVertical = true;
+    stackPanel.isPointerBlocker = true;
+    advancedTexture.addControl(stackPanel);
+
+    let arrow = new GUI.Image("arrow" ,arrow_svg)
+    arrow.stretch = GUI.Image.STRETCH_UNIFORM
+    arrow.width = "50px"
+    arrow.height = "50px"
+    arrow.rotation = -Math.atan(sensors[i].latest_data.gradient * 1000)
 
     let circle = new GUI.Ellipse();
     circle.width = "70px";
     circle.height = "70px";
-    circle.alpha = 0.8;
-    circle.background = "white";
-    circle.thickness = 2;
-    rect.addControl(circle);
-
-    let label = new GUI.TextBlock();
-    label.resizeToFit = true;
-    //padding doesnt work when resizeToFit = true;
-    //label.paddingRightInPixels = 20;
-    //label.paddingLeftInPixels = 20;
-
-    // select mesh on label click
-    rect.onPointerDownObservable.add(function() {
+    circle.alpha = 1;
+    circle.background = colors[i%colors.length];
+    circle.addControl(arrow)
+    circle.onPointerDownObservable.add(function () {
       if (mesh.state == "") {
         storage.selectSensor(sensors[i].id)
       } else {
         storage.unselectSensor(sensors[i].id)
       }
     })
-    sensorLabels[sensors[i].id] = rect;
-    rect.addControl(label);
-    rect.linkWithMesh(mesh);
+    stackPanel.addControl(circle)
+
+    let rect = new GUI.Rectangle();
+    rect.width = "160px"
+    rect.height = "35px"
+    rect.isVisible = false
+    rect.background = "white"
+    stackPanel.addControl(rect)
+    let label = new GUI.TextBlock();
+    rect.addControl(label)
+    // label.resizeToFit = true;
+    //padding doesnt work when resizeToFit = true;
+    //label.paddingRightInPixels = 20;
+    //label.paddingLeftInPixels = 20;
+
+    stackPanel.addControl(rect);
+    stackPanel.linkWithMesh(mesh);
+    stackPanel.adaptWidthToChildren = true;
+
+    sensorLabels[sensors[i].id] = stackPanel;
 
     // REGISTER MESH ACTIONS
     mesh.actionManager = new BABYLON.ActionManager(scene);
@@ -196,4 +209,8 @@ async function getSensorData(id: number) {
     .then(res => { return res.json() })
     .catch(err => { throw new Error("Can not load sensor data") });
   return response;
+}
+
+function raiseToRad(raise: number){
+  return Math.atan(raise)
 }

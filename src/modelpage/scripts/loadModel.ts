@@ -15,7 +15,7 @@ export function loadModel(id: number, scene: BABYLON.Scene, callback: (meshes: B
         let API_URL = process.env.API_URL
         fetch(API_URL + "/models/" + id).then(response => {
             response.json().then(bodyData => {
-                var url = API_URL + '/' + bodyData.Url
+                var url = API_URL + '/' + bodyData.url
                 getFileFromServer(url, zipFile => {
                     loadAndResolveGltfFromZip(zipFile, glTFDataString => {
                         BABYLON.SceneLoader.ImportMesh('', '', `data:${glTFDataString}`, scene, (meshes, particleSystems, skeletons) => {
