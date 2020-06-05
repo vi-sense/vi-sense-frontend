@@ -20,7 +20,7 @@ export function loadModel(id: number, scene: BABYLON.Scene, callback: (meshes: B
                     loadAndResolveGltfFromZip(zipFile, glTFDataString => {
                         BABYLON.SceneLoader.ImportMesh('', '', `data:${glTFDataString}`, scene, (meshes, particleSystems, skeletons) => {
                             let buildingModel = <BABYLON.Mesh> meshes[0]
-                            normalize(buildingModel)
+                            //normalize(buildingModel)
                             callback(meshes)
                             document.getElementById("progressBar").innerHTML = "100%";
                             document.getElementById("progressBar").style.width = "100%";
@@ -36,12 +36,13 @@ export function loadModel(id: number, scene: BABYLON.Scene, callback: (meshes: B
             case 1: url = 'gltf/facility-mechanical-room/'; break
             case 2: url = 'gltf/mep-building-model/'; break
             case 3: url = 'gltf/overhead-mep-installation/'; break
+            case 4: url = 'gltf/pgn-model/'; break
             default: throw new Error("model id is not defined or not valid")
         }
 
         BABYLON.SceneLoader.ImportMesh("", url, "scene.gltf", scene, (meshes, particleSystems, skeletons) => {
             let buildingModel = <BABYLON.Mesh> meshes[0]
-            normalize(buildingModel)
+            //normalize(buildingModel)
             callback(meshes)
         }, (event) => updateProgress(event, "import"))
     }
