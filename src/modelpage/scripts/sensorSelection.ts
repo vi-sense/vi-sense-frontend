@@ -92,9 +92,13 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
   let sensors = model.sensors;
 
   for (let i = 0; i < sensors.length; i++) {
+    if(sensors[i].mesh_id == null || sensors[i].mesh_id == "") continue;
     savedSensors[sensors[i].id] = sensors[i]
+
     // CURRENT MESH, all selectable meshes are colored purple
-    let mesh = scene.getMeshByName(sensors[i].mesh_id);
+    let mesh: BABYLON.AbstractMesh;
+    if (model.id == 4) mesh = scene.getMeshByUniqueID(parseInt(sensors[i].mesh_id));
+    else mesh = scene.getMeshByName(sensors[i].mesh_id);
     // let mat = mesh.material as BABYLON.PBRMaterial;
     // mat.albedoColor = sensorColor;
 
@@ -115,7 +119,7 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
     stackPanel.isPointerBlocker = true;
     advancedTexture.addControl(stackPanel);
 
-    let arrow = new GUI.Image("arrow" ,arrow_svg)
+    let arrow = new GUI.Image("arrow", arrow_svg)
     arrow.stretch = GUI.Image.STRETCH_UNIFORM
     arrow.width = "50px"
     arrow.height = "50px"
@@ -128,11 +132,8 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
     circle.background = colors[i%colors.length];
     circle.addControl(arrow)
     circle.onPointerDownObservable.add(function () {
-      if (mesh.state == "") {
-        storage.selectSensor(sensors[i].id)
-      } else {
-        storage.unselectSensor(sensors[i].id)
-      }
+      if (mesh.state == "") storage.selectSensor(sensors[i].id)
+      else storage.unselectSensor(sensors[i].id)
     })
     stackPanel.addControl(circle)
 
@@ -144,7 +145,7 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
     stackPanel.addControl(rect)
     let label = new GUI.TextBlock();
     rect.addControl(label)
-    // label.resizeToFit = true;
+    //label.resizeToFit = true;
     //padding doesnt work when resizeToFit = true;
     //label.paddingRightInPixels = 20;
     //label.paddingLeftInPixels = 20;
@@ -160,11 +161,8 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
     mesh.actionManager.registerAction(
       new BABYLON.ExecuteCodeAction(
         BABYLON.ActionManager.OnPickTrigger, async function(e) {
-          if (e.source.state === "") {
-            storage.selectSensor(sensors[i].id)
-          } else {
-            storage.unselectSensor(sensors[i].id)
-          }
+          if (e.source.state === "") storage.selectSensor(sensors[i].id)
+          else storage.unselectSensor(sensors[i].id)
         }));
 
 
