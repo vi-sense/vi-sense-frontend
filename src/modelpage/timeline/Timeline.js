@@ -103,7 +103,8 @@ const Timeline = (function(parentElement){
     });*/
     
     function replaceTimepin(){   
-        document.querySelector("#timeOutput").innerHTML = formatDate(date)
+        let el = document.querySelector("#testTimeOutput")
+        if (el) el.innerHTML = formatDate(date)
         timepin.attr("transform", `translate(${xScale(date)}, 0)`)                
     }
 
