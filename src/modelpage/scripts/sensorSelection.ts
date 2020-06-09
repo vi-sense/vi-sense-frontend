@@ -39,8 +39,8 @@ export async function updateSelectedSensor(sensor_id: number, action: String) {
     mesh.renderOutline = true;
     let mat = mesh.material as BABYLON.PBRMaterial;
     mat.albedoColor = selectedSensorColor;
-    sensorLabels[sensor_id].children[1].alpha = 1;
-    sensorLabels[sensor_id].children[1].children[0].text = sensor.name;
+    sensorLabels[sensor_id].rect.alpha = 1;
+    // sensorLabels[sensor_id].label.children[0].text = sensor.name;
   }
   else if (action == "removed") {
     let mesh = myScene.getMeshByName(sensor.mesh_id);
@@ -49,8 +49,8 @@ export async function updateSelectedSensor(sensor_id: number, action: String) {
     mesh.renderOutline = false;
     let mat = mesh.material as BABYLON.PBRMaterial;
     mat.albedoColor = sensorColor;
-    sensorLabels[sensor_id].children[1].alpha = 0;
-    sensorLabels[sensor_id].children[1].children[0].text = "";
+    sensorLabels[sensor_id].rect.alpha = 0;
+    // sensorLabels[sensor_id].label.children[0].text = "";
   }
 }
 
@@ -138,12 +138,13 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
     stackPanel.addControl(circle)
 
     let rect = new GUI.Rectangle();
-    rect.width = "160px"
+    rect.width = "250px"
     rect.height = "35px"
     rect.alpha = 0
     rect.background = "white"
     stackPanel.addControl(rect)
     let label = new GUI.TextBlock();
+    label.text = sensors[i].name
     rect.addControl(label)
     //label.resizeToFit = true;
     //padding doesnt work when resizeToFit = true;
@@ -154,7 +155,7 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
     stackPanel.linkWithMesh(mesh);
     stackPanel.adaptWidthToChildren = true;
 
-    sensorLabels[sensors[i].id] = stackPanel;
+    sensorLabels[sensors[i].id] = {rect: rect, arrow: arrow, };
 
     // REGISTER MESH ACTIONS
     mesh.actionManager = new BABYLON.ActionManager(scene);
