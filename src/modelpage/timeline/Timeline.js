@@ -8,6 +8,7 @@
  */
 import * as d3 from 'd3'
 import Graph from "./Graph.js";
+import {turnArrow, getSensorColor} from "../scripts/sensorSelection"
 
 const Timeline = (function(parentElement){
 
@@ -105,7 +106,8 @@ const Timeline = (function(parentElement){
     function replaceTimepin(){   
         let el = document.querySelector("#testTimeOutput")
         if (el) el.innerHTML = formatDate(date)
-        timepin.attr("transform", `translate(${xScale(date)}, 0)`)                
+        timepin.attr("transform", `translate(${xScale(date)}, 0)`)
+        Array.from(graphs.keys()).forEach(key => {turnArrow(parseInt(key.slice(9)), graphs.get(key).gradient(xScale, yScale, date))})
     }
 
     replaceTimepin() 
@@ -183,7 +185,8 @@ const Timeline = (function(parentElement){
 
     function plotGraph(data, id){
         //console.log(data[0], data[data.length-1]);
-        let graph = new Graph(svg, data)
+        let color = getSensorColor(id)
+        let graph = new Graph(svg, data, color)
         graph.area(xScale, yScale)
         
         let graphNode = graph.node()
@@ -191,7 +194,9 @@ const Timeline = (function(parentElement){
         graphNode.attr("id", idstr);
 
         if(graphs.has(idstr)) throw new Error(`Graph with id ${id} already exists`)
-        graphs.set(idstr, graph)      
+        graphs.set(idstr, graph)
+
+        replaceTimepin()
     }
 
     function removeGraph(id){

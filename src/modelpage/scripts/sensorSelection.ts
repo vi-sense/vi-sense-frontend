@@ -40,6 +40,9 @@ export async function updateSelectedSensor(sensor_id: number, action: String) {
     let mat = mesh.material as BABYLON.PBRMaterial;
     mat.albedoColor = selectedSensorColor;
     sensorLabels[sensor_id].rect.alpha = 1;
+    sensorLabels[sensor_id].arrow.alpha = 1;
+    sensorLabels[sensor_id].circle.width = "70px";
+    sensorLabels[sensor_id].circle.height = "70px";
     // sensorLabels[sensor_id].label.children[0].text = sensor.name;
   }
   else if (action == "removed") {
@@ -50,6 +53,9 @@ export async function updateSelectedSensor(sensor_id: number, action: String) {
     let mat = mesh.material as BABYLON.PBRMaterial;
     mat.albedoColor = sensorColor;
     sensorLabels[sensor_id].rect.alpha = 0;
+    sensorLabels[sensor_id].arrow.alpha = 0;
+    sensorLabels[sensor_id].circle.width = "50px";
+    sensorLabels[sensor_id].circle.height = "50px";
     // sensorLabels[sensor_id].label.children[0].text = "";
   }
 }
@@ -123,11 +129,11 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
     arrow.stretch = GUI.Image.STRETCH_UNIFORM
     arrow.width = "50px"
     arrow.height = "50px"
-    arrow.rotation = -Math.atan(sensors[i].latest_data.gradient * 1000)
+    arrow.alpha = 0
 
     let circle = new GUI.Ellipse();
-    circle.width = "70px";
-    circle.height = "70px";
+    circle.width = "50px";
+    circle.height = "50px";
     circle.alpha = 1;
     circle.background = colors[i%colors.length];
     circle.addControl(arrow)
@@ -155,7 +161,7 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
     stackPanel.linkWithMesh(mesh);
     stackPanel.adaptWidthToChildren = true;
 
-    sensorLabels[sensors[i].id] = {rect: rect, arrow: arrow, };
+    sensorLabels[sensors[i].id] = {rect: rect, arrow: arrow, circle:circle, color: colors[i%colors.length]};
 
     // REGISTER MESH ACTIONS
     mesh.actionManager = new BABYLON.ActionManager(scene);
@@ -193,6 +199,14 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
     //     )
     //   ));
   }
+}
+
+export function turnArrow(sensorId, gradient){
+  sensorLabels[sensorId].arrow.rotation = -Math.atan(gradient)
+}
+
+export function getSensorColor(sensorId){
+  return sensorLabels[sensorId].color
 }
 
 
