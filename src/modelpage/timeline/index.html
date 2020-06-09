@@ -6,7 +6,7 @@
     <div id="chartWrapper"></div>
     <div>
         <p id="testTimeOutput"></p>
-        <input type="button" value="play">
+        <input id="playbutton" type="button" value="play">
     </div>
 </body>
 </html>
@@ -40,6 +40,13 @@ const API_URL = "https://visense.f4.htw-berlin.de:44344/"
 const parent = document.querySelector("#chartWrapper")
 const timeline = new Timeline(parent)
 
+document.querySelector("#playbutton").onclick = e => {
+    if(timeline.isPlaying())
+        timeline.pause()
+    else 
+        timeline.play()
+}
+
 
 fetch(API_URL + `sensors/1/data`)
 .catch(error => { console.log(error) })
@@ -56,9 +63,6 @@ fetch(API_URL + `sensors/4/data`)
 .catch(error => { console.log(error) })
 .then(res => { return res.json() })
 .then(json => { timeline.plotGraph(transformData(json), 4) })  
-
-
-
 
 
 let data = []

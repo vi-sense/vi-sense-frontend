@@ -1,10 +1,5 @@
 /**
  * @author Tom Wendland
- * 
- * TODO
- * - y achse skalierung anhand der werte (dynamisch nach zoom find ich nicht so gut, evtl in option pane?)
- * - domain von jetzigem zeitpunkt bis -1 tag oder so (muss mit datan aufm server abgesprochen werden)
- * - legende + färbung der graphen
  */
 import * as d3 from 'd3'
 import Graph from "./Graph.js";
@@ -22,15 +17,13 @@ const Timeline = (function(parentElement){
     const graphs = new Map()
     
     // scaling reference https://stackoverflow.com/questions/56553384/d3-v5-axis-scale-change-panning-way-too-much
-    let xScaleRef = d3.scaleUtc()
+    const xScaleRef = d3.scaleUtc()
         .range([margin.left, width - margin.right])
-        //.domain(d3.extent(data, d => d.date))
-        //.domain([new Date("2020-01-01T00:00:00Z"), new Date("2020-01-01T16:45:00Z")])
-        .domain([new Date("2020-05-22T00:00:00Z"), new Date("2020-05-29T12:00:00Z")]) // TODO scaleTick auf 24 h
+        .domain([new Date("2020-05-22T00:00:00Z"), new Date("2020-05-29T12:00:00Z")]) // TODO scaleTick 24 h
 
-    let xScale = xScaleRef.copy()
+    const xScale = xScaleRef.copy()
 
-    let yScale = d3.scaleLinear()
+    const yScale = d3.scaleLinear()
         .range([height - margin.bottom, margin.top])
         //.domain([0, d3.max(data, d => d.value)]).nice()
         .domain([0, 50]).nice()
@@ -50,9 +43,7 @@ const Timeline = (function(parentElement){
             .attr("x", 3)
             .attr("text-anchor", "start")
             .attr("font-weight", "bold")
-            .text("unit")
-
-        )
+            .text("unit"))
 
     const gx = svg.append("g").call(xAxis);
     const gy = svg.append("g").call(yAxis);
@@ -69,7 +60,7 @@ const Timeline = (function(parentElement){
                       |_|        
     */
     const timepin = svg.append("g")
-    var date = xScale.domain()[1] // upper domain value
+    var timepinDate = xScale.domain()[1] // upper domain value
 
     const ruler = timepin.append("line")
         .attr("stroke", "grey")
@@ -90,7 +81,7 @@ const Timeline = (function(parentElement){
         let min_x = margin.left
         if(mouse_x > max_x) mouse_x = max_x
         if(mouse_x < min_x) mouse_x = min_x
-        date = xScale.invert(mouse_x)        
+        timepinDate = xScale.invert(mouse_x)        
         replaceTimepin()
     }));
 
@@ -104,8 +95,8 @@ const Timeline = (function(parentElement){
     
     function replaceTimepin(){   
         let el = document.querySelector("#testTimeOutput")
-        if (el) el.innerHTML = formatDate(date)
-        timepin.attr("transform", `translate(${xScale(date)}, 0)`)                
+        if (el) el.innerHTML = formatDate(timepinDate)
+        timepin.attr("transform", `translate(${xScale(timepinDate)}, 0)`)                
     }
 
     replaceTimepin() 
@@ -120,27 +111,33 @@ const Timeline = (function(parentElement){
     |_____|_| |___|___|_|_|                   
      */
  
-     /*
+    var selection
+
     const brush = d3.brushX()
-    .extent([[margin.left, margin.top], [width - margin.right, height - margin.bottom]])
-    .on("end", brushed);
+        .extent([[margin.left, margin.top], [width - margin.right, height - margin.bottom]])
+        .on("end", () => {
+            if(d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom") return // ignore brush-by-zoom
+            if(d3.event.selection == null){
+                selection = null
+            } else{
+                if(!selection) selection = []
+                selection[0] = xScale.invert(d3.event.selection[0]) 
+                selection[1] = xScale.invert(d3.event.selection[1]) 
+            }
+        })
 
-    function brushed() {
-        var e = brush.extent().call();
-        let selection = d3.event.selection;
-        let date = x.invert(selection[0]) 
-        console.log("brush: "+ date)
-    }
-
-    svg.append("g")
-    .call(brush)
-    .attr("class", "brush")
-    .select(".selection")
+    const brushGroup = svg.append("g")
+        .call(brush)
+        .on("dblclick", () => {
+            brushGroup.call(brush.move, null); 
+            // brush.end event is called afterwards which removes the selection      
+        });
+        
+    brushGroup.select(".selection")
         .attr("fill", "lightgrey")     
         .attr("stroke", "grey")     
         .attr("stroke-dasharray", 4)
 
-*/
 
 
 
@@ -151,6 +148,11 @@ const Timeline = (function(parentElement){
     |_____|___|___|_|_|_|
     */
 
+    // rechts un links icon zum ziehen
+    // oben mitte ein zum draggen
+    // erstellen/entfernen mit doppelklick und button
+    // -> normale pan control ermöglichen
+
     svg.call(d3.zoom()
         .scaleExtent([1, 20]) // zoom factor range depending on preselected domain size
         .extent([[margin.left, 0], [width-margin.right, height]])
@@ -159,18 +161,42 @@ const Timeline = (function(parentElement){
         .on("dblclick.zoom", null)
 
     function zoomed() {
-        var t = d3.event.transform;   
+        let t = d3.event.transform
+        xScale.domain(t.rescaleX(xScaleRef).domain()); // continous scale with transformed domain  
 
-        xScale = t.rescaleX(xScaleRef); // continous scale with transformed domain  
-
-        gx.call(xAxis); 
-        graphs.forEach(g => g.area(xScale, yScale))
         replaceTimepin() 
-        //svg.select(".brush").call(brush.move, xz);
+        gx.call(xAxis); 
+        graphs.forEach(g => g.area(xScale, yScale))        
+        if(selection) brushGroup.call(brush.move, [xScale(selection[0]), xScale(selection[1])]);       
     }
 
 
+    /**
+     _____ _         
+    |  _  | |___ _ _ 
+    |   __| | .'| | |
+    |__|  |_|__,|_  |
+                |___|
+    */
 
+    var playing = false
+    function animate(){
+        requestAnimationFrame(animate)
+        if(!playing) return
+
+        let m = 1
+        timepinDate.setTime(timepinDate.getTime() + (m*60*1000));
+
+        if(selection){
+            if(timepinDate < selection[0] || timepinDate > selection[1])
+                timepinDate.setTime(selection[0].getTime())
+        }
+        replaceTimepin()
+    }
+    requestAnimationFrame(animate)
+
+
+    
     
     /**
      _____       _     _ _          __                  _   _                 
@@ -181,6 +207,11 @@ const Timeline = (function(parentElement){
     |_|    \ ___|_ __/|_|_|\___|  |_|  \__,_|_| |_|\___|\__|_|\___/|_| |_|___/      
     */
 
+    /**
+     * 
+     * @param {Array} data in the form [{date: Date value: Number}, {...}, ...]
+     * @param {Number} id a id which you want the graph to be identified with. Use the id for additional actions e.g. removing the graph
+     */
     function plotGraph(data, id){
         //console.log(data[0], data[data.length-1]);
         let graph = new Graph(svg, data)
@@ -194,6 +225,10 @@ const Timeline = (function(parentElement){
         graphs.set(idstr, graph)      
     }
 
+    /**
+     * 
+     * @param {Number} id 
+     */
     function removeGraph(id){
         let idstr = "graphline"+id
         if(!graphs.has(idstr)) throw new Error(`There is no graph with id ${id}`)
@@ -202,27 +237,32 @@ const Timeline = (function(parentElement){
         graphs.delete(idstr)        
     }
 
-    function play(){ 
-        // TODO
-    }
-
-    function setTimepinTime(){
-        // TODO
+    /**
+     * 
+     * @param {Date} date 
+     */
+    function setTimepinTime(date){
+        timepinDate = date
+        replaceTimepin()
      }
 
     return {
-        setTimepinTime, 
-        play, 
         plotGraph, 
-        removeGraph
+        removeGraph,  
+        setTimepinTime, 
+  
+        play(){ playing = true },
+        pause(){ playing = false },
+        isPlaying(){ return playing },
     }
 })
+export default Timeline
 
-    
+
+
 function formatValue(value) {    
     return value.toFixed(2)
 }
-
 function formatDate(date) {
     return date.toLocaleString("de", {
         month: "short",
@@ -234,5 +274,3 @@ function formatDate(date) {
         timeZone: 'UTC'
     });
 }
-
-export default Timeline

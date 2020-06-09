@@ -11,6 +11,7 @@ export default class Graph{
             .defined(d => !isNaN(d.value) && !isNaN(d.date))
 
         this.path = svg.append("path")
+            .datum(this.data)
             .attr("fill", "none")
             .attr("stroke", "steelblue")
             .attr("stroke-width", 1.5)
@@ -28,7 +29,6 @@ export default class Graph{
             .y(d => y(d.value))
 
         this.path
-            .datum(this.data)
             .attr("d", this.line);  
     }
 }
