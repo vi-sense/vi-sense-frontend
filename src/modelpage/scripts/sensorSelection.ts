@@ -1,4 +1,5 @@
 import * as BABYLON from 'babylonjs';
+import { schemeCategory10 } from 'd3';
 import * as GUI from "babylonjs-gui";
 import Storage from '../../storage/Storage';
 import { focusOnMesh } from './focusOnMesh';
@@ -12,7 +13,7 @@ var myScene: BABYLON.Scene;
 var storage: Storage;
 var highlight: BABYLON.HighlightLayer;
 var arrow_svg = require('../../assets/arrow.svg');
-var colors = ["#638475","#90e39a","#ddf093","#f6d0b1","#ce4760"]
+var colors = schemeCategory10
 
 // stores all GUI Labels; a sensorLabel contains the container (rect) with its children [circle, label]
 // uses the sensor_id as key
