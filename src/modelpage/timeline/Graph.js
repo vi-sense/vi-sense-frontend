@@ -5,7 +5,7 @@ import * as d3 from 'd3'
 
 export default class Graph{
 
-    constructor(svg, data) {
+    constructor(svg, data, color) {
         this.data = data
         this.line = d3.line()
             .defined(d => !isNaN(d.value) && !isNaN(d.date))
@@ -13,7 +13,7 @@ export default class Graph{
         this.path = svg.append("path")
             .datum(this.data)
             .attr("fill", "none")
-            .attr("stroke", "steelblue")
+            .attr("stroke", color)
             .attr("stroke-width", 1.5)
             .attr("stroke-linejoin", "round")
             .attr("stroke-linecap", "round")
@@ -21,6 +21,11 @@ export default class Graph{
 
     node(){
         return this.path
+    }
+    gradient(xScale, yScale, date){
+        let index = this.data.findIndex(entry => entry.date > date)
+        let m = -(yScale(this.data[index].value) - yScale(this.data[index -1].value))/(xScale(this.data[index].date) - xScale(this.data[index -1].date))
+        return m
     }
 
     area(x, y){

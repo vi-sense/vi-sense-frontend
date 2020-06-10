@@ -1,4 +1,5 @@
 import * as BABYLON from 'babylonjs';
+import { schemeCategory10 } from 'd3';
 import * as GUI from "babylonjs-gui";
 import Storage from '../../storage/Storage';
 import { focusOnMesh } from './focusOnMesh';
@@ -12,7 +13,7 @@ var myScene: BABYLON.Scene;
 var storage: Storage;
 var highlight: BABYLON.HighlightLayer;
 var arrow_svg = require('../../assets/arrow.svg');
-var colors = ["#638475","#90e39a","#ddf093","#f6d0b1","#ce4760"]
+var colors = schemeCategory10
 
 // stores all GUI Labels; a sensorLabel contains the container (rect) with its children [circle, label]
 // uses the sensor_id as key
@@ -39,8 +40,11 @@ export async function updateSelectedSensor(sensor_id: number, action: String) {
     mesh.renderOutline = true;
     let mat = mesh.material as BABYLON.PBRMaterial;
     mat.albedoColor = selectedSensorColor;
-    sensorLabels[sensor_id].children[1].alpha = 1;
-    sensorLabels[sensor_id].children[1].children[0].text = sensor.name;
+    sensorLabels[sensor_id].rect.alpha = 1;
+    sensorLabels[sensor_id].arrow.alpha = 1;
+    sensorLabels[sensor_id].circle.width = "70px";
+    sensorLabels[sensor_id].circle.height = "70px";
+    // sensorLabels[sensor_id].label.children[0].text = sensor.name;
   }
   else if (action == "removed") {
     let mesh = myScene.getMeshByName(sensor.mesh_id);
@@ -49,8 +53,11 @@ export async function updateSelectedSensor(sensor_id: number, action: String) {
     mesh.renderOutline = false;
     let mat = mesh.material as BABYLON.PBRMaterial;
     mat.albedoColor = sensorColor;
-    sensorLabels[sensor_id].children[1].alpha = 0;
-    sensorLabels[sensor_id].children[1].children[0].text = "";
+    sensorLabels[sensor_id].rect.alpha = 0;
+    sensorLabels[sensor_id].arrow.alpha = 0;
+    sensorLabels[sensor_id].circle.width = "50px";
+    sensorLabels[sensor_id].circle.height = "50px";
+    // sensorLabels[sensor_id].label.children[0].text = "";
   }
 }
 
@@ -123,11 +130,11 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
     arrow.stretch = GUI.Image.STRETCH_UNIFORM
     arrow.width = "50px"
     arrow.height = "50px"
-    arrow.rotation = -Math.atan(sensors[i].latest_data.gradient * 1000)
+    arrow.alpha = 0
 
     let circle = new GUI.Ellipse();
-    circle.width = "70px";
-    circle.height = "70px";
+    circle.width = "50px";
+    circle.height = "50px";
     circle.alpha = 1;
     circle.background = colors[i%colors.length];
     circle.addControl(arrow)
@@ -138,12 +145,13 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
     stackPanel.addControl(circle)
 
     let rect = new GUI.Rectangle();
-    rect.width = "160px"
+    rect.width = "250px"
     rect.height = "35px"
     rect.alpha = 0
     rect.background = "white"
     stackPanel.addControl(rect)
     let label = new GUI.TextBlock();
+    label.text = sensors[i].name
     rect.addControl(label)
     //label.resizeToFit = true;
     //padding doesnt work when resizeToFit = true;
@@ -154,7 +162,7 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
     stackPanel.linkWithMesh(mesh);
     stackPanel.adaptWidthToChildren = true;
 
-    sensorLabels[sensors[i].id] = stackPanel;
+    sensorLabels[sensors[i].id] = {rect: rect, arrow: arrow, circle:circle, color: colors[i%colors.length]};
 
     // REGISTER MESH ACTIONS
     mesh.actionManager = new BABYLON.ActionManager(scene);
@@ -192,6 +200,14 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
     //     )
     //   ));
   }
+}
+
+export function turnArrow(sensorId, gradient){
+  sensorLabels[sensorId].arrow.rotation = -Math.atan(gradient)
+}
+
+export function getSensorColor(sensorId){
+  return sensorLabels[sensorId].color
 }
 
 
