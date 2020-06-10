@@ -69,9 +69,7 @@ export default class Storage{
             }
             return true
         }
-        else{
-            return false
-        }
+        else { return false }
     }
     unselectSensor(id){
         let index = this.#selectedSensors.indexOf(id);
@@ -82,20 +80,17 @@ export default class Storage{
             }
             return true
         }
-        else{
-            return false
-        }
+        else { return false }
     }
 
     getSelectedSensors(){
-        return this.#selectedSensors.slice() // return only a copy to prevent the client to have the internal array reference
+        return this.#selectedSensors.slice() // return only a copy to prevent the client having the internal array reference
     }
 
     onSensorSelectionChanged(callback: (sensorId: number, action: String) => void){
         if(callback instanceof Function)
             this.#sensorSelectionCallbacks.push(callback)
-        else 
-            throw new Error("Thats not a callback function")
+        else throw new Error("Thats not a callback function")
     }
 }
 

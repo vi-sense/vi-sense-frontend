@@ -1,7 +1,7 @@
 <template>
   <div>
     <header>
-      <h1>Vi-Sense Modelpage</h1>
+      <h1>Vi-Sense Modelview</h1>
       <p>{{ title }}</p>
     </header>
 
@@ -12,26 +12,27 @@
         <div id="canvaswrapper">
           <canvas id="babyloncanvas"></canvas>
         </div>
-        <div id="timeline">
-          <Timeline :STORE="STORE" />
-        </div>
+        <Timeline id="timeline" :STORE="STORE" />
       </div>
+
+      <OptionPane id="optionpane" :STORE="STORE"/>
     </main>
   </div>
 </template>
 
 
 <script>
-import BabylonApp from "./BabylonApp";
+import BabylonApp from "./babylon/BabylonApp";
 import Timeline from "./Timeline";
 import InformationPane from "./InformationPane";
+import OptionPane from "./OptionPane";
 import Storage from "../storage/Storage";
 import axios from "axios";
 
 export default {
   props: ["id"],
   components: {
-    Timeline, InformationPane
+    Timeline, InformationPane, OptionPane
   },
   data() {
     return {
@@ -66,24 +67,25 @@ export default {
 <style scoped lang="scss">
 
 header{
-  height: 10%;
+  height: 7%;
   width: 100%;
 }
 
 main{
-  height: 90%;
+  height: 93%;
   width: 100%;
   display: flex; // idk why but its not working with regular inline-block so i used flex as a quickfix..
 
   #mainpane{
     height: 100%;
-    width: 80%;
-    border: 1px solid grey;
-    box-sizing: border-box;
-    
+    width: 70%;
+
     #canvaswrapper{
       width: 100%;
-      height: 70%;
+      height: 75%;
+      border: 1px solid grey;
+      box-sizing: border-box;
+
       canvas{
         width: 100%;
         height: 100%;
@@ -91,16 +93,20 @@ main{
     }
     #timeline{
       width: 100%;
-      height: 30%;
+      height: 25%;
+      background-color: lightgrey;
     }
   }
 
   #informationpane {
     display: inline-block;
     height: 100%;
-    width: 20%;
-    border: 1px solid grey;
+    width: 15%;
     box-sizing: border-box;
+  }
+
+  #optionpane{
+    width: 15%;
   }
 }
 </style>

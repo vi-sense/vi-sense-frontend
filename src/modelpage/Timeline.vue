@@ -1,15 +1,36 @@
 <template>
-    <div id="chartWrapper"></div>
+  <div>
+      <div id="chartWrapper"></div>
+      <div id="tools">
+        <input id="btnPlay" type="button" value="play">
+
+      </div>
+  </div>
 </template>
 
 
-<style scoped>
-div:first-of-type {
-  background-color: lightgrey;
-}
-#chartWrapper{
-  width: 100%;
-  height: 100%;
+<style scoped lang="scss">
+#timeline{
+
+  #chartWrapper{
+    display: inline-block;
+    height: 100%;
+    width: calc(100% - 45px);
+    vertical-align:top;
+  }
+  #tools{
+    display: inline-block;
+    width: 40px;
+    vertical-align:top;
+    padding: 2px;
+    padding-left: 0;
+    box-sizing: border-box;
+  }
+
+  input[type=button]{
+    width: 100%;
+    border: 1px solid grey;
+  }
 }
 </style>
 
@@ -23,26 +44,26 @@ export default {
     return { }
   },
   mounted(){      
-      let chartWrapper = document.querySelector("#chartWrapper")
-      let timeline = new Timeline(chartWrapper)
-            
-      this.STORE.getSelectedSensors((sensorIds)=>{
-          for(let id of sensorIds){
-            this.getSensorData(id).then(json => { timeline.plotGraph(this.transformData(json), id) })
-          }
-      })
-        
-      this.STORE.onSensorSelectionChanged((sensorId, action) => {
-        if(action == "new")
-            this.getSensorData(sensorId).then(json => { timeline.plotGraph(this.transformData(json), sensorId) })
-        else if(action == "removed"){
-            timeline.removeGraph(sensorId)
+    let chartWrapper = document.querySelector("#chartWrapper")
+    let timeline = new Timeline(chartWrapper)
+          
+    this.STORE.getSelectedSensors((sensorIds)=>{
+        for(let id of sensorIds){
+          this.getSensorData(id).then(json => { timeline.plotGraph(this.transformData(json), id) })
         }
-      })
+    })
+      
+    this.STORE.onSensorSelectionChanged((sensorId, action) => {
+      if(action == "new")
+          this.getSensorData(sensorId).then(json => { timeline.plotGraph(this.transformData(json), sensorId) })
+      else if(action == "removed"){
+          timeline.removeGraph(sensorId)
+      }
+    })
 
-      //setTimeout(() => this.STORE.selectSensor(1), 1000)
-      //setTimeout(() => this.STORE.selectSensor(4), 2000)
-      //setTimeout(() => this.STORE.unselectSensor(4), 8000)
+    document.querySelector("#btnPlay").onclick = e => {
+      timeline.isPlaying() ? timeline.pause() : timeline.play()
+    }
   },
   methods: {
     transformData(api_json_data){

@@ -5,28 +5,41 @@ import * as d3 from 'd3'
 
 export default class Graph{
 
-    constructor(svg, x, y, data) {
+    constructor(svg, data, color) {
         this.data = data
-
-        let line = d3.line()
+        this.line = d3.line()
             .defined(d => !isNaN(d.value) && !isNaN(d.date))
-            .x(d => x(d.date))
-            .y(d => y(d.value))
 
         this.path = svg.append("path")
-            .datum(data)
+            .datum(this.data)
             .attr("fill", "none")
-            .attr("stroke", "steelblue")
+            .attr("stroke", color)
             .attr("stroke-width", 1.5)
             .attr("stroke-linejoin", "round")
             .attr("stroke-linecap", "round")
-            .attr("d", line);            
     }
+    area(x, y){
+        this.line
+            .x(d => x(d.date))
+            .y(d => y(d.value))
 
+        this.path
+            .attr("d", this.line);  
+    }
     node(){
         return this.path
     }
+    gradient(xScale, yScale, date){
+        // use bisect for better performance?
+        let index = this.data.findIndex(entry => entry.date > date)
+        let m = -(yScale(this.data[index].value) - yScale(this.data[index -1].value))/(xScale(this.data[index].date) - xScale(this.data[index -1].date))
+        return m
+    }
 }
+
+
+
+// Timepin einrasten ergibt kein sinn weil daten immer zu unterschiedlichen zeiten generiert wurden, also eh immer interpoliert werden müsste für die andern grapehn
 
 /*
 timepin.call(d3.drag().on('drag', () => {

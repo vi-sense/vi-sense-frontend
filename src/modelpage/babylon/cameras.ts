@@ -3,7 +3,7 @@
  */
 
 import * as BABYLON from 'babylonjs';
-import FloorCamera from './floorCamera';
+import FloorCamera from './FloorCamera';
 
 /**
  * Prety simple and hacky FPS camera script locked to XZ-axis movement

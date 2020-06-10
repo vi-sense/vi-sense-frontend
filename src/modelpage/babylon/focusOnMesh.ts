@@ -1,5 +1,5 @@
 import * as BABYLON from 'babylonjs'
-import FloorCamera from './floorCamera';
+import FloorCamera from './FloorCamera';
 
 /**
  * @author Lennard Grimm

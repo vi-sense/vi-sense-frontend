@@ -4,6 +4,10 @@
 </head>
 <body>
     <div id="chartWrapper"></div>
+    <div>
+        <p id="testTimeOutput"></p>
+        <input id="playbutton" type="button" value="play">
+    </div>
 </body>
 </html>
 
@@ -24,7 +28,11 @@ html{
 }
 </style>
 
-<script>
+<script src="https://d3js.org/d3.v5.js"></script>
+<script type="module">
+/**
+ * this file is only for testing porposes 
+*/
 import Timeline from './Timeline.js'
 
 const API_URL = "https://visense.f4.htw-berlin.de:44344/"
@@ -32,20 +40,40 @@ const API_URL = "https://visense.f4.htw-berlin.de:44344/"
 const parent = document.querySelector("#chartWrapper")
 const timeline = new Timeline(parent)
 
+document.querySelector("#playbutton").onclick = e => {
+    if(timeline.isPlaying())
+        timeline.pause()
+    else 
+        timeline.play()
+}
+
 
 fetch(API_URL + `sensors/1/data`)
+.catch(error => { console.log(error) })
 .then(res => { return res.json() })
 .then(json => { timeline.plotGraph(transformData(json), 1) })
+//setTimeout(() =>  timeline.removeGraph(1), 2000)
 
 fetch(API_URL + `sensors/2/data`)
+.catch(error => { console.log(error) })
 .then(res => { return res.json() })
 .then(json => { timeline.plotGraph(transformData(json), 2) })  
 
 fetch(API_URL + `sensors/4/data`)
+.catch(error => { console.log(error) })
 .then(res => { return res.json() })
 .then(json => { timeline.plotGraph(transformData(json), 4) })  
 
-setTimeout(()=>  timeline.removeGraph(1), 2000)
+
+let data = []
+let start = new Date("2020-01-01T07:55:00Z")
+for(let i = 0; i<100; i++){
+    var day = new Date(start)
+    day.setHours(start.getHours() + i);
+    data.push({date: day, value: (i+Math.random())})            
+}
+timeline.plotGraph(data, 5) 
+
 
 function transformData(api_data_json){
     let data = []
