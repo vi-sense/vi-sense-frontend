@@ -18,16 +18,6 @@ export default class Graph{
             .attr("stroke-linejoin", "round")
             .attr("stroke-linecap", "round")
     }
-
-    node(){
-        return this.path
-    }
-    gradient(xScale, yScale, date){
-        let index = this.data.findIndex(entry => entry.date > date)
-        let m = -(yScale(this.data[index].value) - yScale(this.data[index -1].value))/(xScale(this.data[index].date) - xScale(this.data[index -1].date))
-        return m
-    }
-
     area(x, y){
         this.line
             .x(d => x(d.date))
@@ -35,6 +25,15 @@ export default class Graph{
 
         this.path
             .attr("d", this.line);  
+    }
+    node(){
+        return this.path
+    }
+    gradient(xScale, yScale, date){
+        // use bisect for better performance?
+        let index = this.data.findIndex(entry => entry.date > date)
+        let m = -(yScale(this.data[index].value) - yScale(this.data[index -1].value))/(xScale(this.data[index].date) - xScale(this.data[index -1].date))
+        return m
     }
 }
 

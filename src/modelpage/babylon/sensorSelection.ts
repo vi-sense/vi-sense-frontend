@@ -1,9 +1,9 @@
 import * as BABYLON from 'babylonjs';
-import { schemeCategory10 } from 'd3';
 import * as GUI from "babylonjs-gui";
 import Storage from '../../storage/Storage';
 import { focusOnMesh } from './focusOnMesh';
 import { pulsatingShader } from './shaders';
+import { SENSOR_COLORS } from '../../storage/Settings';
 
 const API_URL = process.env.API_URL;
 const sensorColor = BABYLON.Color3.Purple();
@@ -13,7 +13,6 @@ var myScene: BABYLON.Scene;
 var storage: Storage;
 var highlight: BABYLON.HighlightLayer;
 var arrow_svg = require('../../assets/arrow.svg');
-var colors = schemeCategory10
 
 // stores all GUI Labels; a sensorLabel contains the container (rect) with its children [circle, label]
 // uses the sensor_id as key
@@ -136,7 +135,7 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
     circle.width = "50px";
     circle.height = "50px";
     circle.alpha = 1;
-    circle.background = colors[i%colors.length];
+    circle.background = SENSOR_COLORS[sensors[i].id];
     circle.addControl(arrow)
     circle.onPointerDownObservable.add(function () {
       if (mesh.state == "") storage.selectSensor(sensors[i].id)
@@ -162,7 +161,7 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
     stackPanel.linkWithMesh(mesh);
     stackPanel.adaptWidthToChildren = true;
 
-    sensorLabels[sensors[i].id] = {rect: rect, arrow: arrow, circle:circle, color: colors[i%colors.length]};
+    sensorLabels[sensors[i].id] = {rect: rect, arrow: arrow, circle:circle, color: SENSOR_COLORS[sensors[i].id]};
 
     // REGISTER MESH ACTIONS
     mesh.actionManager = new BABYLON.ActionManager(scene);
@@ -204,10 +203,6 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
 
 export function turnArrow(sensorId, gradient){
   sensorLabels[sensorId].arrow.rotation = -Math.atan(gradient)
-}
-
-export function getSensorColor(sensorId){
-  return sensorLabels[sensorId].color
 }
 
 

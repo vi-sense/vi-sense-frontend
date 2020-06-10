@@ -22,7 +22,7 @@
 
 
 <script>
-import BabylonApp from "./BabylonApp";
+import BabylonApp from "./babylon/BabylonApp";
 import Timeline from "./Timeline";
 import InformationPane from "./InformationPane";
 import OptionPane from "./OptionPane";

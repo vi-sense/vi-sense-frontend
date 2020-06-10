@@ -4,11 +4,11 @@
 import * as BABYLON from 'babylonjs'
 import 'babylonjs-loaders';
 import 'babylonjs-inspector';
-import { createFloorCamera } from './scripts/camera';
-import setupSensorSelection from './scripts/sensorSelection';
-import { loadModel } from './scripts/loadModel';
-import CustomLoadingScreen from './scripts/loadingScreen';
-import Storage from '../storage/Storage';
+import { createFloorCamera } from './cameras';
+import setupSensorSelection from './sensorSelection';
+import { loadModel } from './loadModel';
+import CustomLoadingScreen from './loadingScreen';
+import Storage from '../../storage/Storage';
 
 
 export const IS_PRODUCTION: boolean = Boolean(process.env.PRODUCTION)  // its value is set in webpack.config.js

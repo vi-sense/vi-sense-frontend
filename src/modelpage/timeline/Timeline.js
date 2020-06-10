@@ -3,7 +3,8 @@
  */
 import * as d3 from 'd3'
 import Graph from "./Graph.js";
-import {turnArrow, getSensorColor} from "../scripts/sensorSelection"
+import { turnArrow } from "../babylon/sensorSelection"
+import { SENSOR_COLORS } from '../../storage/Settings';
 
 const Timeline = (function(parentElement){
 
@@ -95,8 +96,7 @@ const Timeline = (function(parentElement){
     });*/
     
     function replaceTimepin(){   
-        let el = document.querySelector("#testTimeOutput")
-        if (el) el.innerHTML = formatDate(timepinDate)
+        //let stringdate = formatDate(timepinDate)
         timepin.attr("transform", `translate(${xScale(timepinDate)}, 0)`)
         Array.from(graphs.keys()).forEach(key => {turnArrow(parseInt(key.slice(9)), graphs.get(key).gradient(xScale, yScale, timepinDate))})
     }
@@ -216,7 +216,7 @@ const Timeline = (function(parentElement){
      */
     function plotGraph(data, id){
         //console.log(data[0], data[data.length-1]);
-        let color = getSensorColor(id)
+        let color = SENSOR_COLORS[id]
         let graph = new Graph(svg, data, color)
         graph.area(xScale, yScale)
         
