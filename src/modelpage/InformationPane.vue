@@ -1,7 +1,7 @@
 <template>
     <div>
-        <a class="active" href="#home">Information Pane</a>
-        <a href="#sensor">Sensoren</a>
+        <a class="active">Information Pane</a>
+        <a>Sensoren</a>
         <v-expansion-panels class="condensed" focusable>
             <v-expansion-panel v-for="(sensor, index) in sensorData" :key="sensor.id">
             <v-expansion-panel-header>
@@ -17,8 +17,6 @@
                 <v-btn color="primary" rounded @click.prevent="startCameraMove(sensor.id)">Go to Sensor</v-btn>
             </v-expansion-panel-content>
             </v-expansion-panel>
-            <a href="#room">Rooms</a>
-            <a href="#pipe">Buildings</a>
         </v-expansion-panels>
     </div>
 </template>
