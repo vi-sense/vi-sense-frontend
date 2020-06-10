@@ -3,7 +3,7 @@
     <h2>
       Welcome to vi-sense start page
     </h2>
-    <img src="../assets/logo.png" alt="vuejs logo">
+    <img src="../assets/logo.svg" alt="vuejs logo">
   </div>
 </template>
 
