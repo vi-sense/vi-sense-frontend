@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import Vuetify from 'vuetify'
 import 'vuetify/dist/vuetify.min.css'
 import App from './App.vue'
+import Landingpage from './Landingpage.vue'
 import Startpage from './startpage/Startpage.vue'
 import Welcome from './startpage/Welcome.vue'
 import Model from './startpage/Model.vue'
@@ -18,8 +19,13 @@ Vue.use(Router)
 const router = new Router({
   routes: [
     {
-      path: '/modelpage/:id',
-      name: 'modelpage',
+      path: '/landingpage',
+      name: 'landingpage',
+      component: Landingpage,
+    },
+    {
+      path: '/modelview/:id',
+      name: 'modelview',
       component: Modelpage,
       props: true,
     },
@@ -42,7 +48,11 @@ const router = new Router({
           meta: { title: '' },
         }
       ]
-    }
+    },
+    {
+      path: '*',
+      redirect: "/landingpage",
+    },
   ]
 })
 

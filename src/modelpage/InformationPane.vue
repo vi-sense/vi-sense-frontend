@@ -99,7 +99,7 @@ export default {
   height: 100%;
 
   background-color: lightgrey;
-  overflow: scroll;
+  overflow-y: scroll;
 
   a {
     display: block;

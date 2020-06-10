@@ -6,12 +6,11 @@ import Graph from "./Graph.js";
 
 const Timeline = (function(parentElement){
 
-    const width = parentElement.clientWidth // is set on 100% width
+    const width = parentElement.clientWidth // is on 100% width per default
     const height = parentElement.clientHeight
-    const margin = ({top: 20, right: 30, bottom: 30, left: 40}) // margin used for labels
+    const margin = ({top: 20, right: 20, bottom: 20, left: 30}) // used for labels, axis etc
 
-    const svg = d3.create("svg")
-        .attr("viewBox", [0, 0, width, height]);
+    const svg = d3.create("svg").attr("viewBox", [0, 0, width, height]);
     parentElement.appendChild(svg.node())
 
     const graphs = new Map()
@@ -40,7 +39,8 @@ const Timeline = (function(parentElement){
         .call(d3.axisLeft(yScale))
         .call(g => g.select(".domain").remove())
         .call(g => g.select(".tick:last-of-type text").clone()
-            .attr("x", 3)
+            .attr("y", -10)
+            .attr("x", -10)
             .attr("text-anchor", "start")
             .attr("font-weight", "bold")
             .text("unit"))
