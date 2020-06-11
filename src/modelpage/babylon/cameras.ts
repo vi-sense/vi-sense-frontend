@@ -28,12 +28,13 @@ export function createFloorCamera(canvas: HTMLCanvasElement, engine:BABYLON.Engi
     cam.angularSensibility = 3000;
 
     scene.actionManager = new BABYLON.ActionManager(scene);
-    scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnKeyDownTrigger, e => {	
+    scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnKeyDownTrigger, e => {
+        console.log("wtf")
         // In babylon version 4.2 (in alpha rn) we could do camera.keyDownwars and camera.keyUpwards						
-        if(e.sourceEvent.keyCode == 69){                
+        if(e.sourceEvent.keyCode == 69) {          
             cam.position.y = cam.fixedY += cam.step
         }
-        if(e.sourceEvent.keyCode == 81){
+        if(e.sourceEvent.keyCode == 81) {
             cam.position.y = cam.fixedY -= cam.step
         }
         if (e.sourceEvent.keyCode == 173) {
@@ -44,6 +45,7 @@ export function createFloorCamera(canvas: HTMLCanvasElement, engine:BABYLON.Engi
         }
       })
     );
+
     engine.runRenderLoop(() => {
         cam.position.y = cam.fixedY
     })
@@ -51,22 +53,23 @@ export function createFloorCamera(canvas: HTMLCanvasElement, engine:BABYLON.Engi
     return cam
 }
 
-export function createMinimapCamera(engine: BABYLON.Engine, mainCam): BABYLON.UniversalCamera {
+export function createMinimapCamera(canvas, engine: BABYLON.Engine, mainCam): BABYLON.UniversalCamera {
     let p = mainCam.position.clone()
     let mm = new FloorCamera('minimapCam', new BABYLON.Vector3(p.x, p.y + 20, p.z), this.scene);
     mm.mode = BABYLON.Camera.ORTHOGRAPHIC_CAMERA;
+    //mm.attachControl(canvas, true);
     mm.orthoLeft = -20;
     mm.orthoRight = 20;
     mm.orthoTop = 20;
     mm.orthoBottom = -20;
     mm.rotation.x = Math.PI / 2;
-    mm.setTarget(mainCam.position);
-    mm.viewport = new BABYLON.Viewport(0, 0, .25, .25);
+    mm.setTarget(p);
+    //mm.viewport = new BABYLON.Viewport(0, 0, 1, 1);
 
     engine.runRenderLoop(() => {
         mm.position = mainCam.position.clone();
         mm.position.y = mm.fixedY;
-        mm.rotation.y = mainCam.rotation.y;
+        mm.rotation.y = mainCam.rotation.clone().y;
     })
 
     return mm;

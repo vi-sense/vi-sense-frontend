@@ -9,6 +9,7 @@ import setupSensorSelection from './sensorSelection';
 import { loadModel } from './loadModel';
 import CustomLoadingScreen from './loadingScreen';
 import Storage from '../../storage/Storage';
+import FloorCamera from './FloorCamera';
 
 
 export const IS_PRODUCTION: boolean = Boolean(process.env.PRODUCTION)  // its value is set in webpack.config.js
@@ -19,8 +20,8 @@ export default class BabylonApp {
     scene: BABYLON.Scene
 
     constructor(canvas: HTMLCanvasElement, minimapCanvas: HTMLCanvasElement, modelID: number, STORE: Storage) {
-        //var c = document.createElement("canvas");
-        this.engine = new BABYLON.Engine(canvas, true, { stencil: true });
+        var c = document.createElement("canvas");
+        this.engine = new BABYLON.Engine(c, true);
         this.engine.inputElement = canvas;
 
         this.scene = new BABYLON.Scene(this.engine);
@@ -30,18 +31,16 @@ export default class BabylonApp {
         this.engine.loadingScreen = loadingScreen;
         this.engine.displayLoadingUI();
 
-        var camera = createFloorCamera(canvas, this.engine, this.scene)
-        var minimap = createMinimapCamera(this.engine, camera)
+        var camera = createFloorCamera(canvas, this.engine, this.scene) as FloorCamera
+        var minimap = createMinimapCamera(minimapCanvas, this.engine, camera)
         
-        //this.scene.activeCamera = camera
-        this.scene.activeCameras.push(camera)
-        this.scene.activeCameras.push(minimap)
-        
+        this.scene.activeCamera = camera
+        //this.scene.activeCameras.push(camera)
+        //this.scene.activeCameras.push(minimap)
+
+        this.engine.registerView(canvas, camera);
         this.scene.cameraToUseForPointers = camera;
-        //this.engine.registerView(minimapCanvas, minimap);
-        //this.engine.registerView(canvas, camera);
-        
-        
+
         var light = new BABYLON.HemisphericLight("HemiLight", new BABYLON.Vector3(0, 1, 0), this.scene);
         light.diffuse = new BABYLON.Color3(1, 1, 1);
         light.groundColor = new BABYLON.Color3(0.1, 0.1, 0.1);
@@ -50,6 +49,10 @@ export default class BabylonApp {
         loadModel(modelID, this.scene, (meshes) => {
             this.scene.createDefaultEnvironment();
             setupSensorSelection(this.scene, modelID, meshes, STORE).then(() => {
+                this.engine.registerView(minimapCanvas, minimap);
+                this.scene.detachControl();
+                this.engine.inputElement = canvas;
+                this.scene.attachControl();
                 this.engine.hideLoadingUI();
             });
         }, !IS_PRODUCTION)

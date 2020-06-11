@@ -6,7 +6,7 @@ import FloorCamera from './FloorCamera';
  * Camera smoothly targets and moves to the passed Vector3 with a fixed distance.
  */
 export async function focusOnMesh(scene: BABYLON.Scene, target: BABYLON.Vector3) {
-    let camera = scene.activeCameras[0] as FloorCamera;
+    let camera = scene.activeCamera as FloorCamera;
     let ease = new BABYLON.CubicEase();
     ease.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEINOUT);
 
