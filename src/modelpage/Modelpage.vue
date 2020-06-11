@@ -50,7 +50,8 @@ export default {
   },
   mounted() {
     var canvas = document.getElementById("babyloncanvas");
-    var app = new BabylonApp(canvas, this.id, this.STORE);
+    var minimap = document.getElementById("minimap");
+    var app = new BabylonApp(canvas, minimap, this.id, this.STORE);
   },
   methods: {
     async getModelData(id) {

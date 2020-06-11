@@ -14,16 +14,17 @@ import FloorCamera from './FloorCamera';
  * @param canvas 
  * @param camera 
  */
-export function createFloorCamera(canvas: HTMLCanvasElement, engine:BABYLON.Engine, scene: BABYLON.Scene): BABYLON.UniversalCamera{
-    var cam = new FloorCamera('camera1', new BABYLON.Vector3(0, 5, -15), this.scene);
+export function createFloorCamera(canvas: HTMLCanvasElement, engine:BABYLON.Engine, scene: BABYLON.Scene): BABYLON.UniversalCamera {
+    let cam = new FloorCamera('floorCam', new BABYLON.Vector3(0, 5, -15), this.scene);
 
     cam.setTarget(new BABYLON.Vector3(0, cam.fixedY, 0));
-    cam.attachControl(canvas, false);
+    cam.attachControl(canvas, true);
     cam.keysUp.push(87); 
     cam.keysLeft.push(65);
     cam.keysRight.push(68);
     cam.keysDown.push(83);
     cam.speed = 0.6;
+    //cam.minZ = 5;
     cam.angularSensibility = 3000;
 
     scene.actionManager = new BABYLON.ActionManager(scene);
@@ -43,7 +44,6 @@ export function createFloorCamera(canvas: HTMLCanvasElement, engine:BABYLON.Engi
         }
       })
     );
-
     engine.runRenderLoop(() => {
         cam.position.y = cam.fixedY
     })
@@ -51,9 +51,30 @@ export function createFloorCamera(canvas: HTMLCanvasElement, engine:BABYLON.Engi
     return cam
 }
 
+export function createMinimapCamera(engine: BABYLON.Engine, mainCam): BABYLON.UniversalCamera {
+    let p = mainCam.position.clone()
+    let mm = new FloorCamera('minimapCam', new BABYLON.Vector3(p.x, p.y + 20, p.z), this.scene);
+    mm.mode = BABYLON.Camera.ORTHOGRAPHIC_CAMERA;
+    mm.orthoLeft = -20;
+    mm.orthoRight = 20;
+    mm.orthoTop = 20;
+    mm.orthoBottom = -20;
+    mm.rotation.x = Math.PI / 2;
+    mm.setTarget(mainCam.position);
+    mm.viewport = new BABYLON.Viewport(0, 0, .25, .25);
 
-export function createArcCamera(canvas: HTMLCanvasElement, engine:BABYLON.Engine, scene: BABYLON.Scene) : BABYLON.ArcRotateCamera{
-    var arcCamera = new BABYLON.ArcRotateCamera("Camera", 42, 0.8, 400, BABYLON.Vector3.Zero(), scene);
+    engine.runRenderLoop(() => {
+        mm.position = mainCam.position.clone();
+        mm.position.y = mm.fixedY;
+        mm.rotation.y = mainCam.rotation.y;
+    })
+
+    return mm;
+}
+
+
+export function createArcCamera(canvas: HTMLCanvasElement, engine:BABYLON.Engine, scene: BABYLON.Scene) : BABYLON.ArcRotateCamera {
+    let arcCamera = new BABYLON.ArcRotateCamera("arcCam", 42, 0.8, 400, BABYLON.Vector3.Zero(), scene);
     arcCamera.attachControl(canvas, false);
     arcCamera.setTarget(new BABYLON.Vector3(0, 1, 0));
     arcCamera.radius = 5

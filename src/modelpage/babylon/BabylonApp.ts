@@ -4,7 +4,7 @@
 import * as BABYLON from 'babylonjs'
 import 'babylonjs-loaders';
 import 'babylonjs-inspector';
-import { createFloorCamera } from './cameras';
+import { createFloorCamera, createMinimapCamera } from './cameras';
 import setupSensorSelection from './sensorSelection';
 import { loadModel } from './loadModel';
 import CustomLoadingScreen from './loadingScreen';
@@ -18,8 +18,11 @@ export default class BabylonApp {
     engine: BABYLON.Engine
     scene: BABYLON.Scene
 
-    constructor(canvas: HTMLCanvasElement, modelID: number, STORE: Storage){
-        this.engine = new BABYLON.Engine(canvas, true);
+    constructor(canvas: HTMLCanvasElement, minimapCanvas: HTMLCanvasElement, modelID: number, STORE: Storage) {
+        //var c = document.createElement("canvas");
+        this.engine = new BABYLON.Engine(canvas, true, { stencil: true });
+        this.engine.inputElement = canvas;
+
         this.scene = new BABYLON.Scene(this.engine);
         //this.scene.debugLayer.show();
 
@@ -28,15 +31,21 @@ export default class BabylonApp {
         this.engine.displayLoadingUI();
 
         var camera = createFloorCamera(canvas, this.engine, this.scene)
-        this.scene.activeCamera = camera;
-
-        //var light = new BABYLON.HemisphericLight('light', new BABYLON.Vector3(0, 1 ,0), this.scene);
+        var minimap = createMinimapCamera(this.engine, camera)
+        
+        //this.scene.activeCamera = camera
+        this.scene.activeCameras.push(camera)
+        this.scene.activeCameras.push(minimap)
+        
+        this.scene.cameraToUseForPointers = camera;
+        //this.engine.registerView(minimapCanvas, minimap);
+        //this.engine.registerView(canvas, camera);
+        
+        
         var light = new BABYLON.HemisphericLight("HemiLight", new BABYLON.Vector3(0, 1, 0), this.scene);
         light.diffuse = new BABYLON.Color3(1, 1, 1);
         light.groundColor = new BABYLON.Color3(0.1, 0.1, 0.1);
         light.intensity = 1.5;
-
-        //var sphere = BABYLON.MeshBuilder.CreateSphere('sphere', {segments:16, diameter:2}, this.scene);
 
         loadModel(modelID, this.scene, (meshes) => {
             this.scene.createDefaultEnvironment();

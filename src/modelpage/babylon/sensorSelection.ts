@@ -97,6 +97,10 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
   let model = await getModelData(modelID);
   let sensors = model.sensors;
 
+  // scene.meshes.forEach(function(el) {
+  //   el.layerMask = 0x0FFFFFFF;
+  // })
+
   for (let i = 0; i < sensors.length; i++) {
     if(sensors[i].mesh_id == null || sensors[i].mesh_id == "") continue;
     savedSensors[sensors[i].id] = sensors[i]
@@ -120,6 +124,7 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
 
     // GUI SETUP
     let advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+    //advancedTexture.layer.layerMask = 0x10000000;
     let stackPanel = new GUI.StackPanel();
     stackPanel.isVertical = true;
     stackPanel.isPointerBlocker = true;
@@ -144,15 +149,17 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
     stackPanel.addControl(circle)
 
     let rect = new GUI.Rectangle();
-    rect.width = "250px"
+    //rect.width = "250px"
     rect.height = "35px"
     rect.alpha = 0
     rect.background = "white"
+    rect.adaptWidthToChildren = true;
     stackPanel.addControl(rect)
     let label = new GUI.TextBlock();
-    label.text = sensors[i].name
+    label.text = sensors[i].name;
+    label.resizeToFit = true;
     rect.addControl(label)
-    //label.resizeToFit = true;
+    
     //padding doesnt work when resizeToFit = true;
     //label.paddingRightInPixels = 20;
     //label.paddingLeftInPixels = 20;
@@ -161,7 +168,7 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
     stackPanel.linkWithMesh(mesh);
     stackPanel.adaptWidthToChildren = true;
 
-    sensorLabels[sensors[i].id] = {rect: rect, arrow: arrow, circle:circle, color: SENSOR_COLORS[sensors[i].id]};
+    sensorLabels[sensors[i].id] = {rect: rect, arrow: arrow, circle: circle, color: SENSOR_COLORS[sensors[i].id]};
 
     // REGISTER MESH ACTIONS
     mesh.actionManager = new BABYLON.ActionManager(scene);
