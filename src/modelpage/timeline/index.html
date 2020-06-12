@@ -1,3 +1,6 @@
+<!-- 
+    this file is only for testing porposes 
+-->
 <!DOCTYPE html>
 <html>
 <head>
@@ -6,7 +9,11 @@
     <div id="chartWrapper"></div>
     <div>
         <p id="testTimeOutput"></p>
-        <input id="playbutton" type="button" value="play">
+        <input id="play" type="button" value="play">
+        <input id="speed" type="number" value="1" min="1", max="50">
+        <br>
+        <input id="pin" type="button" value="pin">
+        <input id="brush" type="button" value="brush">
     </div>
 </body>
 </html>
@@ -28,11 +35,10 @@ html{
 }
 </style>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.26.0/moment-with-locales.min.js"></script>
 <script src="https://d3js.org/d3.v5.js"></script>
+
 <script type="module">
-/**
- * this file is only for testing porposes 
-*/
 import Timeline from './Timeline.js'
 
 const API_URL = "https://visense.f4.htw-berlin.de:44344/"
@@ -40,39 +46,38 @@ const API_URL = "https://visense.f4.htw-berlin.de:44344/"
 const parent = document.querySelector("#chartWrapper")
 const timeline = new Timeline(parent)
 
-document.querySelector("#playbutton").onclick = e => {
-    if(timeline.isPlaying())
-        timeline.pause()
-    else 
-        timeline.play()
-}
+document.querySelector("#play").onclick = e => { timeline.isPlaying() ? timeline.pause() : timeline.play() }
+document.querySelector("#speed").oninput = e => { timeline.setSpeed( e.target.value) }
+document.querySelector("#pin").onclick = e => { timeline.setTool("pin") }
+document.querySelector("#brush").onclick = e => { timeline.setTool("brush") }
 
 
-fetch(API_URL + `sensors/1/data`)
+
+fetch(API_URL + `sensors/1/data?limit=100&end_date=`+formatDateForServer(new Date()))
 .catch(error => { console.log(error) })
 .then(res => { return res.json() })
 .then(json => { timeline.plotGraph(transformData(json), 1) })
 //setTimeout(() =>  timeline.removeGraph(1), 2000)
 
-fetch(API_URL + `sensors/2/data`)
+fetch(API_URL + `sensors/2/data?limit=100&end_date=`+formatDateForServer(new Date()))
 .catch(error => { console.log(error) })
 .then(res => { return res.json() })
 .then(json => { timeline.plotGraph(transformData(json), 2) })  
 
-fetch(API_URL + `sensors/4/data`)
+fetch(API_URL + `sensors/3/data?limit=100&end_date=`+formatDateForServer(new Date()))
 .catch(error => { console.log(error) })
 .then(res => { return res.json() })
 .then(json => { timeline.plotGraph(transformData(json), 4) })  
 
 
-let data = []
-let start = new Date("2020-01-01T07:55:00Z")
+/*let data = []
+let start = new Date()
 for(let i = 0; i<100; i++){
     var day = new Date(start)
     day.setHours(start.getHours() + i);
     data.push({date: day, value: (i+Math.random())})            
 }
-timeline.plotGraph(data, 5) 
+timeline.plotGraph(data, 5)*/ 
 
 
 function transformData(api_data_json){
@@ -81,5 +86,15 @@ function transformData(api_data_json){
         data.push({date: new Date(d.date), value: d.value})        
     }  
     return data
+}
+
+/**
+ * https://stackoverflow.com/a/23593278/7764088
+ * 
+ * our backend requires utc time for a request 
+ * if I want the data for 12:00 local time, i have to request for 10:00 because german time is utc+02
+ **/
+function formatDateForServer(dateTime) {
+    return moment.utc(dateTime, 'MM-DD-YYYY HH:mm:ss').format("YYYY-MM-DD HH:mm:ss");
 }
 </script>
