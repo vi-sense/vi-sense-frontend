@@ -4,6 +4,10 @@
 
 import * as BABYLON from 'babylonjs';
 import FloorCamera from './FloorCamera';
+import { Scene } from 'babylonjs';
+
+
+var myScene: BABYLON.Scene;
 
 /**
  * Prety simple and hacky FPS camera script locked to XZ-axis movement
@@ -15,6 +19,7 @@ import FloorCamera from './FloorCamera';
  * @param camera 
  */
 export function createFloorCamera(canvas: HTMLCanvasElement, engine:BABYLON.Engine, scene: BABYLON.Scene): BABYLON.UniversalCamera{
+    myScene = scene;
     var cam = new FloorCamera('camera1', new BABYLON.Vector3(0, 5, -15), this.scene);
 
     cam.setTarget(new BABYLON.Vector3(0, cam.fixedY, 0));
@@ -61,4 +66,13 @@ export function createArcCamera(canvas: HTMLCanvasElement, engine:BABYLON.Engine
     arcCamera.upperRadiusLimit =  50 
 
     return arcCamera
+}
+
+export function changeFOV(value: number) {
+    myScene.activeCamera.fov = value/100
+}
+
+export function changeCameraClipping(value) {
+    myScene.activeCamera.minZ = value[0]
+    myScene.activeCamera.maxZ = value[1]
 }

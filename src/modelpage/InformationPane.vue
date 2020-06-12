@@ -2,20 +2,21 @@
     <div>
         <a class="active">Information Pane</a>
         <a>Sensoren</a>
-        <v-expansion-panels class="condensed" focusable>
+        <v-expansion-panels class="condensed" focusable accordion>
             <v-expansion-panel v-for="(sensor, index) in sensorData" :key="sensor.id">
-            <v-expansion-panel-header>
-                <v-checkbox
-                @change="onItemChecked(sensor.id, index)"
-                :key="sensor.id"
-                v-model="checkboxes[index].checked"
-                ></v-checkbox>
-                {{sensor.name}}
-            </v-expansion-panel-header>
-            <v-expansion-panel-content>
-                Description: {{sensor.description}}
-                <v-btn color="primary" rounded @click.prevent="startCameraMove(sensor.id)">Go to Sensor</v-btn>
-            </v-expansion-panel-content>
+              <v-expansion-panel-header>
+                  <v-checkbox
+                    color="rgba(82, 186, 162, 1)"
+                    @change="onItemChecked(sensor.id, index)"
+                    :key="sensor.id"
+                    v-model="checkboxes[index].checked"
+                  ></v-checkbox>
+                  <span>{{sensor.name}}</span>
+              </v-expansion-panel-header>
+              <v-expansion-panel-content>
+                  Description: {{sensor.description}}
+                  <v-btn color="rgba(82, 186, 162, 1)" dark raised @click.prevent="startCameraMove(sensor.id)">Go to Sensor</v-btn>
+              </v-expansion-panel-content>
             </v-expansion-panel>
         </v-expansion-panels>
     </div>
@@ -55,6 +56,7 @@ export default {
   },
   methods: {
     onItemChecked(id, index) {
+      event.stopPropagation()
       if (this.checkboxes[index].checked == true) {
         this.STORE.selectSensor(id);
       }

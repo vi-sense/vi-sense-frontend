@@ -45,6 +45,20 @@ export default class BabylonApp {
             });
         }, !IS_PRODUCTION)
 
+        // this.scene.onPointerUp = function(evt, pickResult) {
+        //     if (pickResult.hit) {
+        //         var normal = pickResult.getNormal(false, true)
+        //         //this.clipPlane = new BABYLON.Plane(normal.x, normal.y, normal.z, 1);
+
+        //         let pos = pickResult.pickedPoint;
+        //         var lines = [];
+        //         var line = [pos, pos.add(normal)];
+        //         lines.push(line);
+        //         var lineSystem = BABYLON.MeshBuilder.CreateLineSystem("ls", { lines: lines }, this);
+        //         lineSystem.color = BABYLON.Color3.Red();
+        //     }
+        // };
+
         this.engine.runRenderLoop(() => {
             this.scene.render();
         })

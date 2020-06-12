@@ -105,8 +105,8 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
     let mesh: BABYLON.AbstractMesh;
     if (model.id == 4) mesh = scene.getMeshByUniqueID(parseInt(sensors[i].mesh_id));
     else mesh = scene.getMeshByName(sensors[i].mesh_id);
-    // let mat = mesh.material as BABYLON.PBRMaterial;
-    // mat.albedoColor = sensorColor;
+    //let mat = mesh.material as BABYLON.PBRMaterial;
+    //mat.albedoColor = sensorColor;
 
     //QPRJU9#12 - sine water flow
     //QPRJU9#16 - sine color change
