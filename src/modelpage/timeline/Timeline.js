@@ -2,14 +2,10 @@
  * @author Tom Wendland
  */
 
-import Graph from "./Graph.js";
+import SensorGraph from "./SensorGraph.js";
 
 import * as d3 from 'd3'
 import { turnArrow } from "../babylon/sensorSelection"
-import { SENSOR_COLORS } from '../../storage/Settings';
-
-//const SENSOR_COLORS = d3.schemeCategory10 // position mapped to sensorId
-
 
 
 const Timeline = (function(parentElement){
@@ -18,7 +14,7 @@ const Timeline = (function(parentElement){
 
     const width = parentElement.clientWidth // is on 100% width per default
     const height = parentElement.clientHeight
-    const margin = ({top: 20, right: 20, bottom: 22, left: 30}) // used for labels, axis etc
+    const margin = ({top: 20, right: 20, bottom: 25, left: 30}) // used for labels, axis etc
 
     const svg = d3.create("svg").attr("viewBox", [0, 0, width, height])
     .attr("user-select", "none")
@@ -42,10 +38,6 @@ const Timeline = (function(parentElement){
 
     const xScale = xScaleRef.copy() // scaling reference https://stackoverflow.com/questions/56553384/d3-v5-axis-scale-change-panning-way-too-much
 
-    const yScale = d3.scaleLinear()
-        .range([height - margin.bottom, margin.top])
-        .domain([0, 50]).nice() //.domain([0, d3.max(data, d => d.value)]).nice()
-
     const xAxis = g => g
         .attr("transform", `translate(0,${height-margin.bottom})`)
         .call(d3
@@ -54,7 +46,10 @@ const Timeline = (function(parentElement){
             .tickSizeOuter(0))
         .style('cursor', 'ew-resize')
 
-
+    const yScale = d3.scaleLinear()
+        .range([height - margin.bottom, margin.top])
+        .domain([0, 50]).nice() //.domain([0, d3.max(data, d => d.value)]).nice()
+        
     const yAxis = g => g
         .attr("transform", `translate(${margin.left},0)`)
         .call(d3.axisLeft(yScale))
@@ -94,9 +89,9 @@ const Timeline = (function(parentElement){
         let t = d3.event.transform
         xScale.domain(t.rescaleX(xScaleRef).domain()); // continous scale with transformed domain  
 
-        replaceTimepin() 
+        redrawTimepin() 
         gx.call(xAxis); 
-        graphs.forEach(g => g.area(xScale, yScale))        
+        graphs.forEach(g => g.redraw())        
         if(selection) brushGroup.call(brush.move, [xScale(selection[0]), xScale(selection[1])]);       
     }
 
@@ -130,13 +125,13 @@ const Timeline = (function(parentElement){
     timepin.call(d3.drag().on('drag', () => {
         let mouse_x = d3.mouse(svg.node())[0]
         clampTimelinePosAndSetDate(mouse_x)
-        replaceTimepin()
+        redrawTimepin()
     }));
 
     svg.on("click", function() {         
         let mouse_x = d3.mouse(this)[0]
         clampTimelinePosAndSetDate(mouse_x)
-        replaceTimepin()
+        redrawTimepin()
     }); 
 
     function clampTimelinePosAndSetDate(mouse_x){
@@ -147,13 +142,13 @@ const Timeline = (function(parentElement){
         timepinDate.setTime(xScale.invert(mouse_x))        
     }
 
-    function replaceTimepin(){   
+    function redrawTimepin(){   
         //console.log(timepinDate);   
         //let stringdate = formatDate(timepinDate)
         timepin.attr("transform", `translate(${xScale(timepinDate)}, 0)`)
-        Array.from(graphs.keys()).forEach(key => {turnArrow(parseInt(key.slice(9)), graphs.get(key).gradient(xScale, yScale, timepinDate))})
+        //Array.from(graphs.keys()).forEach(key => {turnArrow(parseInt(key.slice(9)), graphs.get(key).getGradient(timepinDate))})
     }
-    replaceTimepin() 
+    redrawTimepin() 
 
     
 
@@ -192,18 +187,12 @@ const Timeline = (function(parentElement){
         .attr("stroke", "grey")     
         .attr("stroke-dasharray", 4)
 
+    const _brushMouseDown = brushGroup.on('mousedown.brush'); // used in setTool()
+    setTool("pin")
 
 
 
-    /**
-     _____ _         
-    |  _  | |___ _ _ 
-    |   __| | .'| | |
-    |__|  |_|__,|_  |
-                |___|
-    */
-    var speed = 1
-    var playing = false
+
 
 
 
@@ -214,6 +203,10 @@ const Timeline = (function(parentElement){
     |_____|  _|___|__,|_| |___|
           |_|                  
      */
+
+    var speed = 1
+    var playing = false
+    
     function update() {
         requestAnimationFrame(update)
 
@@ -231,7 +224,7 @@ const Timeline = (function(parentElement){
             if(timepinDate > Date.now())
                 timepinDate.setTime(Date.now())
 
-            replaceTimepin()
+            redrawTimepin()
         }
     }
     requestAnimationFrame(update)
@@ -250,35 +243,26 @@ const Timeline = (function(parentElement){
 
     /**
      * 
-     * @param {Array} data in the form [{date: Date value: Number}, {...}, ...]
-     * @param {Number} id a id which you want the graph to be identified with. Use the id for additional actions e.g. removing the graph
+     * @param {Number} id sensor id
      */
-    function plotGraph(data, id){
-        console.log(data);
-        
-        //console.log(data[0], data[data.length-1]);
-        let color = SENSOR_COLORS[id]
-        let graph = new Graph(svg, data, color)
-        graph.area(xScale, yScale)
-        
-        let graphNode = graph.node()
-        let idstr = "graphline"+id
-        graphNode.attr("id", idstr);
-
-        if(graphs.has(idstr)) throw new Error(`Graph with id ${id} already exists`)
-        graphs.set(idstr, graph)
+    function showGraph(id){ 
+        if(graphs.has(id)) {
+            graphs.get(id).show()
+        } else{
+            let graph = new SensorGraph(id, svg, xScale, yScale)
+            graphs.set(id, graph)
+        }
     }
 
     /**
      * 
      * @param {Number} id 
      */
-    function removeGraph(id){
-        let idstr = "graphline"+id
-        if(!graphs.has(idstr)) throw new Error(`There is no graph with id ${id}`)
-        
-        d3.select("#"+idstr).remove();
-        graphs.delete(idstr)        
+    function hideGraph(id){
+        if(graphs.has(id)){
+            graphs.get(id).hide()
+        }
+        else throw new Error(`There is no graph with id ${id}`)
     }
 
     /**
@@ -287,18 +271,15 @@ const Timeline = (function(parentElement){
      */
     function setTimepinTime(date){
         timepinDate.setTime(date)
-        replaceTimepin()
+        redrawTimepin()
      }
 
-    const _brushMouseDown = brushGroup.on('mousedown.brush');
-    setTool("pin")
+
      /**
      * 
      * @param {*} tool 
      */
-    function setTool(tool){
-        console.log(tool);
-        
+    function setTool(tool){        
         if(tool == "brush") {
             brushGroup.on('mousedown.brush', _brushMouseDown)
             brushGroup.select(".handle--w").style('cursor', 'ew-resize')
@@ -315,8 +296,8 @@ const Timeline = (function(parentElement){
     }
 
     return {
-        plotGraph, 
-        removeGraph,  
+        showGraph, 
+        hideGraph,  
         setTimepinTime, 
         setTool,
 

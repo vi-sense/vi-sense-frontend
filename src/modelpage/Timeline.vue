@@ -52,15 +52,15 @@ export default {
           
     this.STORE.getSelectedSensors((sensorIds)=>{
         for(let id of sensorIds){
-          this.getSensorData(id).then(json => { timeline.plotGraph(this.transformData(json), id) })
+          timeline.showGraph(id)
         }
     })
       
     this.STORE.onSensorSelectionChanged((sensorId, action) => {
       if(action == "new")
-          this.getSensorData(sensorId).then(json => { timeline.plotGraph(this.transformData(json), sensorId) })
+          timeline.showGraph(id)
       else if(action == "removed"){
-          timeline.removeGraph(sensorId)
+          timeline.hideGraph(id)
       }
     })
 
@@ -68,30 +68,6 @@ export default {
     document.querySelector("#nmbSpeed").oninput = e => { timeline.setSpeed( e.target.value) }
     document.querySelector("#btnPin").onclick = e => { timeline.setTool("pin") }
     document.querySelector("#btnBrush").onclick = e => { timeline.setTool("brush") }
-  },
-  methods: {
-    transformData(api_json_data){
-      let data = []
-      for(var d of api_json_data){
-          data.push({date: new Date(d.date), value: d.value})        
-      }  
-      return data
-    },
-    formatDateForServer(dateTime) {
-      return moment.utc(dateTime, 'MM-DD-YYYY HH:mm:ss').format("YYYY-MM-DD HH:mm:ss");
-    },
-    async getModelData(id) {
-        let response = await fetch(process.env.API_URL + `/models/${id}`)
-            .then(res => { return res.json() })
-            .catch(err => { throw err });
-        return response;
-    },
-    async getSensorData(id) {
-        let response = await fetch(process.env.API_URL + `/sensors/${id}/data?limit=100&end_date=${this.formatDateForServer(new Date())}`)
-            .then(res => { return res.json() })
-            .catch(err => { throw err });
-        return response;
-    },
   }
 };
 </script>
