@@ -2,7 +2,7 @@
   <div>
     <v-app-bar>
       <img id="logo" src="../assets/logo.svg" alt="vuejs logo">
-      <p>{{ title }}</p>
+      <h2>{{ title }}</h2>
     </v-app-bar>
 
     <main>
@@ -65,28 +65,20 @@ export default {
 
 
 <style lang="scss">
-
-body {
-  margin: 0;
-}
-
 header {
   height: 7% !important;
   z-index: 3;
-
-  p {
+  
+  #logo {
+    height: 100%;
+  }
+  h2 {
     margin: 0;
     margin: auto 10px !important;
   }
   .v-toolbar__content {
     height: 100% !important;
   }
-}
-
-
-
-#logo {
-  height: 100%;
 }
 
 main{

@@ -1,18 +1,6 @@
 <template>
   <div>
     <p>Options</p>
-    <div>
-      <v-subheader>Checkbox 1</v-subheader>
-      <v-checkbox
-        color="rgba(82, 186, 162, 1)"
-      ></v-checkbox>
-    </div>
-    <div>
-      <v-subheader>Checkbox 1</v-subheader>
-      <v-checkbox
-        color="rgba(82, 186, 162, 1)"
-      ></v-checkbox>
-    </div>
 
     <div>
       <v-subheader>FOV</v-subheader>
@@ -25,7 +13,7 @@
         thumb-label
         thumb-size="26"
         color="rgba(82, 186, 162, 1)"
-        track-color="rgba(82, 186, 162, 0.75)"
+        track-color="rgba(0, 0, 0, 0.3)"
         v-on:change="onSliderChanged('fov', fov)"
       ></v-slider>
     </div>
@@ -41,7 +29,7 @@
         thumb-label
         thumb-size="26"
         color="rgba(82, 186, 162, 1)"
-        track-color="rgba(82, 186, 162, 0.75)"
+        track-color="rgba(0, 0, 0, 0.3)"
         v-on:change="onSliderChanged('clipping', cameraClipping)"
       ></v-range-slider>
     </div>
