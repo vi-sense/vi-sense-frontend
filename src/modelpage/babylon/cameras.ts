@@ -4,7 +4,8 @@
 
 import * as BABYLON from 'babylonjs';
 import FloorCamera from './FloorCamera';
-import { Scene } from 'babylonjs';
+import { Scene, Vector3 } from 'babylonjs';
+import { CommonShadowLightPropertyGridComponent } from 'babylonjs-inspector/components/actionTabs/tabs/propertyGrids/lights/commonShadowLightPropertyGridComponent';
 
 
 var myScene: BABYLON.Scene;
@@ -18,9 +19,9 @@ var myScene: BABYLON.Scene;
  * @param canvas 
  * @param camera 
  */
-export function createFloorCamera(canvas: HTMLCanvasElement, engine:BABYLON.Engine, scene: BABYLON.Scene): BABYLON.UniversalCamera{
+export function createFloorCamera(canvas: HTMLCanvasElement, engine:BABYLON.Engine, scene: BABYLON.Scene): BABYLON.UniversalCamera {
     myScene = scene;
-    var cam = new FloorCamera('camera1', new BABYLON.Vector3(0, 5, -15), this.scene);
+    var cam = new FloorCamera('floorCam', new BABYLON.Vector3(0, 5, -15), this.scene);
 
     cam.setTarget(new BABYLON.Vector3(0, cam.fixedY, 0));
     cam.attachControl(canvas, false);
@@ -28,6 +29,12 @@ export function createFloorCamera(canvas: HTMLCanvasElement, engine:BABYLON.Engi
     cam.keysLeft.push(65);
     cam.keysRight.push(68);
     cam.keysDown.push(83);
+    
+    cam.keysUp.push(38);
+    cam.keysLeft.push(37);
+    cam.keysRight.push(39);
+    cam.keysDown.push(40);
+
     cam.speed = 0.6;
     cam.angularSensibility = 3000;
 
@@ -57,12 +64,12 @@ export function createFloorCamera(canvas: HTMLCanvasElement, engine:BABYLON.Engi
 }
 
 
-export function createArcCamera(canvas: HTMLCanvasElement, engine:BABYLON.Engine, scene: BABYLON.Scene) : BABYLON.ArcRotateCamera{
-    var arcCamera = new BABYLON.ArcRotateCamera("Camera", 42, 0.8, 400, BABYLON.Vector3.Zero(), scene);
+export function createArcCamera(canvas: HTMLCanvasElement, engine:BABYLON.Engine, scene: BABYLON.Scene) : BABYLON.ArcRotateCamera {
+    var arcCamera = new BABYLON.ArcRotateCamera("arcCam", 42, 0.8, 400, BABYLON.Vector3.Zero(), scene);
     arcCamera.attachControl(canvas, false);
-    arcCamera.setTarget(new BABYLON.Vector3(0, 1, 0));
+    arcCamera.setTarget(new BABYLON.Vector3(0,1,0));
     arcCamera.radius = 5
-    arcCamera.lowerRadiusLimit = 10
+    arcCamera.lowerRadiusLimit = 5
     arcCamera.upperRadiusLimit =  50 
 
     return arcCamera
@@ -75,4 +82,18 @@ export function changeFOV(value: number) {
 export function changeCameraClipping(value) {
     myScene.activeCamera.minZ = value[0]
     myScene.activeCamera.maxZ = value[1]
+}
+
+export function switchCamera() {
+    let pos = myScene.activeCamera.position.clone()
+    if (myScene.activeCamera.name == "floorCam") {
+        let cam = myScene.getCameraByName("arcCam") as BABYLON.ArcRotateCamera;
+        cam.position = pos;
+        myScene.activeCamera = cam;
+    }
+    else if (myScene.activeCamera.name == "arcCam") {
+        let cam = myScene.getCameraByName("floorCam") as FloorCamera;
+        cam.position = pos;
+        myScene.activeCamera = cam;
+    }
 }

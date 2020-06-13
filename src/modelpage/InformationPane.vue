@@ -1,7 +1,6 @@
 <template>
     <div>
-        <a class="active">Information Pane</a>
-        <a>Sensoren</a>
+        <p>Sensors</p>
         <v-expansion-panels class="condensed" focusable accordion>
             <v-expansion-panel v-for="(sensor, index) in sensorData" :key="sensor.id">
               <v-expansion-panel-header>
@@ -15,7 +14,7 @@
               </v-expansion-panel-header>
               <v-expansion-panel-content>
                   Description: {{sensor.description}}
-                  <v-btn color="rgba(82, 186, 162, 1)" dark raised @click.prevent="startCameraMove(sensor.id)">Go to Sensor</v-btn>
+                  <v-btn color="rgba(82, 186, 162, 1)" dark raised block @click.prevent="startCameraMove(sensor.id)">Go to Sensor</v-btn>
               </v-expansion-panel-content>
             </v-expansion-panel>
         </v-expansion-panels>
@@ -92,30 +91,21 @@ export default {
 </script>
 
 
-<style scoped lang="scss">
+<style lang="scss">
+// do we really need the scoped attribute? overriding vuetify styles doesnt work with that
+
 /* information pane id is set from outsite */
 #informationpane {
   width: 100%;
   height: 100%;
-
-  background-color: lightgrey;
   overflow-y: scroll;
 
-  a {
+  p {
     display: block;
     color: black;
     padding: 16px;
+    margin: 0;
     text-decoration: none;
-  
-    .active {
-      background-color: #4caf50;
-      color: white;
-    }
-  
-    &:hover:not(.active) {
-      background-color: #555;
-      color: white;
-    }
   }
 }
 
@@ -123,14 +113,12 @@ export default {
   max-height: 15%;
 }
 
-.v-expansion-panels:not(.v-expansion-panels--accordion):not(.v-expansion-panels--tile)
-  > .v-expansion-panel--active {
-  height: auto;
+.v-expansion-panel-header {
+  padding: 10px;
 }
 
-.v-btn .v-btn--contained .v-btn--rounded .theme--light .v-size--default primary {
-
-  color: black !important;
-
+.v-expansion-panel-content > div {
+  padding: 10px 10px !important;
 }
+
 </style>

@@ -4,7 +4,7 @@
 import * as BABYLON from 'babylonjs'
 import 'babylonjs-loaders';
 import 'babylonjs-inspector';
-import { createFloorCamera } from './cameras';
+import { createFloorCamera, createArcCamera } from './cameras';
 import setupSensorSelection from './sensorSelection';
 import { loadModel } from './loadModel';
 import CustomLoadingScreen from './loadingScreen';
@@ -29,6 +29,7 @@ export default class BabylonApp {
 
         var camera = createFloorCamera(canvas, this.engine, this.scene)
         this.scene.activeCamera = camera;
+        var arcCam = createArcCamera(canvas, this.engine, this.scene)
 
         //var light = new BABYLON.HemisphericLight('light', new BABYLON.Vector3(0, 1 ,0), this.scene);
         var light = new BABYLON.HemisphericLight("HemiLight", new BABYLON.Vector3(0, 1, 0), this.scene);

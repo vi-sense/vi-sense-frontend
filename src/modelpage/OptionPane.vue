@@ -2,16 +2,20 @@
   <div>
     <p>Options</p>
     <div>
-      <input name="check1" type="checkbox">
-      <label>checkbox1</label>
+      <v-subheader>Checkbox 1</v-subheader>
+      <v-checkbox
+        color="rgba(82, 186, 162, 1)"
+      ></v-checkbox>
     </div>
     <div>
-      <input name="check2" type="checkbox">
-      <label>checkbox2</label>
+      <v-subheader>Checkbox 1</v-subheader>
+      <v-checkbox
+        color="rgba(82, 186, 162, 1)"
+      ></v-checkbox>
     </div>
 
     <div>
-      <v-subheader class="pl-0">FOV</v-subheader>
+      <v-subheader>FOV</v-subheader>
       <v-slider
         v-model="fov"
         class="align-center"
@@ -19,15 +23,15 @@
         :min="fov_min"
         height=5
         thumb-label
-        thumb-size="24"
-        color="black"
-        track-color="rgba(0,0,0,0.8)"
+        thumb-size="26"
+        color="rgba(82, 186, 162, 1)"
+        track-color="rgba(82, 186, 162, 0.75)"
         v-on:change="onSliderChanged('fov', fov)"
       ></v-slider>
     </div>
 
     <div>
-      <v-subheader class="pl-0">Clipping</v-subheader>
+      <v-subheader>Clipping</v-subheader>
       <v-range-slider
         v-model="cameraClipping"
         class="align-center"
@@ -35,18 +39,22 @@
         :min="cameraClipping_min"
         height=5
         thumb-label
-        thumb-size="24"
-        color="black"
-        track-color="rgba(0,0,0,0.5)"
+        thumb-size="26"
+        color="rgba(82, 186, 162, 1)"
+        track-color="rgba(82, 186, 162, 0.75)"
         v-on:change="onSliderChanged('clipping', cameraClipping)"
       ></v-range-slider>
+    </div>
+
+    <div>
+      <v-btn color="rgba(82, 186, 162, 1)" dark block raised @click="onCameraSwitch()">Switch Camera</v-btn>
     </div>
   </div>
 </template>
 
 <script>
 import {CAMERA_FOV, CAMERA_CLIPPING} from '../storage/Settings'
-import {changeFOV, changeCameraClipping} from './babylon/cameras'
+import {changeFOV, changeCameraClipping, switchCamera} from './babylon/cameras'
 
 export default {
     props: ["STORE"],
@@ -68,6 +76,9 @@ export default {
           case 'clipping': changeCameraClipping(value); break;
           default: break;
         }
+      },
+      onCameraSwitch() {
+        switchCamera()
       }
     }
 }
@@ -76,12 +87,9 @@ export default {
 <style scoped lang="scss">
 #optionpane{
     padding: 1%;
-}
-div {
-  padding: 5px 0;
-}
 
-.slider {
-  width: 100%
+  div {
+    padding: 5px 0;
+  }
 }
 </style>

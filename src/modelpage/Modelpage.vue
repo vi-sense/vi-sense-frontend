@@ -1,9 +1,9 @@
 <template>
   <div>
-    <header>
-      <h1>Vi-Sense Modelview</h1>
+    <v-app-bar>
+      <img id="logo" src="../assets/logo.svg" alt="vuejs logo">
       <p>{{ title }}</p>
-    </header>
+    </v-app-bar>
 
     <main>
       <InformationPane id="informationpane" :modeID="id" :STORE="STORE"/>
@@ -64,11 +64,29 @@ export default {
 </script>
 
 
-<style scoped lang="scss">
+<style lang="scss">
 
-header{
-  height: 7%;
-  width: 100%;
+body {
+  margin: 0;
+}
+
+header {
+  height: 7% !important;
+  z-index: 3;
+
+  p {
+    margin: 0;
+    margin: auto 10px !important;
+  }
+  .v-toolbar__content {
+    height: 100% !important;
+  }
+}
+
+
+
+#logo {
+  height: 100%;
 }
 
 main{
