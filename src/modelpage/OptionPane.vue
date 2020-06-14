@@ -3,7 +3,7 @@
     <p>Options</p>
 
     <div>
-      <v-subheader>FOV</v-subheader>
+      <v-subheader>Field of View</v-subheader>
       <v-slider
         v-model="fov"
         class="align-center"
@@ -19,7 +19,7 @@
     </div>
 
     <div>
-      <v-subheader>Clipping</v-subheader>
+      <v-subheader>Camera Clipping</v-subheader>
       <v-range-slider
         v-model="cameraClipping"
         class="align-center"

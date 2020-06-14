@@ -125,4 +125,8 @@ export default {
   margin: 10px 0;
 }
 
+.v-expansion-panel-header > :not(.v-expansion-panel-header__icon) {
+  flex: unset;
+}
+
 </style>

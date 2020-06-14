@@ -3,6 +3,8 @@
     <v-app-bar>
       <a id="logo" href="/"><img src="../assets/logo.svg" alt="vuejs logo"></a>
       <h2>{{ title }}</h2>
+      <v-spacer></v-spacer>
+      <v-app-bar-nav-icon></v-app-bar-nav-icon>
     </v-app-bar>
 
     <main>
@@ -107,18 +109,20 @@ main{
     #timeline{
       width: 100%;
       height: 25%;
-      background-color: lightgrey;
+      background-color: white;
     }
   }
 
   #informationpane {
     display: inline-block;
+    min-width: 200px;
     width: 15%;
     height: 100%;
     background-color: white;
   }
 
   #optionpane{
+    min-width: 200px;
     width: 15%;
     position: absolute;
     right: 1%;
