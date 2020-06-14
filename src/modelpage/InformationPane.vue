@@ -13,7 +13,7 @@
                   <span>{{sensor.name}}</span>
               </v-expansion-panel-header>
               <v-expansion-panel-content>
-                  Description: {{sensor.description}}
+                  {{sensor.description}}
                   <v-btn color="rgba(82, 186, 162, 1)" dark raised block @click.prevent="startCameraMove(sensor.id)">Go to Sensor</v-btn>
               </v-expansion-panel-content>
             </v-expansion-panel>
@@ -119,6 +119,10 @@ export default {
 
 .v-expansion-panel-content > div {
   padding: 10px 10px !important;
+}
+
+.v-expansion-panel-content button {
+  margin: 10px 0;
 }
 
 </style>

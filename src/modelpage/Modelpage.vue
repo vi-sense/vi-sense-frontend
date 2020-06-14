@@ -1,7 +1,7 @@
 <template>
   <div>
     <v-app-bar>
-      <img id="logo" src="../assets/logo.svg" alt="vuejs logo">
+      <a id="logo" href="/"><img src="../assets/logo.svg" alt="vuejs logo"></a>
       <h2>{{ title }}</h2>
     </v-app-bar>
 
@@ -66,11 +66,15 @@ export default {
 
 <style lang="scss">
 header {
+  min-height: 7%;
   height: 7% !important;
   z-index: 3;
   
   #logo {
-    height: 100%;
+    display: contents;
+    img {
+      height: 100%;
+    }
   }
   h2 {
     margin: 0;
@@ -84,21 +88,20 @@ header {
 main{
   height: 93%;
   width: 100%;
-  display: flex; // idk why but its not working with regular inline-block so i used flex as a quickfix..
+  display: flex;
 
   #mainpane{
     height: 100%;
-    width: 70%;
+    width: 85%;
 
     #canvaswrapper{
       width: 100%;
       height: 75%;
-      border: 1px solid grey;
-      box-sizing: border-box;
 
       canvas{
         width: 100%;
         height: 100%;
+        outline: none;
       }
     }
     #timeline{
@@ -110,13 +113,18 @@ main{
 
   #informationpane {
     display: inline-block;
-    height: 100%;
     width: 15%;
-    box-sizing: border-box;
+    height: 100%;
+    background-color: white;
   }
 
   #optionpane{
     width: 15%;
+    position: absolute;
+    right: 1%;
+    margin-top: 1%;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 5px;
   }
 }
 </style>

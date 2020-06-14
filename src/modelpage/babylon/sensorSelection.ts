@@ -36,7 +36,7 @@ export async function updateSelectedSensor(sensor_id: number, action: String) {
     mesh = mesh.subMeshes[0].getRenderingMesh();
     mesh.outlineWidth = .05;
     mesh.outlineColor = BABYLON.Color3.Black();
-    mesh.renderOutline = true;
+    //mesh.renderOutline = true;
     let mat = mesh.material as BABYLON.PBRMaterial;
     mat.albedoColor = selectedSensorColor;
     sensorLabels[sensor_id].rect.alpha = 1;
@@ -49,7 +49,7 @@ export async function updateSelectedSensor(sensor_id: number, action: String) {
     let mesh = myScene.getMeshByName(sensor.mesh_id);
     mesh.state = "";
     highlight.removeMesh(mesh.subMeshes[0].getRenderingMesh());
-    mesh.renderOutline = false;
+    //mesh.renderOutline = false;
     let mat = mesh.material as BABYLON.PBRMaterial;
     mat.albedoColor = sensorColor;
     sensorLabels[sensor_id].rect.alpha = 0;
@@ -90,8 +90,8 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
   highlight = new BABYLON.HighlightLayer("highlight", myScene);
   highlight.innerGlow = true
   highlight.outerGlow = false
-  highlight.blurHorizontalSize = 1
-  highlight.blurVerticalSize = 1
+  highlight.blurHorizontalSize = 2
+  highlight.blurVerticalSize = 2
 
   // GET MODEL DATA
   let model = await getModelData(modelID);
@@ -144,15 +144,16 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
     stackPanel.addControl(circle)
 
     let rect = new GUI.Rectangle();
-    rect.width = "250px"
+    //rect.width = "250px"
     rect.height = "35px"
     rect.alpha = 0
     rect.background = "white"
     stackPanel.addControl(rect)
     let label = new GUI.TextBlock();
     label.text = sensors[i].name
+    rect.adaptWidthToChildren = true;
     rect.addControl(label)
-    //label.resizeToFit = true;
+    label.resizeToFit = true;
     //padding doesnt work when resizeToFit = true;
     //label.paddingRightInPixels = 20;
     //label.paddingLeftInPixels = 20;

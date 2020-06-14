@@ -4,8 +4,7 @@
 
 import * as BABYLON from 'babylonjs';
 import FloorCamera from './FloorCamera';
-import { Scene, Vector3 } from 'babylonjs';
-import { CommonShadowLightPropertyGridComponent } from 'babylonjs-inspector/components/actionTabs/tabs/propertyGrids/lights/commonShadowLightPropertyGridComponent';
+import { Scene, Vector3, FreeCamera } from 'babylonjs';
 
 
 var myScene: BABYLON.Scene;
@@ -16,8 +15,8 @@ var myScene: BABYLON.Scene;
  * 
  * Better/way more elaborate: https://www.babylonjs-playground.com/#6PA720 with ICameraInput interface from https://doc.babylonjs.com/how_to/customizing_camera_inputs
  * 
- * @param canvas 
- * @param camera 
+ * @param canvas
+ * @param camera
  */
 export function createFloorCamera(canvas: HTMLCanvasElement, engine:BABYLON.Engine, scene: BABYLON.Scene): BABYLON.UniversalCamera {
     myScene = scene;
@@ -68,9 +67,10 @@ export function createArcCamera(canvas: HTMLCanvasElement, engine:BABYLON.Engine
     var arcCamera = new BABYLON.ArcRotateCamera("arcCam", 42, 0.8, 400, BABYLON.Vector3.Zero(), scene);
     arcCamera.attachControl(canvas, false);
     arcCamera.setTarget(new BABYLON.Vector3(0,1,0));
-    arcCamera.radius = 5
-    arcCamera.lowerRadiusLimit = 5
+    arcCamera.radius = 10
+    arcCamera.lowerRadiusLimit = 10
     arcCamera.upperRadiusLimit =  50 
+    arcCamera.wheelPrecision = 20
 
     return arcCamera
 }
@@ -85,13 +85,20 @@ export function changeCameraClipping(value) {
 }
 
 export function switchCamera() {
-    let pos = myScene.activeCamera.position.clone()
-    if (myScene.activeCamera.name == "floorCam") {
+    let active = myScene.activeCamera;
+    let pos = active.position.clone()
+    if (active.name == "floorCam") {
+        let target = (active as FreeCamera).getTarget()
+        let newTar = target.subtract(pos)
+        newTar.normalize();
+        newTar.scaleInPlace(1);
+        console.log(newTar)
         let cam = myScene.getCameraByName("arcCam") as BABYLON.ArcRotateCamera;
         cam.position = pos;
+        cam.setTarget(pos.add(newTar));
         myScene.activeCamera = cam;
     }
-    else if (myScene.activeCamera.name == "arcCam") {
+    else if (active.name == "arcCam") {
         let cam = myScene.getCameraByName("floorCam") as FloorCamera;
         cam.position = pos;
         myScene.activeCamera = cam;
