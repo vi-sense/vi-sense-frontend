@@ -15,6 +15,7 @@
               <v-expansion-panel-content>
                   {{sensor.description}}
                   <v-btn color="rgba(82, 186, 162, 1)" dark raised block @click.prevent="startCameraMove(sensor.id)">Go to Sensor</v-btn>
+                  <v-btn color="rgba(82, 186, 162, 1)" dark raised block @click.prevent="initSensor(sensor.id)">Init Sensor</v-btn>
               </v-expansion-panel-content>
             </v-expansion-panel>
         </v-expansion-panels>
@@ -42,9 +43,9 @@ export default {
     this.STORE.getSelectedSensors((sensorIds)=>{
       for(let id of sensorIds){
          this.checkboxes[id].checked; // TODO check sensor checkbox passiert im normalfall nicht aber der vollständigkeit halber
-      }   
+      }
     })
-    
+
     this.STORE.onSensorSelectionChanged((sensorId, action) => {
       if(action == "new") {
         this.checkboxes[sensorId-1].checked = true;
@@ -65,6 +66,9 @@ export default {
     },
     startCameraMove(id) {
       this.STORE.set(SKEYS.CAMERA_DRIVE_SENSOR, id);
+    },
+    initSensor(id){
+      this.STORE.set(SKEYS.INIT_SENSOR, id)
     },
     loadSensorData(id) {
       axios(this.endpoint + "models/" + id)
