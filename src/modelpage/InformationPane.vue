@@ -14,7 +14,8 @@
               </v-expansion-panel-header>
               <v-expansion-panel-content>
                   Description: {{sensor.description}}
-                  <v-btn color="rgba(82, 186, 162, 1)" dark raised block @click.prevent="startCameraMove(sensor.id)">Go to Sensor</v-btn>
+                  <v-btn class="button" color="rgba(82, 186, 162, 1)" dark raised block @click.prevent="startCameraMove(sensor.id)">Go to Sensor</v-btn>
+                  <v-btn class="button" color="rgba(82, 186, 162, 1)" dark raised block @click.prevent="initSensor(sensor.id)">Init Sensor</v-btn>
               </v-expansion-panel-content>
             </v-expansion-panel>
         </v-expansion-panels>
@@ -65,6 +66,9 @@ export default {
     },
     startCameraMove(id) {
       this.STORE.set(SKEYS.CAMERA_DRIVE_SENSOR, id);
+    },
+    initSensor(id){
+      this.STORE.set(SKEYS.INIT_SENSOR, id)
     },
     loadSensorData(id) {
       axios(this.endpoint + "models/" + id)
@@ -119,6 +123,10 @@ export default {
 
 .v-expansion-panel-content > div {
   padding: 10px 10px !important;
+}
+
+.button {
+  margin-top: 5px;
 }
 
 </style>
