@@ -12,10 +12,12 @@ export default class SensorGraph{
 
     constructor(sensorId, svg, xScale, yScale) {
 
+        this._fetching = false
+        this._fetchAgain = false
+
         this.oldestDataDate = new Date(8640000000000000) // max/min date for initial comparison
         this.latestDataDate = new Date(-8640000000000000)
 
-        this.svg = svg
         this.xScale = xScale
         this.yScale = yScale
         this.sensorId = sensorId
@@ -33,34 +35,36 @@ export default class SensorGraph{
             .attr("stroke-linejoin", "round")
             .attr("stroke-linecap", "round")
 
-        this.#fetch(new Date())
+        this._fetch(new Date())
     }
 
-    #fetching = false
-    #fetchAgain = false
-    #fetch = (date) => {
-        if(this.#fetching){
-            this.#fetchAgain = true
+    /**
+     * Fetching new data with given date as end_date
+     * Problem: werden eigentlich nicht in der gestartetetn reihenfolge fertig, deswegen ist data nicht in richtiger reihenfolge
+     * Mehrere _fetchAgain dürfte auch nicht klappen -> Que?
+     * @param {Date} endDate 
+     */
+    _fetch(endDate) {
+        if(this._fetching){
+            this._fetchAgain = true
             return
         }          
-        this.#fetching = true
-        this.#fetchAgain = false
+        this._fetching = true
+        this._fetchAgain = false
         
-        fetchSensorData(this.sensorId, date).then(data => {   
-            this.#fetching = false
+        fetchSensorData(this.sensorId, endDate).then(data => {   
+            this._fetching = false
 
             let lower = data[0].date
             let upper = data[data.length-1].date
-
             if(lower <= this.oldestDataDate) this.oldestDataDate = lower
             if(upper >= this.latestDataDate) this.latestDataDate = upper
 
-            // Problem: werden eigentlich nicht in der gestartetetn reihenfolge fertig, deswegen ist data nicht in richtiger reihenfolge
             this.data = [...data, ...this.data] 
             this.path.datum(this.data)
 
-            this.#fetching = false
-            if(this.#fetchAgain) this.#fetch(this.oldestDataDate)
+            this._fetching = false
+            if(this._fetchAgain) this._fetch(this.oldestDataDate)
 
             this.redraw()
         })
@@ -68,7 +72,7 @@ export default class SensorGraph{
     
     redraw(){        
         if(this.xScale(this.oldestDataDate) > 0) { 
-            this.#fetch(this.oldestDataDate)
+            this._fetch(this.oldestDataDate)
         }
 
         this.line
@@ -94,9 +98,9 @@ export default class SensorGraph{
 }
 
 
-async function fetchSensorData(id, date){
+async function fetchSensorData(id, endDate){
     // our backend requires utc time for a request so if I want the data for 12:00 local time, i have to request for 10:00 because german time is utc+02
-    let utcdate = moment.utc(date).format("YYYY-MM-DD HH:mm:ss");
+    let utcdate = moment.utc(endDate).format("YYYY-MM-DD HH:mm:ss");
     let limit = 100
 
     return await fetch(API_URL + `sensors/${id}/data?limit=${limit}&end_date=${utcdate}`)
@@ -104,6 +108,9 @@ async function fetchSensorData(id, date){
     .then(res => { return res.json() })
     .then(json => { return json.map(d => { return {date: new Date(d.date), value: d.value}}) })
 }
+
+
+
 
 
 
