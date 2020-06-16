@@ -29,6 +29,7 @@ export default class Graph{
     node(){
         return this.path
     }
+
     gradient(xScale, yScale, date){
         let index
         if(!this.cachedGradientDates || date < this.cachedGradientDates.lower || date > this.cachedGradientDates.upper){

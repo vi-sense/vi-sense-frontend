@@ -119,17 +119,17 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
     mesh.material = pulsatingShader();
 
     // GUI SETUP
-    let advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+    // let advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
     let stackPanel = new GUI.StackPanel();
     stackPanel.isVertical = true;
-    stackPanel.isPointerBlocker = true;
-    advancedTexture.addControl(stackPanel);
+    // advancedTexture.addControl(stackPanel);
 
     let arrow = new GUI.Image("arrow", arrow_svg)
     arrow.stretch = GUI.Image.STRETCH_UNIFORM
     arrow.width = "50px"
     arrow.height = "50px"
     arrow.alpha = 0
+    arrow.isPointerBlocker = false;
 
     let circle = new GUI.Ellipse();
     circle.width = "50px";
@@ -137,7 +137,9 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
     circle.alpha = 1;
     circle.background = SENSOR_COLORS[sensors[i].id];
     circle.addControl(arrow)
-    circle.onPointerDownObservable.add(function () {
+    circle.isPointerBlocker = true;
+    circle.onPointerClickObservable.add(function () {
+      console.log("clicked " + i)
       if (mesh.state == "") storage.selectSensor(sensors[i].id)
       else storage.unselectSensor(sensors[i].id)
     })
@@ -158,19 +160,36 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
     //label.paddingLeftInPixels = 20;
 
     stackPanel.addControl(rect);
-    stackPanel.linkWithMesh(mesh);
     stackPanel.adaptWidthToChildren = true;
+
+    // stackPanel.linkWithMesh(mesh);
 
     sensorLabels[sensors[i].id] = {rect: rect, arrow: arrow, circle:circle, color: SENSOR_COLORS[sensors[i].id]};
 
+    let myPlane = BABYLON.Mesh.CreatePlane('', 10, myScene);
+    // let myPlane = BABYLON.Mesh.CreateSphere("sphere1", 16, 1, scene);
+    // var myMaterial = new BABYLON.StandardMaterial("myMaterial", scene);
+    // myMaterial.diffuseColor = new BABYLON.Color3(1, 0, 1);
+    // myPlane.material = myMaterial
+
+    myPlane.billboardMode = BABYLON.Mesh.BILLBOARDMODE_ALL;
+    myPlane.position.copyFrom(mesh.getBoundingInfo().boundingSphere.centerWorld)
+    // mesh.addChild(myPlane)
+    myPlane.renderingGroupId = 1
+
+    let advancedTexture = GUI.AdvancedDynamicTexture.CreateForMesh(myPlane);
+    // stackPanel.linkOffsetY = 30;
+
+    advancedTexture.addControl(stackPanel);
+
     // REGISTER MESH ACTIONS
-    mesh.actionManager = new BABYLON.ActionManager(scene);
-    mesh.actionManager.registerAction(
-      new BABYLON.ExecuteCodeAction(
-        BABYLON.ActionManager.OnPickTrigger, async function(e) {
-          if (e.source.state === "") storage.selectSensor(sensors[i].id)
-          else storage.unselectSensor(sensors[i].id)
-        }));
+    // mesh.actionManager = new BABYLON.ActionManager(scene);
+    // mesh.actionManager.registerAction(
+    //   new BABYLON.ExecuteCodeAction(
+    //     BABYLON.ActionManager.OnPickTrigger, async function(e) {
+    //       if (e.source.state === "") storage.selectSensor(sensors[i].id)
+    //       else storage.unselectSensor(sensors[i].id)
+    //     }));
 
 
     // // on hover enter, change color to teal
@@ -203,16 +222,6 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
 
 export function turnArrow(sensorId, gradient){
   sensorLabels[sensorId].arrow.rotation = -Math.atan(gradient)
-  // if(!arrow.getScene){ //hack to make babylon animations work with gui elements
-  //   arrow.getScene = function () { return myScene };
-  // }
-  // if(arrow.animation){
-  //   arrow.animation.stop()
-  // }
-  // arrow.animation = BABYLON.Animation.CreateAndStartAnimation('arrowRotation',
-  //     arrow,
-  //     'rotation',
-  //     60, 2, arrow.rotation, -Math.atan(gradient), BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
 }
 
 
