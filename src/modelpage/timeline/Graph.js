@@ -30,9 +30,32 @@ export default class Graph{
         return this.path
     }
     gradient(xScale, yScale, date){
-        // use bisect for better performance?
-        let index = this.data.findIndex(entry => entry.date > date)
-        let m = -(yScale(this.data[index].value) - yScale(this.data[index -1].value))/(xScale(this.data[index].date) - xScale(this.data[index -1].date))
+        let index
+        if(!this.cachedGradientDates || date < this.cachedGradientDates.lower || date > this.cachedGradientDates.upper){
+            index = d3.bisect(this.data.map(d=>d.date), date)
+            this.cachedGradientDates = {lower: this.data[index-1].date, upper: this.data[index-1].date, indexUpper: index}
+        }else{
+            index = this.cachedGradientDates.indexUpper
+        }
+        let interpolationPosition = 1 - (this.data[index].date - date) / (this.data[index].date-this.data[index-1].date)
+        let a, b, c, m
+        if(interpolationPosition < 0.5){
+            a = index -2
+            b = index -1
+            c = index
+        }else{
+            a = index -1
+            b = index
+            c = index +1
+        }
+        let m1 = -(yScale(this.data[b].value) - yScale(this.data[a].value))/(xScale(this.data[b].date) - xScale(this.data[a].date))
+        let m2 = -(yScale(this.data[c].value) - yScale(this.data[b].value))/(xScale(this.data[c].date) - xScale(this.data[b].date))
+
+        if(interpolationPosition < 0.5){
+            m = (0.5-interpolationPosition)*m1 + (0.5+interpolationPosition)*m2
+        }else{
+            m = (1.5-interpolationPosition)*m1 + (interpolationPosition -0.5)*m2
+        }
         return m
     }
 }
