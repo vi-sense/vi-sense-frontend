@@ -123,11 +123,6 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
     let stackPanel = new GUI.StackPanel();
     stackPanel.isVertical = true;
     // advancedTexture.addControl(stackPanel);
-    let bg = new GUI.Rectangle()
-    bg.width = "250px"
-    bg.height = "250px"
-    bg.background = "white"
-    stackPanel.addControl(bg)
 
     let arrow = new GUI.Image("arrow", arrow_svg)
     arrow.stretch = GUI.Image.STRETCH_UNIFORM
@@ -171,21 +166,25 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
 
     sensorLabels[sensors[i].id] = {rect: rect, arrow: arrow, circle:circle, color: SENSOR_COLORS[sensors[i].id]};
 
-    let myPlane = BABYLON.Mesh.CreatePlane('', 10, myScene);
+    let myPlane = BABYLON.Mesh.CreatePlane('', 3, myScene);
     // let myPlane = BABYLON.Mesh.CreateSphere("sphere1", 16, 1, scene);
     // var myMaterial = new BABYLON.StandardMaterial("myMaterial", scene);
     // myMaterial.diffuseColor = new BABYLON.Color3(1, 0, 1);
     // myPlane.material = myMaterial
 
-    // myPlane.billboardMode = BABYLON.Mesh.BILLBOARDMODE_ALL;
+    myPlane.billboardMode = BABYLON.Mesh.BILLBOARDMODE_ALL;
     myPlane.position.copyFrom(mesh.getBoundingInfo().boundingSphere.centerWorld)
     // mesh.addChild(myPlane)
-    // myPlane.renderingGroupId = 1
+    myPlane.renderingGroupId = 1
 
-    let advancedTexture = GUI.AdvancedDynamicTexture.CreateForMesh(myPlane);
+    let advancedTexture = GUI.AdvancedDynamicTexture.CreateForMesh(myPlane, 250,250);
     // stackPanel.linkOffsetY = 30;
-
-    advancedTexture.addControl(stackPanel);
+    let bg = new GUI.Rectangle()
+    bg.width="250px"
+    bg.height="250px"
+    bg.background = "white"
+    bg.addControl(stackPanel)
+    advancedTexture.addControl(bg);
 
     // REGISTER MESH ACTIONS
     // mesh.actionManager = new BABYLON.ActionManager(scene);
@@ -222,6 +221,8 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
     //       }
     //     )
     //   ));
+    // await scene.debugLayer.show({overlay:false, globalRoot:document.getElementById('canvaswrapper')});
+
   }
 }
 
