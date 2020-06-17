@@ -83,8 +83,14 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
 
   SELECTABLES = myScene.getNodeByName("selectables").getChildMeshes();
 
-  //MAIN GUI CONTAINER
-  advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+  // setup of highlight layer
+  highlight = new BABYLON.HighlightLayer("highlight", myScene);
+  highlight.innerGlow = true
+  highlight.outerGlow = false
+  highlight.blurHorizontalSize = 2
+  highlight.blurVerticalSize = 2
+
+  await addUIElements(modelID);
 
   storage.onSensorSelectionChanged((id, action) => {
     updateSelectedSensor(id, action);
@@ -120,29 +126,19 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
               await updateSensorMeshID(id, mesh.name);
               mesh.metadata.sensor_id = id;
               storage.set(3, null);
+
+              advancedTexture.dispose();
               for (const prop of Object.getOwnPropertyNames(sensorLabels)) {
                 delete sensorLabels[prop];
               }
               for (const prop of Object.getOwnPropertyNames(savedSensors)) {
                 delete savedSensors[prop];
               }
-              advancedTexture.getChildren().forEach((ui) => {
-                ui.dispose();
-              })
               addUIElements(modelID);
         }));
       })
     }
   })
-  
-  // setup of highlight layer
-  highlight = new BABYLON.HighlightLayer("highlight", myScene);
-  highlight.innerGlow = true
-  highlight.outerGlow = false
-  highlight.blurHorizontalSize = 2
-  highlight.blurVerticalSize = 2
-
-  addUIElements(modelID);
 }
 
 async function addUIElements(modelID: number) {
@@ -150,6 +146,8 @@ async function addUIElements(modelID: number) {
   let model = await getModelData(modelID);
   let sensors = model.sensors;
   console.log(sensors)
+  advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+
   for (let i = 0; i < sensors.length; i++) {
     
     if (sensors[i].mesh_id == null || sensors[i].mesh_id == "") continue;
@@ -176,7 +174,6 @@ async function addUIElements(modelID: number) {
     mesh.material.backFaceCulling = true;
 
     // GUI SETUP
-    advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
     let stackPanel = new GUI.StackPanel();
     stackPanel.isVertical = true;
     stackPanel.isPointerBlocker = true;
