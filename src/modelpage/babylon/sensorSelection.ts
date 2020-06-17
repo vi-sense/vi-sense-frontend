@@ -107,13 +107,13 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
     if (id == null) {
       SELECTABLES.forEach((mesh) => {
         highlight.removeMesh(mesh.subMeshes[0].getRenderingMesh());
+        mesh.material = defaultMat;
         mesh.actionManager.actions.splice(0, 1)
       })
     }
     else {
       SELECTABLES.forEach((mesh) => {
         highlight.addMesh(mesh.subMeshes[0].getRenderingMesh(), BABYLON.Color3.White());
-        mesh.material = defaultMat;
         mesh.actionManager = new BABYLON.ActionManager(myScene);
         mesh.actionManager.registerAction(
           new BABYLON.ExecuteCodeAction(
@@ -145,11 +145,10 @@ async function addUIElements(modelID: number) {
   // GET MODEL DATA
   let model = await getModelData(modelID);
   let sensors = model.sensors;
-  console.log(sensors)
+
   advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
 
   for (let i = 0; i < sensors.length; i++) {
-    
     if (sensors[i].mesh_id == null || sensors[i].mesh_id == "") continue;
     savedSensors[sensors[i].id] = sensors[i]
 
@@ -207,7 +206,6 @@ async function addUIElements(modelID: number) {
     label.resizeToFit = true;
     rect.adaptWidthToChildren = true;
     rect.addControl(label);
-
 
     stackPanel.addControl(rect);
     stackPanel.linkWithMesh(mesh);
