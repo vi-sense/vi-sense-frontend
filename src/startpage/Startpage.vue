@@ -1,10 +1,10 @@
 <template>
   <div>
 
-    <header>
-      <h1>Vi-Sense</h1>
-      <h2 class="header__title title-header">{{ $route.meta.title }}</h2>
-    </header>
+    <v-app-bar>
+      <img id="logo" src="../assets/logo.svg" alt="vuejs logo">
+      <h2>Vi-Sense Start</h2>
+    </v-app-bar>
 
     <main>
       <aside>
@@ -51,7 +51,27 @@
   }
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
+
+header {
+  height: 7% !important;
+  z-index: 3;
+  
+  #logo{
+    height: 100%;
+    img {
+      height: 100%;
+    }
+  }
+  h2 {
+    margin: 0;
+    margin: auto 10px !important;
+  }
+  .v-toolbar__content {
+    height: 100% !important;
+  }
+}
+
   h1, h2 {
     font-weight: normal;
   }
@@ -64,21 +84,13 @@
     margin: 0 10px;
   }
   header {
-    position: fixed;
-    top: 0;
     width: 100%;
-    min-height: 90px;
-    border-bottom: 1px solid #42b983;
-    text-align: center;
-    background: #ffffff;
+    min-height: 7%;
+    height: 7%;
   }
   main {
     display: flex;
-    height: calc(100vh - 90px);
-    margin-top: 90px;
-    margin-left: auto;
-    margin-right: auto;
-    overflow: hidden;
+    height: 93%;
   }
   aside {
     flex: 1 0 20%;

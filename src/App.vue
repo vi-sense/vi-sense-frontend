@@ -1,5 +1,7 @@
 <template>
-    <router-view id="app"></router-view>
+    <v-app>
+      <router-view id="app"></router-view>
+    </v-app>
 </template>
 
 <script>
@@ -13,10 +15,15 @@
 </script>
 
 <style lang="scss">
-*{
+* {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
 }
+html {
+  overflow: hidden;
+}
+
 html, body, #app{
   width: 100%;
   height: 100%;
