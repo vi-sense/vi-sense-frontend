@@ -2,7 +2,7 @@ import * as BABYLON from 'babylonjs';
 import * as GUI from "babylonjs-gui";
 import Storage from '../../storage/Storage';
 import { focusOnMesh } from './focusOnMesh';
-import { pulsatingShader, gradientShader } from './shaders';
+import { PulseShader, GradientShader } from './shaders';
 import { SENSOR_COLORS } from '../../storage/Settings';
 
 const API_URL = process.env.API_URL;
@@ -98,7 +98,6 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
 
   // CALLBACK FOR SENSOR INIT
   storage.registerOnUpdateCallback(3, (id) => {
-    console.log(id)
     if (id == null) {
       SELECTABLES.forEach((mesh) => {
         highlight.removeMesh(mesh.subMeshes[0].getRenderingMesh());
@@ -113,12 +112,13 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
         mesh.actionManager.registerAction(
           new BABYLON.ExecuteCodeAction(
             BABYLON.ActionManager.OnPickTrigger, async function (e) {
-              mesh.material = gradientShader();
+              mesh.material = new GradientShader(0, 100, 50);
               if(mesh.metadata.sensor_id) {
                 console.log("was already set; removing sensor from this mesh");
                 updateSensorMeshID(mesh.metadata.sensor_id, null);
               }
               await updateSensorMeshID(id, mesh.name);
+              mesh.metadata.sensor_id = id;
               storage.set(3, null);
               for (const prop of Object.getOwnPropertyNames(sensorLabels)) {
                 delete sensorLabels[prop];
@@ -146,7 +146,6 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
 }
 
 async function addUIElements(modelID: number) {
-  console.log("moin meisa")
   // GET MODEL DATA
   let model = await getModelData(modelID);
   let sensors = model.sensors;
@@ -170,7 +169,10 @@ async function addUIElements(modelID: number) {
     // await BABYLON.NodeMaterial.ParseFromSnippetAsync("4EQZYW", myScene).then(nodeMaterial => {
     //   mesh.material = nodeMaterial;
     // });
-    mesh.material = pulsatingShader() as BABYLON.NodeMaterial;
+
+    //mesh.material = new GradientShader(sensors[i].lower_bound, sensors[i].upper_bound, sensors[i].latest_data.value);
+    mesh.material = new GradientShader(0, 100, 20);
+    //mesh.material = new PulseShader(20, 0.25, 0.75);
     mesh.material.backFaceCulling = true;
 
     // GUI SETUP
@@ -265,7 +267,6 @@ async function getModelData(id: number) {
 }
 
 async function updateSensorMeshID(sensor_id: number, mesh_id: string) {
-  console.log(sensor_id, mesh_id)
   let update = {
     'mesh_id': mesh_id,
   }
@@ -279,7 +280,6 @@ async function updateSensorMeshID(sensor_id: number, mesh_id: string) {
   })
     .then(res => { return res.json() })
     .catch(err => { throw new Error("Can not update sensors mesh id") });
-    console.log(response)
   return response;
 }
 

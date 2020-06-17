@@ -46,12 +46,6 @@ export function createFloorCamera(canvas: HTMLCanvasElement, engine:BABYLON.Engi
         if(e.sourceEvent.keyCode == 81){
             cam.position.y = cam.fixedY -= cam.step
         }
-        if (e.sourceEvent.keyCode == 173) {
-            cam.fov += 0.1
-        }
-        if (e.sourceEvent.keyCode == 171) {
-            cam.fov -= 0.1
-        }
       })
     );
 
@@ -73,6 +67,27 @@ export function createArcCamera(canvas: HTMLCanvasElement, engine:BABYLON.Engine
     arcCamera.wheelPrecision = 20
 
     return arcCamera
+}
+
+export function createMinimapCamera(engine: BABYLON.Engine, mainCam): BABYLON.UniversalCamera {
+    let p = mainCam.position.clone()
+    let mm = new FloorCamera('minimapCam', new BABYLON.Vector3(p.x, p.y + 20, p.z), this.scene);
+    mm.mode = BABYLON.Camera.ORTHOGRAPHIC_CAMERA;
+    mm.orthoLeft = -20;
+    mm.orthoRight = 20;
+    mm.orthoTop = 20;
+    mm.orthoBottom = -20;
+    mm.rotation.x = Math.PI / 2;
+    mm.setTarget(mainCam.position);
+    mm.viewport = new BABYLON.Viewport(0, 0.8, .20, .20);
+
+    engine.runRenderLoop(() => {
+        mm.position = mainCam.position.clone();
+        mm.position.y = mm.fixedY;
+        mm.rotation.y = mainCam.rotation.y;
+    })
+
+    return mm;
 }
 
 export function changeFOV(value: number) {
