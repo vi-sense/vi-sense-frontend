@@ -93,6 +93,9 @@ export default class SensorGraph{
     getGradient(date){
         // TODO use bisect for better performance?
         let index = this.data.findIndex(entry => entry.date > date)
+        if(index === -1){
+            return 0
+        }
         let m = -(this.yScale(this.data[index].value) - this.yScale(this.data[index -1].value))/(this.xScale(this.data[index].date) - this.xScale(this.data[index -1].date))
         return m
     }

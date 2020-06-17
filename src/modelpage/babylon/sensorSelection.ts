@@ -202,7 +202,7 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
 }
 
 export function turnArrow(sensorId, gradient){
-  sensorLabels[""+sensorId].arrow.rotation = -Math.atan(gradient)
+  sensorLabels[sensorId].arrow.rotation = -Math.atan(gradient)
 }
 
 
