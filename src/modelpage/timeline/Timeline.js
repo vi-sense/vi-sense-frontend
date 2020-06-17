@@ -88,33 +88,6 @@ const Timeline = (function(parentElement){
 
 
 
-    /**
-     _____               
-    |__   |___ ___ _____ 
-    |   __| . | . |     |
-    |_____|___|___|_|_|_|
-    */
-    let _tExtendStartDate = new Date(2020, 1, 1)
-    const zoom = d3.zoom()
-        .extent([[margin.left, 0], [width-margin.right, height]])
-        .scaleExtent([0.1, 5]) // zoom factor range, depends on preselected domain 
-        .translateExtent([[xScale(_tExtendStartDate)], [xScale(new Date())]]) // pan range
-        .on("zoom", zoomPan)
-
-    svg.call(zoom)
-    .on("dblclick.zoom", null)
-
-    function zoomPan() {  
-        let t = d3.event.transform
-        xScale.domain(t.rescaleX(xScaleRef).domain()); // continous scale with transformed domain  
-
-        replaceTimepin() 
-        gx.call(xAxis); 
-        graphs.forEach(g => g.area(xScale, yScale))        
-        if(selection) brushGroup.call(brush.move, [xScale(selection[0]), xScale(selection[1])]);       
-    }
-
-
 
     /**
      _____               

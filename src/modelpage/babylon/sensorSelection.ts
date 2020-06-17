@@ -252,6 +252,16 @@ async function addUIElements(modelID: number) {
 
 export function turnArrow(sensorId, gradient){
   sensorLabels[sensorId].arrow.rotation = -Math.atan(gradient)
+  // if(!arrow.getScene){ //hack to make babylon animations work with gui elements
+  //   arrow.getScene = function () { return myScene };
+  // }
+  // if(arrow.animation){
+  //   arrow.animation.stop()
+  // }
+  // arrow.animation = BABYLON.Animation.CreateAndStartAnimation('arrowRotation',
+  //     arrow,
+  //     'rotation',
+  //     60, 2, arrow.rotation, -Math.atan(gradient), BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
 }
 
 async function getModelData(id: number) {
@@ -276,8 +286,4 @@ async function updateSensorMeshID(sensor_id: number, mesh_id: string) {
     .then(res => { return res.json() })
     .catch(err => { throw new Error("Can not update sensors mesh id") });
   return response;
-}
-
-function raiseToRad(raise: number){
-  return Math.atan(raise)
 }

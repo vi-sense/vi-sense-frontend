@@ -30,7 +30,7 @@ export default class BabylonApp {
         var camera = createFloorCamera(canvas, this.engine, this.scene)
         //var minimap = createMinimapCamera(this.engine, camera)
         var arc = createArcCamera(canvas, this.engine, this.scene)
-        this.scene.activeCameras.push(camera)
+        this.scene.activeCamera = camera;
         //this.scene.activeCameras.push(minimap);
         this.scene.cameraToUseForPointers = camera;
         
