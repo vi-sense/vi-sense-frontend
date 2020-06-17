@@ -123,6 +123,11 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
     let stackPanel = new GUI.StackPanel();
     stackPanel.isVertical = true;
     // advancedTexture.addControl(stackPanel);
+    let bg = new GUI.Rectangle()
+    bg.width = "250px"
+    bg.height = "250px"
+    bg.background = "white"
+    stackPanel.addControl(bg)
 
     let arrow = new GUI.Image("arrow", arrow_svg)
     arrow.stretch = GUI.Image.STRETCH_UNIFORM
@@ -172,10 +177,10 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
     // myMaterial.diffuseColor = new BABYLON.Color3(1, 0, 1);
     // myPlane.material = myMaterial
 
-    myPlane.billboardMode = BABYLON.Mesh.BILLBOARDMODE_ALL;
+    // myPlane.billboardMode = BABYLON.Mesh.BILLBOARDMODE_ALL;
     myPlane.position.copyFrom(mesh.getBoundingInfo().boundingSphere.centerWorld)
     // mesh.addChild(myPlane)
-    myPlane.renderingGroupId = 1
+    // myPlane.renderingGroupId = 1
 
     let advancedTexture = GUI.AdvancedDynamicTexture.CreateForMesh(myPlane);
     // stackPanel.linkOffsetY = 30;
@@ -221,7 +226,7 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
 }
 
 export function turnArrow(sensorId, gradient){
-  sensorLabels[sensorId].arrow.rotation = -Math.atan(gradient)
+  sensorLabels[""+sensorId].arrow.rotation = -Math.atan(gradient)
 }
 
 
