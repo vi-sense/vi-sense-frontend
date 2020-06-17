@@ -146,7 +146,7 @@ const Timeline = (function(parentElement){
         //console.log(timepinDate);   
         //let stringdate = formatDate(timepinDate)
         timepin.attr("transform", `translate(${xScale(timepinDate)}, 0)`)
-        //Array.from(graphs.keys()).forEach(key => {turnArrow(parseInt(key.slice(9)), graphs.get(key).getGradient(timepinDate))})
+        Array.from(graphs.keys()).forEach(key => {turnArrow(parseInt((""+key).slice(9)), graphs.get(key).getGradient(timepinDate))})
     }
     redrawTimepin() 
 

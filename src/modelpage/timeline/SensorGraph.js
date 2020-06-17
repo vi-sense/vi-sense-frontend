@@ -2,10 +2,12 @@
  * @author Tom Wendland
  */
 import * as d3 from 'd3'
+import moment from 'moment';
 import { SENSOR_COLORS } from '../../storage/Settings';
+const API_URL = process.env.API_URL  
 
 //const SENSOR_COLORS = d3.schemeCategory10 // position mapped to sensorId
-const API_URL = process.env.API_URLL // "https://visense.f4.htw-berlin.de:44344/"
+//const API_URL = "https://visense.f4.htw-berlin.de:44344"
 
 
 export default class SensorGraph{
@@ -35,16 +37,16 @@ export default class SensorGraph{
             .attr("stroke-linejoin", "round")
             .attr("stroke-linecap", "round")
 
-        this._fetch(new Date())
+        this._fetchBackwards(new Date())
     }
 
     /**
      * Fetching new data with given date as end_date
-     * Problem: werden eigentlich nicht in der gestartetetn reihenfolge fertig, deswegen ist data nicht in richtiger reihenfolge
-     * Mehrere _fetchAgain dürfte auch nicht klappen -> Que?
+     * Werden nacheinander gefetcht und den daten hinzugefügt
+     * Kann zum Problem kommen, dass wenn man richtig viel gescrollt und dann gestoppt wird der aktuelle teil nicht nachgeladen wurde
      * @param {Date} endDate 
      */
-    _fetch(endDate) {
+    _fetchBackwards(endDate = this.oldestDataDate) {
         if(this._fetching){
             this._fetchAgain = true
             return
@@ -64,7 +66,7 @@ export default class SensorGraph{
             this.path.datum(this.data)
 
             this._fetching = false
-            if(this._fetchAgain) this._fetch(this.oldestDataDate)
+            if(this._fetchAgain) this._fetchBackwards()
 
             this.redraw()
         })
@@ -72,7 +74,7 @@ export default class SensorGraph{
     
     redraw(){        
         if(this.xScale(this.oldestDataDate) > 0) { 
-            this._fetch(this.oldestDataDate)
+            this._fetchBackwards()
         }
 
         this.line
@@ -102,8 +104,8 @@ async function fetchSensorData(id, endDate){
     // our backend requires utc time for a request so if I want the data for 12:00 local time, i have to request for 10:00 because german time is utc+02
     let utcdate = moment.utc(endDate).format("YYYY-MM-DD HH:mm:ss");
     let limit = 100
-
-    return await fetch(API_URL + `sensors/${id}/data?limit=${limit}&end_date=${utcdate}`)
+    
+    return await fetch(API_URL + `/sensors/${id}/data?limit=${limit}&end_date=${utcdate}`)
     .catch(error => { console.log(error) })
     .then(res => { return res.json() })
     .then(json => { return json.map(d => { return {date: new Date(d.date), value: d.value}}) })

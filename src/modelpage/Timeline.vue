@@ -39,7 +39,6 @@
 
 <script>
 import Timeline from './timeline/Timeline.js';
-import moment from 'moment';
 
 export default {
   props: ["STORE"],
@@ -56,11 +55,11 @@ export default {
         }
     })
       
-    this.STORE.onSensorSelectionChanged((sensorId, action) => {
+    this.STORE.onSensorSelectionChanged((sensorId, action) => {      
       if(action == "new")
-          timeline.showGraph(id)
+          timeline.showGraph(sensorId)
       else if(action == "removed"){
-          timeline.hideGraph(id)
+          timeline.hideGraph(sensorId)
       }
     })
 
