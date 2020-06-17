@@ -42,7 +42,7 @@
               thumb-size="26"
               color="rgba(82, 186, 162, 1)"
               track-color="rgba(0, 0, 0, 0.3)"
-              v-on:change="onSliderChanged('temp', temp)"
+              v-on:change="onSliderChanged('temp', temp, sensor.id)"
             ></v-slider>
           </div>
         </v-expansion-panel-content>
@@ -89,6 +89,17 @@ export default {
     });
   },
   methods: {
+    onSliderChanged(key, value, id) {
+      //console.log(key, value);
+      switch (key) {
+        case "temp":
+          //console.log(this.sensorData[id].latest_data.value);
+          this.sensorData[id].latest_data.value = value;
+          break;
+        default:
+          break;
+      }
+    },
     onItemChecked(id, index) {
       event.stopPropagation();
       if (this.checkboxes[index].checked == true) {
