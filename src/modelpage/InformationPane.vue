@@ -153,7 +153,11 @@ export default {
   padding: 10px 10px !important;
 }
 
-.button {
-  margin-top: 5px;
+.v-expansion-panel-content button {
+  margin: 10px 0;
+}
+
+.v-expansion-panel-header > :not(.v-expansion-panel-header__icon) {
+  flex: unset;
 }
 </style>

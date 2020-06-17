@@ -1,11 +1,13 @@
 import * as BABYLON from 'babylonjs'
 import FloorCamera from './FloorCamera';
+import { switchCamera } from './cameras';
 
 /**
  * @author Lennard Grimm
  * Camera smoothly targets and moves to the passed Vector3 with a fixed distance.
  */
 export async function focusOnMesh(scene: BABYLON.Scene, target: BABYLON.Vector3) {
+    if (scene.activeCamera.name != "floorCam") switchCamera();
     let camera = scene.activeCamera as FloorCamera;
     let ease = new BABYLON.CubicEase();
     ease.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEINOUT);

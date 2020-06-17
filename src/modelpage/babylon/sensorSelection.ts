@@ -2,12 +2,16 @@ import * as BABYLON from 'babylonjs';
 import * as GUI from "babylonjs-gui";
 import Storage from '../../storage/Storage';
 import { focusOnMesh } from './focusOnMesh';
-import { pulsatingShader } from './shaders';
+import { pulsatingShader, gradientShader } from './shaders';
 import { SENSOR_COLORS } from '../../storage/Settings';
 
 const API_URL = process.env.API_URL;
 const sensorColor = BABYLON.Color3.Purple();
 const selectedSensorColor = BABYLON.Color3.Teal();
+
+var SELECTABLES: BABYLON.AbstractMesh[];
+var advancedTexture: GUI.AdvancedDynamicTexture;
+var defaultMat: BABYLON.Material;
 
 var myScene: BABYLON.Scene;
 var storage: Storage;
@@ -36,7 +40,7 @@ export async function updateSelectedSensor(sensor_id: number, action: String) {
     mesh = mesh.subMeshes[0].getRenderingMesh();
     mesh.outlineWidth = .05;
     mesh.outlineColor = BABYLON.Color3.Black();
-    mesh.renderOutline = true;
+    //mesh.renderOutline = true;
     let mat = mesh.material as BABYLON.PBRMaterial;
     mat.albedoColor = selectedSensorColor;
     sensorLabels[sensor_id].rect.alpha = 1;
@@ -49,7 +53,7 @@ export async function updateSelectedSensor(sensor_id: number, action: String) {
     let mesh = myScene.getMeshByName(sensor.mesh_id);
     mesh.state = "";
     highlight.removeMesh(mesh.subMeshes[0].getRenderingMesh());
-    mesh.renderOutline = false;
+    //mesh.renderOutline = false;
     let mat = mesh.material as BABYLON.PBRMaterial;
     mat.albedoColor = sensorColor;
     sensorLabels[sensor_id].rect.alpha = 0;
@@ -77,49 +81,100 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
   myScene = scene;
   storage = STORE;
 
+  SELECTABLES = myScene.getNodeByName("selectables").getChildMeshes();
+
+  //MAIN GUI CONTAINER
+  advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+
   storage.onSensorSelectionChanged((id, action) => {
     updateSelectedSensor(id, action);
   })
 
+  // CALLBACK FOR CAMERA DRIVE
   storage.registerOnUpdateCallback(2, (id) => {
     if (id == null) myScene.stopAnimation(myScene.activeCamera);
     else moveToMesh(myScene, id);
   })
 
+  // CALLBACK FOR SENSOR INIT
+  storage.registerOnUpdateCallback(3, (id) => {
+    console.log(id)
+    if (id == null) {
+      SELECTABLES.forEach((mesh) => {
+        highlight.removeMesh(mesh.subMeshes[0].getRenderingMesh());
+        mesh.actionManager.actions.splice(0, 1)
+      })
+    }
+    else {
+      SELECTABLES.forEach((mesh) => {
+        highlight.addMesh(mesh.subMeshes[0].getRenderingMesh(), BABYLON.Color3.White());
+        mesh.material = defaultMat;
+        mesh.actionManager = new BABYLON.ActionManager(myScene);
+        mesh.actionManager.registerAction(
+          new BABYLON.ExecuteCodeAction(
+            BABYLON.ActionManager.OnPickTrigger, async function (e) {
+              mesh.material = gradientShader();
+              if(mesh.metadata.sensor_id) {
+                console.log("was already set; removing sensor from this mesh");
+                updateSensorMeshID(mesh.metadata.sensor_id, null);
+              }
+              await updateSensorMeshID(id, mesh.name);
+              storage.set(3, null);
+              for (const prop of Object.getOwnPropertyNames(sensorLabels)) {
+                delete sensorLabels[prop];
+              }
+              for (const prop of Object.getOwnPropertyNames(savedSensors)) {
+                delete savedSensors[prop];
+              }
+              advancedTexture.getChildren().forEach((ui) => {
+                ui.dispose();
+              })
+              addUIElements(modelID);
+        }));
+      })
+    }
+  })
+  
   // setup of highlight layer
   highlight = new BABYLON.HighlightLayer("highlight", myScene);
   highlight.innerGlow = true
   highlight.outerGlow = false
-  highlight.blurHorizontalSize = 1
-  highlight.blurVerticalSize = 1
+  highlight.blurHorizontalSize = 2
+  highlight.blurVerticalSize = 2
 
+  addUIElements(modelID);
+}
+
+async function addUIElements(modelID: number) {
+  console.log("moin meisa")
   // GET MODEL DATA
   let model = await getModelData(modelID);
   let sensors = model.sensors;
-
+  console.log(sensors)
   for (let i = 0; i < sensors.length; i++) {
-    if(sensors[i].mesh_id == null || sensors[i].mesh_id == "") continue;
+    
+    if (sensors[i].mesh_id == null || sensors[i].mesh_id == "") continue;
     savedSensors[sensors[i].id] = sensors[i]
 
-    // CURRENT MESH, all selectable meshes are colored purple
     let mesh: BABYLON.AbstractMesh;
-    if (model.id == 4) mesh = scene.getMeshByUniqueID(parseInt(sensors[i].mesh_id));
-    else mesh = scene.getMeshByName(sensors[i].mesh_id);
-    //let mat = mesh.material as BABYLON.PBRMaterial;
-    //mat.albedoColor = sensorColor;
+    if (model.id == 4) mesh = myScene.getMeshByUniqueID(parseInt(sensors[i].mesh_id));
+    else mesh = myScene.getMeshByName(sensors[i].mesh_id);
+    mesh.metadata.sensor_id = sensors[i].id;
 
+    if (i == 1) defaultMat = mesh.material
     //QPRJU9#12 - sine water flow
     //QPRJU9#16 - sine color change
     //JN2BSF#54 - turbulence fire
     //4EQZYW - temperature gradient
     //imported using the node material editor: https://nme.babylonjs.com/#QPRJU9#12
-    // await BABYLON.NodeMaterial.ParseFromSnippetAsync("QPRJU9#16", myScene).then(nodeMaterial => {
+    // await BABYLON.NodeMaterial.ParseFromSnippetAsync("4EQZYW", myScene).then(nodeMaterial => {
     //   mesh.material = nodeMaterial;
     // });
-    mesh.material = pulsatingShader();
+    mesh.material = pulsatingShader() as BABYLON.NodeMaterial;
+    mesh.material.backFaceCulling = true;
 
     // GUI SETUP
-    let advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+    advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
     let stackPanel = new GUI.StackPanel();
     stackPanel.isVertical = true;
     stackPanel.isPointerBlocker = true;
@@ -144,34 +199,31 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
     stackPanel.addControl(circle)
 
     let rect = new GUI.Rectangle();
-    rect.width = "250px"
-    rect.height = "35px"
-    rect.alpha = 0
-    rect.background = "white"
-    stackPanel.addControl(rect)
+    rect.height = "35px";
+    rect.alpha = 0;
+    rect.background = "white";
+    stackPanel.addControl(rect);
     let label = new GUI.TextBlock();
-    label.text = sensors[i].name
-    rect.addControl(label)
-    //label.resizeToFit = true;
-    //padding doesnt work when resizeToFit = true;
-    //label.paddingRightInPixels = 20;
-    //label.paddingLeftInPixels = 20;
+    label.text = sensors[i].name;
+    label.resizeToFit = true;
+    rect.adaptWidthToChildren = true;
+    rect.addControl(label);
+
 
     stackPanel.addControl(rect);
     stackPanel.linkWithMesh(mesh);
     stackPanel.adaptWidthToChildren = true;
 
-    sensorLabels[sensors[i].id] = {rect: rect, arrow: arrow, circle:circle, color: SENSOR_COLORS[sensors[i].id]};
+    sensorLabels[sensors[i].id] = { rect: rect, arrow: arrow, circle: circle, color: SENSOR_COLORS[sensors[i].id] };
 
     // REGISTER MESH ACTIONS
-    mesh.actionManager = new BABYLON.ActionManager(scene);
-    mesh.actionManager.registerAction(
-      new BABYLON.ExecuteCodeAction(
-        BABYLON.ActionManager.OnPickTrigger, async function(e) {
-          if (e.source.state === "") storage.selectSensor(sensors[i].id)
-          else storage.unselectSensor(sensors[i].id)
-        }));
-
+    // mesh.actionManager = new BABYLON.ActionManager(scene);
+    // mesh.actionManager.registerAction(
+    //   new BABYLON.ExecuteCodeAction(
+    //     BABYLON.ActionManager.OnPickTrigger, async function(e) {
+    //       if (e.source.state === "") storage.selectSensor(sensors[i].id)
+    //       else storage.unselectSensor(sensors[i].id)
+    //     }));
 
     // // on hover enter, change color to teal
     // mesh.actionManager.registerAction(
@@ -205,7 +257,6 @@ export function turnArrow(sensorId, gradient){
   sensorLabels[sensorId].arrow.rotation = -Math.atan(gradient)
 }
 
-
 async function getModelData(id: number) {
   let response = await fetch(API_URL + "/models/" + id)
     .then(res => { return res.json() })
@@ -213,10 +264,22 @@ async function getModelData(id: number) {
   return response;
 }
 
-async function getSensorData(id: number) {
-  let response = await fetch(API_URL + "/sensors/" + id)
+async function updateSensorMeshID(sensor_id: number, mesh_id: string) {
+  console.log(sensor_id, mesh_id)
+  let update = {
+    'mesh_id': mesh_id,
+  }
+  let response = await fetch(API_URL + "/sensors/" + sensor_id, {
+    method: 'PATCH',
+    mode: 'cors',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(update)
+  })
     .then(res => { return res.json() })
-    .catch(err => { throw new Error("Can not load sensor data") });
+    .catch(err => { throw new Error("Can not update sensors mesh id") });
+    console.log(response)
   return response;
 }
 

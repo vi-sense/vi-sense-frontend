@@ -57,8 +57,11 @@ header {
   height: 7% !important;
   z-index: 3;
   
-  #logo {
+  #logo{
     height: 100%;
+    img {
+      height: 100%;
+    }
   }
   h2 {
     margin: 0;
@@ -81,21 +84,13 @@ header {
     margin: 0 10px;
   }
   header {
-    position: fixed;
-    top: 0;
     width: 100%;
-    min-height: 90px;
-    border-bottom: 1px solid #42b983;
-    text-align: center;
-    background: #ffffff;
+    min-height: 7%;
+    height: 7%;
   }
   main {
     display: flex;
-    height: calc(100vh - 90px);
-    margin-top: 90px;
-    margin-left: auto;
-    margin-right: auto;
-    overflow: hidden;
+    height: 93%;
   }
   aside {
     flex: 1 0 20%;
