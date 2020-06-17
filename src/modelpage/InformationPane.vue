@@ -63,7 +63,10 @@ export default {
       model: [],
       checkboxes: [],
       sensorData: [],
-      endpoint: process.env.API_URL + "/"
+      endpoint: process.env.API_URL + "/",
+      temp_min: 10,
+      temp_max: 80,
+      temp: 50
     };
   },
   created() {
@@ -71,15 +74,17 @@ export default {
 
     this.STORE.getSelectedSensors(sensorIds => {
       for (let id of sensorIds) {
-        this.checkboxes[id].checked; // TODO check sensor checkbox passiert im normalfall nicht aber der vollständigkeit halber
+        const i = this.indexWhere(this.checkboxes, item => item.id === id);
+        this.checkboxes[i].checked; // TODO check sensor checkbox passiert im normalfall nicht aber der vollständigkeit halber
       }
     });
 
     this.STORE.onSensorSelectionChanged((sensorId, action) => {
+      const i = this.indexWhere(this.checkboxes, item => item.id === sensorId);
       if (action == "new") {
-        this.checkboxes[sensorId - 1].checked = true;
+        this.checkboxes[i].checked = true;
       } else if (action == "removed") {
-        this.checkboxes[sensorId - 1].checked = false;
+        this.checkboxes[i].checked = false;
       }
     });
   },
@@ -91,6 +96,10 @@ export default {
       } else if (this.checkboxes[index].checked == false) {
         this.STORE.unselectSensor(id);
       }
+    },
+    indexWhere(array, conditionFn) {
+      const item = array.find(conditionFn);
+      return array.indexOf(item);
     },
     startCameraMove(id) {
       this.STORE.set(SKEYS.CAMERA_DRIVE_SENSOR, id);
@@ -105,7 +114,8 @@ export default {
           this.sensorData = this.model.sensors;
           this.checkboxes = this.sensorData.map(sensor => {
             return {
-              checked: false
+              checked: false,
+              id: sensor.id
             };
           });
           this.$route.meta.title = this.model.name;
