@@ -22,6 +22,17 @@ const Timeline = (function(parentElement){
     
 
 
+    svg.append("clipPath")
+    .attr("id", "clip")
+    .append("rect")            
+	.attr("x", margin.left)
+	.attr("y",margin.top)
+    .attr("height",height-margin.top-margin.bottom)
+	.attr("width",width-margin.left-margin.right)
+
+    const clipper = svg.append("g")
+    .attr("clip-path","url(#clip)")
+
 
     /**
      _____     _     
@@ -29,14 +40,18 @@ const Timeline = (function(parentElement){
     |     |_'_| |_ -|
     |__|__|_,_|_|___|
     */
-    let _startdate = new Date()
-    _startdate.setTime(_startdate.getTime() - 24*60*60*1000)
+   // time range showed when started the app
+   const _start = new Date()
+   _start.setTime(_start.getTime() - 24*60*60*1000)
+   const _end = new Date()
+   _end.setTime(_end.getTime() + 2*60*60*1000)
 
-    const xScaleRef = d3.scaleUtc()
+   const xScaleRef = d3.scaleUtc()
         .range([margin.left, width - margin.right])
-        .domain([_startdate, new Date()]) // TODO scaleTick use 24 h
+        .domain([_start, _end])  
+        // TODO scaleTick use 24 h
 
-    const xScale = xScaleRef.copy() // scaling reference https://stackoverflow.com/questions/56553384/d3-v5-axis-scale-change-panning-way-too-much
+    const xScale = xScaleRef.copy() 
 
     const xAxis = g => g
         .attr("transform", `translate(0,${height-margin.bottom})`)
@@ -64,8 +79,7 @@ const Timeline = (function(parentElement){
     const gx = svg.append("g").call(xAxis);
     const gy = svg.append("g").call(yAxis);
 
-    svg.selectAll("text")
-    .attr("pointer-events", "none")
+
 
 
 
@@ -75,25 +89,46 @@ const Timeline = (function(parentElement){
     |   __| . | . |     |
     |_____|___|___|_|_|_|
     */
-    let _tExtendStartDate = new Date(2020, 1, 1)
     const zoom = d3.zoom()
         .extent([[margin.left, 0], [width-margin.right, height]])
         .scaleExtent([0.1, 5]) // zoom factor range, depends on preselected domain 
-        .translateExtent([[xScale(_tExtendStartDate)], [xScale(new Date())]]) // pan range
-        .on("zoom", zoomPan)
+        .translateExtent([[xScale(new Date(2020, 0, 1))], [xScale(_end)]]) // pan range
+        .on("zoom", () => {
+
+            // scaling reference https://stackoverflow.com/questions/56553384/d3-v5-axis-scale-change-panning-way-too-much
+            let t = d3.event.transform
+            xScale.domain(t.rescaleX(xScaleRef).domain()); // continous scale with transformed domain  
+    
+            redrawTimepin()
+            gx.call(xAxis); 
+            graphs.forEach(g => g.redraw())        
+            if(selection) brushGroup.call(brush.move, [xScale(selection[0]), xScale(selection[1])]);    
+        })
 
     svg.call(zoom)
     .on("dblclick.zoom", null)
 
-    function zoomPan() {  
-        let t = d3.event.transform
-        xScale.domain(t.rescaleX(xScaleRef).domain()); // continous scale with transformed domain  
 
-        redrawTimepin() 
-        gx.call(xAxis); 
-        graphs.forEach(g => g.redraw())        
-        if(selection) brushGroup.call(brush.move, [xScale(selection[0]), xScale(selection[1])]);       
-    }
+
+    /**                              
+     _____           __    _         
+    |   | |___ _ _ _|  |  |_|___ ___ 
+    | | | | . | | | |  |__| |   | -_|
+    |_|___|___|_____|_____|_|_|_|___|                           
+     */
+    const endline = svg.append("g")
+    .attr("transform", `translate(${xScale(Date.now())}, 0)`)
+
+    endline.append("line")
+    .attr("stroke", "grey")
+    .attr("y1", margin.top)
+    .attr("y2", height-margin.bottom)
+
+    endline.append("text")
+    .attr('text-anchor', 'start')
+    .attr("x", 0)
+    .attr("y", height-margin.bottom-2)
+    .text(function(d) { return formatDate(new Date()); });
 
 
 
@@ -104,30 +139,35 @@ const Timeline = (function(parentElement){
       |_| |_|_|_|_|___|  _|_|_|_|
                       |_|        
     */
-    const timepinDate = xScale.domain()[1] // upper domain value
+    var timepinDate = new Date() 
 
     const timepin = svg.append("g")
     .style('cursor', 'ew-resize')
 
-    const ruler = timepin.append("line")
-        .attr("stroke", "grey")
-        .attr("stroke-dasharray", 4)
-        .attr("y1", margin.top)
-        .attr("y2", height-margin.bottom)
+    timepin.append("line")
+    .attr("stroke", "grey")
+    .attr("stroke-dasharray", 4)
+    .attr("y1", margin.top)
+    .attr("y2", height-margin.bottom)
 
-    const topmarker = timepin.append("circle")
-        .attr("fill", "white")
-        .attr("stroke", "black")
-        .attr("cx", 0)
-        .attr("cy", margin.top-5)
-        .attr("r", 4)
+    timepin.append("circle")
+    .attr("fill", "white")
+    .attr("stroke", "black")
+    .attr("cx", 0)
+    .attr("cy", margin.top-5)
+    .attr("r", 4)
+
+    timepin.append("text")
+    .attr('text-anchor', 'middle')
+    .attr("x", 0)
+    .attr("y", margin.top-5)
+
 
     timepin.call(d3.drag().on('drag', () => {
         let mouse_x = d3.mouse(svg.node())[0]
         clampTimelinePosAndSetDate(mouse_x)
         redrawTimepin()
     }));
-
     svg.on("click", function() {         
         let mouse_x = d3.mouse(this)[0]
         clampTimelinePosAndSetDate(mouse_x)
@@ -142,13 +182,12 @@ const Timeline = (function(parentElement){
         timepinDate.setTime(xScale.invert(mouse_x))        
     }
 
-    function redrawTimepin(){   
-        //console.log(timepinDate);   
-        //let stringdate = formatDate(timepinDate)
+    function redrawTimepin(){  
+        timepin.select("text").text(() => formatDate(timepinDate))
         timepin.attr("transform", `translate(${xScale(timepinDate)}, 0)`)
         Array.from(graphs.keys()).forEach(key => {turnArrow(key, graphs.get(key).getGradient(timepinDate))})
     }
-    redrawTimepin() 
+
 
     
 
@@ -175,7 +214,7 @@ const Timeline = (function(parentElement){
         })
 
 
-    const brushGroup = svg.append("g")
+    const brushGroup = clipper.append("g")
         .call(brush)
         .on("dblclick", () => {
             brushGroup.call(brush.move, null); 
@@ -187,8 +226,7 @@ const Timeline = (function(parentElement){
         .attr("stroke", "grey")     
         .attr("stroke-dasharray", 4)
 
-    const _brushMouseDown = brushGroup.on('mousedown.brush'); // used in setTool()
-    setTool("pin")
+    const _brushMouseDown = brushGroup.on('mousedown.brush'); // used for setTool()
 
 
 
@@ -209,24 +247,37 @@ const Timeline = (function(parentElement){
     
     function update() {
         requestAnimationFrame(update)
+        const now = new Date()
 
-        // TODO fetch new data
-        //zoom.translateExtent([[xScale(_tExtendStartDate)], [xScale(Date.now())]]);
+        // TODO update timeline max zoom date in realtime
+        // idk why but its stuttering even if i only call this method once
+        // -> dont update timeline in realtime but allow to scroll some hours ontop
+        //zoom.translateExtent([[zoom.translateExtent[0]], [xScale(ttt)]]);
+
+        endline.attr("transform", `translate(${xScale(now)}, 0)`)
+        endline.select("text").text(() => formatDate(now))
 
         if(playing){
             timepinDate.setTime(timepinDate.getTime() + (speed*60*1000));
-
-            if(selection){
-                if(timepinDate < selection[0] || timepinDate > selection[1])
-                    timepinDate.setTime(selection[0].getTime())
+            
+            if(selection != undefined && (timepinDate < selection[0] || timepinDate > selection[1])){
+                timepinDate.setTime(selection[0].getTime())
             }
-
-            if(timepinDate > Date.now())
-                timepinDate.setTime(Date.now())
-
+    
+            if(!selection && timepinDate > now){
+                playing = false
+                timepinDate.setTime(now)
+            }
             redrawTimepin()
         }
     }
+    
+
+    svg.selectAll("text")
+    .attr("pointer-events", "none")
+
+    setTool("pin")
+    redrawTimepin() 
     requestAnimationFrame(update)
 
 
@@ -249,7 +300,7 @@ const Timeline = (function(parentElement){
         if(graphs.has(id)) {
             graphs.get(id).show()
         } else{
-            let graph = new SensorGraph(id, svg, xScale, yScale)
+            let graph = new SensorGraph(id, clipper, xScale, yScale)
             graphs.set(id, graph)
         }
     }

@@ -12,10 +12,9 @@ const API_URL = process.env.API_URL
 
 export default class SensorGraph{
 
-    constructor(sensorId, svg, xScale, yScale) {
+    constructor(sensorId, svgParent, xScale, yScale) {
 
         this._fetching = false
-        this._fetchAgain = false
 
         this.oldestDataDate = new Date(8640000000000000) // max/min date for initial comparison
         this.latestDataDate = new Date(-8640000000000000)
@@ -29,7 +28,7 @@ export default class SensorGraph{
         this.line = d3.line()
             .defined(d => !isNaN(d.value) && !isNaN(d.date))
 
-        this.path = svg.append("path")
+        this.path = svgParent.append("path")
             .datum(this.data)
             .attr("fill", "none")
             .attr("stroke", this.color)
@@ -42,17 +41,12 @@ export default class SensorGraph{
 
     /**
      * Fetching new data with given date as end_date
-     * Werden nacheinander gefetcht und den daten hinzugefügt
-     * Kann zum Problem kommen, dass wenn man richtig viel gescrollt und dann gestoppt wird der aktuelle teil nicht nachgeladen wurde
+     * Werden nacheinander gefetcht und den bereits erhaltenen daten hinzugefügt
      * @param {Date} endDate 
      */
     _fetchBackwards(endDate = this.oldestDataDate) {
-        if(this._fetching){
-            this._fetchAgain = true
-            return
-        }          
+        if(this._fetching)  return       
         this._fetching = true
-        this._fetchAgain = false
         
         fetchSensorData(this.sensorId, endDate).then(data => {   
             this._fetching = false
@@ -66,8 +60,6 @@ export default class SensorGraph{
             this.path.datum(this.data)
 
             this._fetching = false
-            if(this._fetchAgain) this._fetchBackwards()
-
             this.redraw()
         })
     }
