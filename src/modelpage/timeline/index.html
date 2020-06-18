@@ -12,8 +12,8 @@
         <input id="play" type="button" value="play">
         <input id="speed" type="number" value="1" min="1", max="50">
         <br>
-        <input id="pin" type="button" value="pin">
-        <input id="brush" type="button" value="brush">
+        <input id="move" type="button" value="move">
+        <input id="select" type="button" value="select">
     </div>
 </body>
 </html>
@@ -47,13 +47,12 @@ const timeline = new Timeline(parent)
 
 document.querySelector("#play").onclick = e => { timeline.isPlaying() ? timeline.pause() : timeline.play() }
 document.querySelector("#speed").oninput = e => { timeline.setSpeed(e.target.value) }
-document.querySelector("#pin").onclick = e => { timeline.setTool("pin") }
-document.querySelector("#brush").onclick = e => { timeline.setTool("brush") }
+document.querySelector("#move").onclick = e => { timeline.setTool("pin") }
+document.querySelector("#select").onclick = e => { timeline.setTool("brush") }
 
 timeline.showGraph(1) 
 timeline.showGraph(4) 
 timeline.showGraph(5) 
-
 
 
 </script>

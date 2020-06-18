@@ -3,8 +3,8 @@
       <div id="chartWrapper"></div>
       <div id="tools">
         <input id="btnPlay" type="button" value="play">
-        <input id="btnPin" type="button" value="pin">
-        <input id="btnBrush" type="button" value="brush">
+        <input id="btnMove" type="button" value="move">
+        <input id="btnSelect" type="button" value="select">
         <input id="nmbSpeed" type="number" value="1" min=1 max=20>
       </div>
   </div>
@@ -66,8 +66,8 @@ export default {
 
     document.querySelector("#btnPlay").onclick = e => { timeline.isPlaying() ? timeline.pause() : timeline.play() }
     document.querySelector("#nmbSpeed").oninput = e => { timeline.setSpeed( e.target.value) }
-    document.querySelector("#btnPin").onclick = e => { timeline.setTool("pin") }
-    document.querySelector("#btnBrush").onclick = e => { timeline.setTool("brush") }
+    document.querySelector("#btnMove").onclick = e => { timeline.setTool("pin") }
+    document.querySelector("#btnSelect").onclick = e => { timeline.setTool("brush") }
   }
 };
 </script>
