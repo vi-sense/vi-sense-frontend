@@ -8,8 +8,6 @@ import * as d3 from 'd3'
 import { turnArrow } from "../babylon/sensorSelection"
 
 
-const SENSOR_COLORS = d3.schemeCategory10 // position mapped to sensorId
-
 
 
 const Timeline = (function(parentElement){
@@ -97,7 +95,7 @@ const Timeline = (function(parentElement){
     */
     const zoom = d3.zoom()
         .extent([[margin.left, 0], [width-margin.right, height]])
-        .scaleExtent([0.5, 6]) // zoom factor range, depends on preselected domain 
+        .scaleExtent([0.5, 8]) // zoom factor range, depends on preselected domain 
         .translateExtent([[xScale(new Date(2020, 0, 1))], [xScale(_end)]]) // pan range
         .on("zoom", () => {
 
@@ -252,7 +250,12 @@ const Timeline = (function(parentElement){
     
     function update() {
         requestAnimationFrame(update)
+
         const now = new Date()
+
+        graphs.forEach(g => {
+            g.dataFetcher.checkAndUpdateRealtimeData( () => g.redraw() )
+        })
 
         // TODO update timeline max zoom date in realtime
         // idk why but its stuttering even if i only call this method once
