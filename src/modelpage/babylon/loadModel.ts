@@ -14,17 +14,13 @@ export function loadModel(id: number, scene: BABYLON.Scene, callback: (meshes: B
         fetch(API_URL + "/models/" + id).then(response => {
             response.json().then(bodyData => {
                 var url = API_URL + '/' + bodyData.url
-                //getFileFromServer(url, file => {
-                    //loadAndResolveGltfFromZip(zipFile, glTFDataString => {
-                        BABYLON.SceneLoader.ImportMesh('', '', url, scene, (meshes, particleSystems, skeletons) => {
-                            let buildingModel = <BABYLON.Mesh> meshes[0]
-                            //normalize(buildingModel)
-                            callback(meshes)
-                            document.getElementById("progressBar").innerHTML = "100%";
-                            document.getElementById("progressBar").style.width = "100%";
-                        }, (event) => updateProgress(event, "import"))
-                    //})
-                //})  
+                BABYLON.SceneLoader.ImportMesh('', '', url, scene, (meshes, particleSystems, skeletons) => {
+                    let buildingModel = <BABYLON.Mesh> meshes[0]
+                    //normalize(buildingModel)
+                    callback(meshes)
+                    document.getElementById("progressBar").innerHTML = "100%";
+                    document.getElementById("progressBar").style.width = "100%";
+                }, (event) => updateProgress(event, "import"))
             })
         })
     } else {
