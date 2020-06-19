@@ -48,7 +48,6 @@
     "babylonjs-inspector": "^4.1.0",
     "babylonjs-loaders": "^4.1.0",
     "d3": "^5.16.0",
-    "jszip": "^3.4.0",
     "moment": "^2.26.0"
   }
 }
