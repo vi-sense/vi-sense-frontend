@@ -175,7 +175,7 @@ async function addUIElements(modelID: number) {
     // GUI SETUP
     let stackPanel = new GUI.StackPanel();
     stackPanel.isVertical = true;
-    stackPanel.isPointerBlocker = true;
+    stackPanel.isPointerBlocker = false;
     advancedTexture.addControl(stackPanel);
 
     let arrow = new GUI.Image("arrow", arrow_svg)
@@ -190,6 +190,7 @@ async function addUIElements(modelID: number) {
     circle.alpha = 1;
     circle.background = SENSOR_COLORS[sensors[i].id];
     circle.addControl(arrow)
+    circle.isPointerBlocker = true;
     circle.onPointerDownObservable.add(function () {
       if (mesh.state == "") storage.selectSensor(sensors[i].id)
       else storage.unselectSensor(sensors[i].id)
@@ -251,17 +252,12 @@ async function addUIElements(modelID: number) {
 }
 
 export function turnArrow(sensorId, gradient){
-  sensorLabels[sensorId].arrow.rotation = -Math.atan(gradient)
-  // if(!arrow.getScene){ //hack to make babylon animations work with gui elements
-  //   arrow.getScene = function () { return myScene };
-  // }
-  // if(arrow.animation){
-  //   arrow.animation.stop()
-  // }
-  // arrow.animation = BABYLON.Animation.CreateAndStartAnimation('arrowRotation',
-  //     arrow,
-  //     'rotation',
-  //     60, 2, arrow.rotation, -Math.atan(gradient), BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
+  if(gradient === undefined){
+    sensorLabels[sensorId].arrow.alpha = 0
+  }else{
+    sensorLabels[sensorId].arrow.alpha = 1
+    sensorLabels[sensorId].arrow.rotation = -Math.atan(gradient)
+  }
 }
 
 async function getModelData(id: number) {

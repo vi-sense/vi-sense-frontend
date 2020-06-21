@@ -189,7 +189,7 @@ const Timeline = (function(parentElement){
     function redrawTimepin(){  
         timepin.select("text").text(() => formatDate(timepinDate))
         timepin.attr("transform", `translate(${xScale(timepinDate)}, 0)`)
-        Array.from(graphs.keys()).forEach(key => {turnArrow(key, graphs.get(key).getGradient(timepinDate))})
+        Array.from(graphs.keys()).forEach(key => {turnArrow(key, graphs.get(key).gradient(timepinDate))})
     }
 
     
