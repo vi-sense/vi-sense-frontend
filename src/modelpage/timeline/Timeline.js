@@ -8,8 +8,6 @@ import * as d3 from 'd3'
 import { turnArrow } from "../babylon/sensorSelection"
 
 
-//const SENSOR_COLORS = d3.schemeCategory10 // position mapped to sensorId
-
 
 
 const Timeline = (function(parentElement){
@@ -46,9 +44,9 @@ const Timeline = (function(parentElement){
     */
    // time range showed when started the app
    const _start = new Date()
-   _start.setTime(_start.getTime() - 24*60*60*1000)
+   _start.setTime(_start.getTime() - 7*24*60*60*1000)
    const _end = new Date()
-   _end.setTime(_end.getTime() + 2*60*60*1000)
+   _end.setTime(_end.getTime() + 24*60*60*1000)
 
    const xScaleRef = d3.scaleUtc()
         .range([margin.left, width - margin.right])
@@ -67,18 +65,18 @@ const Timeline = (function(parentElement){
 
     const yScale = d3.scaleLinear()
         .range([height - margin.bottom, margin.top])
-        .domain([0, 50]).nice() //.domain([0, d3.max(data, d => d.value)]).nice()
+        .domain([-10, 100]).nice() //.domain([0, d3.max(data, d => d.value)]).nice()
         
     const yAxis = g => g
         .attr("transform", `translate(${margin.left},0)`)
         .call(d3.axisLeft(yScale))
         .call(g => g.select(".domain").remove())
         .call(g => g.select(".tick:last-of-type text").clone()
-            .attr("y", -10)
-            .attr("x", -10)
+            .attr("y", 0)
+            .attr("x", 5)
             .attr("text-anchor", "start")
             .attr("font-weight", "bold")
-            .text("unit"))
+            .text("C°/Bar"))
 
     const gx = svg.append("g").call(xAxis);
     const gy = svg.append("g").call(yAxis);
@@ -97,7 +95,7 @@ const Timeline = (function(parentElement){
     */
     const zoom = d3.zoom()
         .extent([[margin.left, 0], [width-margin.right, height]])
-        .scaleExtent([0.1, 5]) // zoom factor range, depends on preselected domain 
+        .scaleExtent([0.5, 8]) // zoom factor range, depends on preselected domain 
         .translateExtent([[xScale(new Date(2020, 0, 1))], [xScale(_end)]]) // pan range
         .on("zoom", () => {
 
@@ -252,7 +250,12 @@ const Timeline = (function(parentElement){
     
     function update() {
         requestAnimationFrame(update)
+
         const now = new Date()
+
+        graphs.forEach(g => {
+            g.dataFetcher.checkAndUpdateRealtimeData( () => g.redraw() )
+        })
 
         // TODO update timeline max zoom date in realtime
         // idk why but its stuttering even if i only call this method once
@@ -362,7 +365,16 @@ const Timeline = (function(parentElement){
         isPlaying(){ return playing },
 
         getSpeed(){ return speed },
-        setSpeed(s){ speed = s }
+        setSpeed(s){ speed = s },
+
+        setDomainY(min, max){
+            yScale.domain([min, max]).nice()
+            gy.call(yAxis)
+        },
+        getDomainY(){
+            return yScale.domain()
+        }
+
     }
 })
 export default Timeline
