@@ -31,7 +31,7 @@ const router = new Router({
       props: true,
     },
     {
-      path: '/history/:id',
+      path: '/history/:modelId',
       name: 'history',
       component: History,
       props: true,

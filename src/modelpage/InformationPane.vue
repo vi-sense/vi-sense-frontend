@@ -150,7 +150,6 @@ export default {
 /* information pane id is set from outsite */
 #informationpane {
   width: 100%;
-  height: 100%;
   overflow-y: scroll;
 
   p {
