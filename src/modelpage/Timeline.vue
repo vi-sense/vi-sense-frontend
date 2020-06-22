@@ -2,9 +2,9 @@
   <div>
     <div id="chartWrapper"></div>
     <div id="tools">
-      <img class="iconBtn" id="btnPlay" src="src\assets\playIcon.png">
-      <img class="iconBtn" id="btnMove" src="src\assets\moveIcon.png">
-      <img class="iconBtn" id="btnSelect" src="src\assets\selectionIcon.png">
+      <img class="iconBtn" id="btnPlay" alt="play/pause" src="src\assets\playIcon.png">
+      <img class="iconBtn" id="btnMove" alt="move tool" src="src\assets\moveIcon.png">
+      <img class="iconBtn" id="btnSelect" alt="selection tool" src="src\assets\selectionIcon.png">
     </div>
   </div>
 </template>
