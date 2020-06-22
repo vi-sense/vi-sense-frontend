@@ -8,6 +8,7 @@ import Startpage from './startpage/Startpage.vue'
 import Welcome from './startpage/Welcome.vue'
 import Model from './startpage/Model.vue'
 import Modelpage from './modelpage/Modelpage.vue'
+import History from './modelpage/History.vue'
 
 
 Vue.config.productionTip = false
@@ -27,6 +28,12 @@ const router = new Router({
       path: '/modelview/:id',
       name: 'modelview',
       component: Modelpage,
+      props: true,
+    },
+    {
+      path: '/history/:id',
+      name: 'history',
+      component: History,
       props: true,
     },
     {
