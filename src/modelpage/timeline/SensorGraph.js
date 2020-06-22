@@ -60,9 +60,11 @@ export default class SensorGraph{
             .attr("d", this.line);  
     }
     show(){
+        this.isHidden = false
         this.path.attr("display", "unset");
     }
     hide(){
+        this.isHidden = true
         this.path.attr("display", "none");
     }
     getGradient(date){
