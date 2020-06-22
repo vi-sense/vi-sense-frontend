@@ -72,6 +72,7 @@ const Timeline = (function(parentElement){
         .call(d3.axisLeft(yScale))
         .call(g => g.select(".domain").remove())
         .call(g => g.select(".tick:last-of-type text").clone()
+            .attr("class", "domain")
             .attr("y", 0)
             .attr("x", 5)
             .attr("text-anchor", "start")
@@ -189,7 +190,7 @@ const Timeline = (function(parentElement){
     function redrawTimepin(){  
         timepin.select("text").text(() => formatDate(timepinDate))
         timepin.attr("transform", `translate(${xScale(timepinDate)}, 0)`)
-        Array.from(graphs.keys()).forEach(key => {turnArrow(key, graphs.get(key).gradient(timepinDate))})
+        Array.from(graphs.keys()).forEach(key => {turnArrow(key, graphs.get(key).getGradient(timepinDate))})
     }
 
     
@@ -370,6 +371,7 @@ const Timeline = (function(parentElement){
         setDomainY(min, max){
             yScale.domain([min, max]).nice()
             gy.call(yAxis)
+            graphs.forEach(g => g.redraw())
         },
         getDomainY(){
             return yScale.domain()
