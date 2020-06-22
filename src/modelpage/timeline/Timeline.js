@@ -268,7 +268,11 @@ const Timeline = (function(parentElement){
     function redrawTimepin(){  
         timepin.select("text").text(() => moment(timepinDate).format("ddd DD.MM.YY,  HH:mm"))
         timepin.attr("transform", `translate(${xScale(timepinDate)}, 0)`)
-        Array.from(graphs.keys()).forEach(key => {turnArrow(key, graphs.get(key).getGradient(timepinDate))})
+        Array.from(graphs.keys()).forEach(key => {
+            const graph = graphs.get(key)
+            if(!graph.isHidden){
+                turnArrow(key, graph.getGradient(timepinDate))
+            }})
     }
 
     

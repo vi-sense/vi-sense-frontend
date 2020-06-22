@@ -58,8 +58,8 @@ export async function updateSelectedSensor(sensor_id: number, action: String) {
     mat.albedoColor = sensorColor;
     sensorLabels[sensor_id].rect.alpha = 0;
     sensorLabels[sensor_id].arrow.alpha = 0;
-    sensorLabels[sensor_id].circle.width = "50px";
-    sensorLabels[sensor_id].circle.height = "50px";
+    sensorLabels[sensor_id].circle.width = "30px";
+    sensorLabels[sensor_id].circle.height = "30px";
     // sensorLabels[sensor_id].label.children[0].text = "";
   }
 }
@@ -183,10 +183,11 @@ async function addUIElements(modelID: number) {
     arrow.width = "50px"
     arrow.height = "50px"
     arrow.alpha = 0
+    arrow.isPointerBlocker = false;
 
     let circle = new GUI.Ellipse();
-    circle.width = "50px";
-    circle.height = "50px";
+    circle.width = "30px";
+    circle.height = "30px";
     circle.alpha = 1;
     circle.background = SENSOR_COLORS[sensors[i].id];
     circle.addControl(arrow)
@@ -207,6 +208,8 @@ async function addUIElements(modelID: number) {
     label.resizeToFit = true;
     rect.adaptWidthToChildren = true;
     rect.addControl(label);
+    rect.isPointerBlocker = false;
+    label.isPointerBlocker = false;
 
     stackPanel.addControl(rect);
     stackPanel.linkWithMesh(mesh);
