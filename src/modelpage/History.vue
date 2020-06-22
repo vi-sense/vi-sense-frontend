@@ -1,6 +1,5 @@
 <template lang="html">
-    <div class="history">
-        <v-list class="overflow-y-auto">
+    <div class="history" v-if="anomaliesLoaded">
             <v-card v-for="anomaly in anomalies">
                 <v-container class="pa-0">
                     <v-row align="center" justify="start" :no-gutters="true">
@@ -22,7 +21,6 @@
                     </v-row>
                 </v-container>
             </v-card>
-        </v-list>
     </div>
 </template>
 
@@ -36,6 +34,7 @@
                 model: null,
                 sensorsById: Map,
                 anomalies: [],
+                anomaliesLoaded: false,
                 endpoint: process.env.API_URL,
                 sensor_colors: SENSOR_COLORS
             };
@@ -59,6 +58,7 @@
                         console.log(error)
                     }
                 }))
+                this.anomaliesLoaded = true
             }
         },
         created() {
@@ -86,7 +86,7 @@
         line-height: 1rem;
     }
     .history {
-        overflow: auto;
+        overflow-y: scroll;
     }
 
 </style>

@@ -8,7 +8,10 @@
     </v-app-bar>
 
     <main>
-      <InformationPane id="informationpane" :modeID="id" :STORE="STORE"/>
+      <div id="sidepane">
+        <InformationPane id="informationpane" :modeID="id" :STORE="STORE"/>
+        <History id="historypane" :id="id"/>
+      </div>
 
       <div id="mainpane">
         <div id="canvaswrapper">
@@ -30,10 +33,12 @@ import InformationPane from "./InformationPane";
 import OptionPane from "./OptionPane";
 import Storage from "../storage/Storage";
 import axios from "axios";
+import History from "./History";
 
 export default {
   props: ["id"],
   components: {
+    History,
     Timeline, InformationPane, OptionPane
   },
   data() {
@@ -87,33 +92,40 @@ header {
   }
 }
 
-main{
+main {
   height: 93%;
   width: 100%;
   display: flex;
 
-  #mainpane{
+  #mainpane {
     height: 100%;
     width: 85%;
 
-    #canvaswrapper{
+    #canvaswrapper {
       width: 100%;
       height: 75%;
 
-      canvas{
+      canvas {
         width: 100%;
         height: 100%;
         outline: none;
       }
     }
-    #timeline{
+
+    #timeline {
       width: 100%;
       height: 25%;
       background-color: white;
     }
   }
-
-  #informationpane {
+  #informationpane{
+    height:60%;
+  }
+  #historypane{
+    height:40%;
+    overflow-y: scroll;
+  }
+  #sidepane {
     display: inline-block;
     min-width: 200px;
     width: 15%;
