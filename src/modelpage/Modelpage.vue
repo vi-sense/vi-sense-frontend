@@ -10,7 +10,7 @@
     <main>
       <div id="sidepane">
         <InformationPane id="informationpane" :modeID="id" :STORE="STORE"/>
-        <History id="historypane" :id="id"/>
+        <History id="historypane" :modelId="id"/>
       </div>
 
       <div id="mainpane">

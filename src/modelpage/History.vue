@@ -3,13 +3,13 @@
             <v-card v-for="anomaly in anomalies">
                 <v-container class="pa-0">
                     <v-row align="center" justify="start" :no-gutters="true">
-                        <v-col-1>
-                            <svg height="50" width="50">
+                        <v-col cols="1">
+                            <svg viewBox="0 0 50 50" >
                                 <circle cx="25" cy="25" r="20" stroke="black" stroke-width="3"
                                         :fill="sensor_colors[anomaly.start_data.sensor_id]"/>
                             </svg>
-                        </v-col-1>
-                        <v-col>
+                        </v-col>
+                        <v-col cols="11">
                             <v-card-title>
                                 {{`${sensorsById.get(anomaly.start_data.sensor_id).name}: ${anomaly.type}`}}
                             </v-card-title>
@@ -28,7 +28,7 @@
     import {SENSOR_COLORS} from '../storage/Settings';
 
     export default {
-        props: ["id"],
+        props: ["modelId"],
         data() {
             return {
                 model: null,
@@ -62,11 +62,11 @@
             }
         },
         created() {
-            this.getModel(this.id);
+            this.getModel(this.modelId);
         },
         watch: {
             $route() {
-                this.getModel(this.id);
+                this.getModel(this.modelId);
             }
         }
     };
@@ -85,8 +85,7 @@
     .v-card__subtitle {
         line-height: 1rem;
     }
-    .history {
+    .history{
         overflow-y: scroll;
     }
-
 </style>
