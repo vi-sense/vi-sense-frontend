@@ -175,7 +175,6 @@ async function addUIElements(modelID: number) {
     // GUI SETUP
     let stackPanel = new GUI.StackPanel();
     stackPanel.isVertical = true;
-    stackPanel.isPointerBlocker = false;
     advancedTexture.addControl(stackPanel);
 
     let arrow = new GUI.Image("arrow", arrow_svg)
@@ -183,7 +182,6 @@ async function addUIElements(modelID: number) {
     arrow.width = "50px"
     arrow.height = "50px"
     arrow.alpha = 0
-    arrow.isPointerBlocker = false;
 
     let circle = new GUI.Ellipse();
     circle.width = "30px";
@@ -192,6 +190,7 @@ async function addUIElements(modelID: number) {
     circle.background = SENSOR_COLORS[sensors[i].id];
     circle.addControl(arrow)
     circle.isPointerBlocker = true;
+    circle.hoverCursor = "pointer"
     circle.onPointerDownObservable.add(function () {
       if (mesh.state == "") storage.selectSensor(sensors[i].id)
       else storage.unselectSensor(sensors[i].id)
@@ -199,17 +198,22 @@ async function addUIElements(modelID: number) {
     stackPanel.addControl(circle)
 
     let rect = new GUI.Rectangle();
-    rect.height = "35px";
     rect.alpha = 0;
     rect.background = "white";
     stackPanel.addControl(rect);
     let label = new GUI.TextBlock();
+    label.width = "120px"
+    label.fontSizeInPixels = 14
+    label.paddingBottomInPixels = 3
+    label.paddingTopInPixels = 3
+    label.paddingLeftInPixels = 3
+    label.paddingRightInPixels = 3
     label.text = sensors[i].name;
+    label.textWrapping = GUI.TextWrapping.WordWrap
     label.resizeToFit = true;
+    rect.adaptHeightToChildren = true;
     rect.adaptWidthToChildren = true;
     rect.addControl(label);
-    rect.isPointerBlocker = false;
-    label.isPointerBlocker = false;
 
     stackPanel.addControl(rect);
     stackPanel.linkWithMesh(mesh);
