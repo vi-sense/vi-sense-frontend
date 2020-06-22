@@ -5,6 +5,7 @@
 import SensorGraph from "./SensorGraph.js";
 
 import * as d3 from 'd3'
+import moment from 'moment';
 import { turnArrow } from "../babylon/sensorSelection"
 
 
@@ -16,7 +17,7 @@ const Timeline = (function(parentElement){
 
     const width = parentElement.clientWidth // is on 100% width per default
     const height = parentElement.clientHeight
-    const margin = ({top: 20, right: 20, bottom: 25, left: 30}) // used for labels, axis etc
+    const margin = ({top: 15, right: 20, bottom: 25, left: 30}) // used for labels, axis etc
 
     const svg = d3.create("svg").attr("viewBox", [0, 0, width, height])
     .attr("user-select", "none")
@@ -28,8 +29,7 @@ const Timeline = (function(parentElement){
     .attr("id", "clip")
     .append("rect")            
 	.attr("x", margin.left)
-	.attr("y",margin.top)
-    .attr("height",height-margin.top-margin.bottom)
+    .attr("height",height)
 	.attr("width",width-margin.left-margin.right)
 
     const clipper = svg.append("g")
@@ -55,17 +55,35 @@ const Timeline = (function(parentElement){
 
     const xScale = xScaleRef.copy() 
 
+
+    let formatMinute = (date) => moment(date).format("HH:mm")
+    let formatHour = (date) => moment(date).format("HH:mm")
+    let formatDay = (date) => moment(date).format("dd DD.MM.yyyy")
+    let formatMonth = (date) => moment(date).format("MMMM")
+    let formatYear = (date) => moment(date).format("YYYY")
+    
+    // Idee: timeDay zb gibt date mit selbem tag 0 uhr zurück. durch die vergleiche wird geringster abstand gesucht zum nächsten umschwung 
+    // https://stackoverflow.com/a/42043782/7764088  
+    function multiFormat(date) { 
+        return (d3.utcHour(date) < date.getTime() ? formatMinute
+          : d3.utcDay(date) < date.getTime() ? formatHour
+          : d3.utcMonth(date) < date.getTime() ? formatDay
+          : d3.utcYear(date) < date.getTime() ? formatMonth : formatYear
+        )(date);
+    }
+
     const xAxis = g => g
         .attr("transform", `translate(0,${height-margin.bottom})`)
         .call(d3
             .axisBottom(xScale)
-            .ticks(width/80)
-            .tickSizeOuter(0))
-        .style('cursor', 'ew-resize')
+            .ticks(width/110)
+            .tickSizeOuter(20)
+            .tickFormat(multiFormat)
+        )
 
     const yScale = d3.scaleLinear()
         .range([height - margin.bottom, margin.top])
-        .domain([-10, 100]).nice() //.domain([0, d3.max(data, d => d.value)]).nice()
+        .domain([-10, 100]) //.domain([0, d3.max(data, d => d.value)]).nice()
         
     const yAxis = g => g
         .attr("transform", `translate(${margin.left},0)`)
@@ -79,7 +97,7 @@ const Timeline = (function(parentElement){
             .attr("font-weight", "bold")
             .text("C°/Bar"))
 
-    const gx = svg.append("g").call(xAxis);
+    const gx = clipper.append("g").call(xAxis);
     const gy = svg.append("g").call(yAxis);
 
     svg.selectAll("text")
@@ -113,89 +131,6 @@ const Timeline = (function(parentElement){
     svg.call(zoom)
     .on("dblclick.zoom", null)
 
-
-
-    /**                              
-     _____           __    _         
-    |   | |___ _ _ _|  |  |_|___ ___ 
-    | | | | . | | | |  |__| |   | -_|
-    |_|___|___|_____|_____|_|_|_|___|                           
-     */
-    const endline = svg.append("g")
-    .attr("transform", `translate(${xScale(Date.now())}, 0)`)
-
-    endline.append("line")
-    .attr("stroke", "grey")
-    .attr("y1", margin.top)
-    .attr("y2", height-margin.bottom)
-
-    endline.append("text")
-    .attr('text-anchor', 'start')
-    .attr("x", 0)
-    .attr("y", height-margin.bottom-2)
-    .text(function(d) { return formatDate(new Date()); });
-
-
-
-    /**                    
-     _____ _               _     
-    |_   _|_|_____ ___ ___|_|___ 
-      | | | |     | -_| . | |   |
-      |_| |_|_|_|_|___|  _|_|_|_|
-                      |_|        
-    */
-    var timepinDate = new Date() 
-
-    const timepin = svg.append("g")
-    .style('cursor', 'ew-resize')
-
-    timepin.append("line")
-    .attr("stroke", "grey")
-    .attr("stroke-dasharray", 4)
-    .attr("y1", margin.top)
-    .attr("y2", height-margin.bottom)
-
-    timepin.append("circle")
-    .attr("fill", "white")
-    .attr("stroke", "black")
-    .attr("cx", 0)
-    .attr("cy", margin.top-5)
-    .attr("r", 4)
-
-    timepin.append("text")
-    .attr('text-anchor', 'middle')
-    .attr("x", 0)
-    .attr("y", margin.top-5)
-
-
-    timepin.call(d3.drag().on('drag', () => {
-        let mouse_x = d3.mouse(svg.node())[0]
-        clampTimelinePosAndSetDate(mouse_x)
-        redrawTimepin()
-    }));
-    svg.on("click", function() {         
-        let mouse_x = d3.mouse(this)[0]
-        clampTimelinePosAndSetDate(mouse_x)
-        redrawTimepin()
-    }); 
-
-    function clampTimelinePosAndSetDate(mouse_x){
-        let max_x = width-margin.right
-        let min_x = margin.left
-        if(mouse_x > max_x) mouse_x = max_x
-        if(mouse_x < min_x) mouse_x = min_x
-        timepinDate.setTime(xScale.invert(mouse_x))        
-    }
-
-    function redrawTimepin(){  
-        timepin.select("text").text(() => formatDate(timepinDate))
-        timepin.attr("transform", `translate(${xScale(timepinDate)}, 0)`)
-        Array.from(graphs.keys()).forEach(key => {
-            const graph = graphs.get(key)
-            if(!graph.isHidden){
-                turnArrow(key, graph.getGradient(timepinDate))
-            }})
-    }
 
     
 
@@ -239,6 +174,105 @@ const Timeline = (function(parentElement){
 
 
 
+    /**                                                  
+     _____       _ _ _         
+    |   __|___ _| | |_|___ ___ 
+    |   __|   | . | | |   | -_|
+    |_____|_|_|___|_|_|_|_|___|                                         
+     */
+    const endline = clipper.append("g")
+    .attr("transform", `translate(${xScale(Date.now())}, 0)`)
+
+    endline.append("line")
+    .attr("stroke", "grey")
+    .attr("y1", margin.top)
+    .attr("y2", height-margin.bottom)
+
+    const endlineText = endline.append("text")
+    .attr('text-anchor', 'start')
+    .attr("y", margin.top)
+    .attr("font-family", "sans-serif")
+    .style('font-size', 'smaller')
+
+    endlineText.append("tspan").attr("x", 11).attr('dy', 14).text("Cuurrent local time:")
+    const endTextDay = endlineText.append("tspan").attr("x", 11).attr('dy', 14)
+    const endTextDate = endlineText.append("tspan").attr("x", 11).attr('dy', 14)
+    const endTextTime = endlineText.append("tspan").attr("x", 11).attr('dy', 14)
+
+
+
+    /**                    
+     _____ _               _     
+    |_   _|_|_____ ___ ___|_|___ 
+      | | | |     | -_| . | |   |
+      |_| |_|_|_|_|___|  _|_|_|_|
+                      |_|        
+    */
+    var timepinDate = new Date() 
+
+    const timepin = clipper.append("g")
+    .style('cursor', 'ew-resize')
+
+    timepin.append("line")
+    .attr("stroke", "grey")
+    .attr("stroke-dasharray", 4)
+    .attr("y1", margin.top)
+    .attr("y2", height-4)
+
+    timepin.append("circle")
+    .attr("fill", "white")
+    .attr("stroke", "black")
+    .attr("cx", 0)
+    .attr("cy", margin.top-5)
+    .attr("r", 4)
+
+    timepin.append("rect")
+    .attr("width", 170)
+    .attr("height", 16)
+    .style("fill", "white")
+    .attr("y", height-margin.top-margin.bottom-4)
+    .attr("x", -170/2)
+    .attr("stroke", "black")
+
+    timepin.append("text")
+    .attr('text-anchor', 'middle')
+    .attr("y", height-margin.top-margin.bottom+9)
+    .style('font-size', 'smaller')
+    .attr("font-family", "sans-serif")
+
+    timepin.call(d3.drag().on('drag', () => {
+        let mouse_x = d3.mouse(svg.node())[0]
+        clampTimelinePosAndSetDate(mouse_x)
+        redrawTimepin()
+    }));
+    svg.on("click", function() {         
+        let mouse_x = d3.mouse(this)[0]
+        clampTimelinePosAndSetDate(mouse_x)
+        redrawTimepin()
+    }); 
+
+    function clampTimelinePosAndSetDate(mouse_x){
+        let max_x = width-margin.right
+        let min_x = margin.left
+        if(mouse_x > max_x) mouse_x = max_x
+        if(mouse_x < min_x) mouse_x = min_x
+        timepinDate.setTime(xScale.invert(mouse_x))        
+    }
+
+    function redrawTimepin(){  
+        timepin.select("text").text(() => moment(timepinDate).format("ddd DD.MM.YYYY, HH:mm:ss"))
+        timepin.attr("transform", `translate(${xScale(timepinDate)}, 0)`)
+        Array.from(graphs.keys()).forEach(key => {
+            const graph = graphs.get(key)
+            if(!graph.isHidden){
+                turnArrow(key, graph.getGradient(timepinDate))
+            }})
+    }
+
+    
+
+
+
 
 
 
@@ -268,7 +302,10 @@ const Timeline = (function(parentElement){
         //zoom.translateExtent([[zoom.translateExtent[0]], [xScale(ttt)]]);
 
         endline.attr("transform", `translate(${xScale(now)}, 0)`)
-        endline.select("text").text(() => formatDate(now))
+
+        endTextDay.text((d, i) => moment(now).format("dddd"));
+        endTextDate.text((d, i) => moment(now).format("DD.MM.YYYY"));
+        endTextTime.text((d, i) => moment(now).format("HH:mm:ss"));
 
         if(playing){
             timepinDate.setTime(timepinDate.getTime() + (speed*60*1000));
@@ -386,18 +423,3 @@ const Timeline = (function(parentElement){
 export default Timeline
 
 
-
-function formatValue(value) {    
-    return value.toFixed(2)
-}
-function formatDate(date) {
-    return date.toLocaleString("de", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-        hour: "numeric",
-        minute: "numeric",
-        second: "numeric",
-        timeZone: 'UTC'
-    });
-}
