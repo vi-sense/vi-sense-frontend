@@ -1,12 +1,11 @@
 <template>
   <div>
-      <div id="chartWrapper"></div>
-      <div id="tools">
-        <input id="btnPlay" type="button" value="play">
-        <input id="btnMove" type="button" value="move">
-        <input id="btnSelect" type="button" value="select">
-        <input id="nmbSpeed" type="number" value="1" min=1 max=20>
-      </div>
+    <div id="chartWrapper"></div>
+    <div id="tools">
+      <img class="iconBtn" id="btnPlay" src="src\assets\playIcon.png">
+      <img class="iconBtn" id="btnMove" src="src\assets\moveIcon.png">
+      <img class="iconBtn" id="btnSelect" src="src\assets\selectionIcon.png">
+    </div>
   </div>
 </template>
 
@@ -24,14 +23,15 @@
     display: inline-block;
     width: 40px;
     vertical-align:top;
-    padding: 2px;
-    padding-left: 0;
     box-sizing: border-box;
-  }
 
-  input[type=button]{
-    width: 100%;
-    border: 1px solid grey;
+    padding: 8px;
+    padding-top: 12px;
+
+    .iconBtn {
+      width: 100%;
+      cursor: pointer;
+    }
   }
 }
 </style>
@@ -50,6 +50,8 @@ export default {
     let chartWrapper = document.querySelector("#chartWrapper")
     let timeline = new Timeline(chartWrapper)
           
+    this.STORE._timelineInstance = timeline // easiets and lasiest way to pass timeline to options pane
+
     this.STORE.getSelectedSensors((sensorIds)=>{
         for(let id of sensorIds){
           timeline.showGraph(id)
@@ -65,7 +67,6 @@ export default {
     })
 
     document.querySelector("#btnPlay").onclick = e => { timeline.isPlaying() ? timeline.pause() : timeline.play() }
-    document.querySelector("#nmbSpeed").oninput = e => { timeline.setSpeed( e.target.value) }
     document.querySelector("#btnMove").onclick = e => { timeline.setTool("pin") }
     document.querySelector("#btnSelect").onclick = e => { timeline.setTool("brush") }
   }

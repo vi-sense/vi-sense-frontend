@@ -1,15 +1,10 @@
 /**
  * @author Tom Wendland
- * simple state machine to handle bidirectional communication. 
- * for now its only suitable to store primitve data 
+ * simple state machine to handle multi directional communication with callback registration 
+ * for now its only suitable to store primitve data like numbers or strings
+ * its not suitable for arrays with changig data since you cannot deect wich element changed
  * 
- * Storage Improvements:
- * - read only properties
- * - types
- * - how to handle arrays?
- * 
- * Next step: custom event classes implementing a interface? like i did in fpa
- * da kann das rückgabe objekt dann individuell gestaltet werden
+ * Improvements: read only properties, types, custom event classes with interface
  **/
 import SKEYS from './StorageKeys'
 
@@ -56,7 +51,7 @@ export default class Storage{
 
 
 
-
+    
     #selectedSensors = []
     #sensorSelectionCallbacks = []
 
@@ -82,11 +77,9 @@ export default class Storage{
         }
         else { return false }
     }
-
     getSelectedSensors(){
         return this.#selectedSensors.slice() // return only a copy to prevent the client having the internal array reference
     }
-
     onSensorSelectionChanged(callback: (sensorId: number, action: String) => void){
         if(callback instanceof Function)
             this.#sensorSelectionCallbacks.push(callback)
