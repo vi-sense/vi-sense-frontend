@@ -4,10 +4,7 @@
             <v-container class="pa-0">
                 <v-row align="center" justify="start" :no-gutters="true">
                     <v-col cols="1">
-                        <svg viewBox="0 0 50 50">
-                            <circle cx="25" cy="25" r="20" stroke="none"
-                                    :fill="sensor_colors[anomaly.start_data.sensor_id]"/>
-                        </svg>
+                        <span :style="`font-size:2rem; color:${sensor_colors[anomaly.start_data.sensor_id]}`"  class="mdi mdi-alert-circle"></span>
                     </v-col>
                     <v-col cols="11">
                         <v-card-title>

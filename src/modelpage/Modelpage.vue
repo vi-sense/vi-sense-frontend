@@ -1,7 +1,7 @@
 <template>
   <div>
     <v-app-bar>
-      <a id="logo" href="/"><img src="../assets/logo.svg" alt="vuejs logo"></a>
+      <a id="logo" href="/"><img src="../assets/logo.svg" alt="visense logo"></a>
       <h2>{{ title }}</h2>
       <v-spacer></v-spacer>
       <v-app-bar-nav-icon></v-app-bar-nav-icon>
