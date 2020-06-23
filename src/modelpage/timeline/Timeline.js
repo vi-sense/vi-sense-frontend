@@ -49,9 +49,8 @@ const Timeline = (function(parentElement){
    _end.setTime(_end.getTime() + 24*60*60*1000)
 
    const xScaleRef = d3.scaleUtc()
-        .range([margin.left, width - margin.right])
+        .range([margin.left, width - margin.right-1]) // -1 otherwise you wouldn see tickSizeOuter() in xAxis
         .domain([_start, _end])  
-        // TODO scaleTick use 24 h
 
     const xScale = xScaleRef.copy() 
 
@@ -77,7 +76,7 @@ const Timeline = (function(parentElement){
         .call(d3
             .axisBottom(xScale)
             .ticks(width/110)
-            .tickSizeOuter(20)
+            .tickSizeOuter(18)
             .tickFormat(multiFormat)
         )
 
@@ -86,7 +85,7 @@ const Timeline = (function(parentElement){
         .domain([-10, 100]) //.domain([0, d3.max(data, d => d.value)]).nice()
         
     const yAxis = g => g
-        .attr("transform", `translate(${margin.left},0)`)
+        .attr("transform", `translate(${margin.left-2},0)`)
         .call(d3.axisLeft(yScale))
         .call(g => g.select(".domain").remove())
         .call(g => g.select(".tick:last-of-type text").clone()
@@ -96,6 +95,12 @@ const Timeline = (function(parentElement){
             .attr("text-anchor", "start")
             .attr("font-weight", "bold")
             .text("C°/Bar"))
+        .call(g => g.selectAll(".gridY").remove())
+        .call(g => g.selectAll(".tick line").clone()
+            .attr("class", "gridY")
+            .attr("stroke-opacity", d => d === 0 ? 0.2 : 0.05)
+            .attr("x2", width - margin.left - margin.right))
+
 
     const gx = clipper.append("g").call(xAxis);
     const gy = svg.append("g").call(yAxis);
@@ -122,10 +127,10 @@ const Timeline = (function(parentElement){
             let t = d3.event.transform
             xScale.domain(t.rescaleX(xScaleRef).domain()); // continous scale with transformed domain  
     
-            redrawTimepin()
             gx.call(xAxis); 
-            graphs.forEach(g => g.redraw())        
             if(selection) brushGroup.call(brush.move, [xScale(selection[0]), xScale(selection[1])]);    
+            graphs.forEach(g => g.redraw())    
+            redrawTimepin()    
         })
 
     svg.call(zoom)
@@ -194,11 +199,12 @@ const Timeline = (function(parentElement){
     .attr("font-family", "sans-serif")
     .style('font-size', 'smaller')
 
-    endlineText.append("tspan").attr("x", 11).attr('dy', 14).text("Cuurrent local time:")
+    endlineText.append("tspan").attr("x", 11).attr('dy', 14).text("Right now, it's:")
     const endTextDay = endlineText.append("tspan").attr("x", 11).attr('dy', 14)
     const endTextDate = endlineText.append("tspan").attr("x", 11).attr('dy', 14)
     const endTextTime = endlineText.append("tspan").attr("x", 11).attr('dy', 14)
 
+    
 
 
     /**                    
@@ -215,9 +221,9 @@ const Timeline = (function(parentElement){
 
     timepin.append("line")
     .attr("stroke", "grey")
-    .attr("stroke-dasharray", 4)
+    .attr("stroke-dasharray", 2)
     .attr("y1", margin.top)
-    .attr("y2", height-4)
+    .attr("y2", height-margin.bottom+18)
 
     timepin.append("circle")
     .attr("fill", "white")
@@ -227,16 +233,16 @@ const Timeline = (function(parentElement){
     .attr("r", 4)
 
     timepin.append("rect")
-    .attr("width", 170)
+    .attr("width", 130)
     .attr("height", 16)
     .style("fill", "white")
-    .attr("y", height-margin.top-margin.bottom-4)
-    .attr("x", -170/2)
+    .attr("y", height-margin.top-6)
+    .attr("x", -130/2)
     .attr("stroke", "black")
 
     timepin.append("text")
     .attr('text-anchor', 'middle')
-    .attr("y", height-margin.top-margin.bottom+9)
+    .attr("y", height-margin.top+7)
     .style('font-size', 'smaller')
     .attr("font-family", "sans-serif")
 
@@ -260,7 +266,7 @@ const Timeline = (function(parentElement){
     }
 
     function redrawTimepin(){  
-        timepin.select("text").text(() => moment(timepinDate).format("ddd DD.MM.YYYY, HH:mm:ss"))
+        timepin.select("text").text(() => moment(timepinDate).format("ddd DD.MM.YY,  HH:mm"))
         timepin.attr("transform", `translate(${xScale(timepinDate)}, 0)`)
         Array.from(graphs.keys()).forEach(key => {turnArrow(key, graphs.get(key).getGradient(timepinDate))})
     }
