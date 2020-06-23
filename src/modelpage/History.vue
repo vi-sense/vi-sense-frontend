@@ -58,7 +58,9 @@
                         console.log(error)
                     }
                 }))
+                this.anomalies.sort((a, b) => a.start_data.date.localeCompare(b.start_data.date))
                 this.anomaliesLoaded = true
+
 
             }
         },
