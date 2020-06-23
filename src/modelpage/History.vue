@@ -5,7 +5,7 @@
                     <v-row align="center" justify="start" :no-gutters="true">
                         <v-col cols="1">
                             <svg viewBox="0 0 50 50" >
-                                <circle cx="25" cy="25" r="20" stroke="black" stroke-width="3"
+                                <circle cx="25" cy="25" r="20" stroke="none"
                                         :fill="sensor_colors[anomaly.start_data.sensor_id]"/>
                             </svg>
                         </v-col>
@@ -59,6 +59,7 @@
                     }
                 }))
                 this.anomaliesLoaded = true
+
             }
         },
         created() {
