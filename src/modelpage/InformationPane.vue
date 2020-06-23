@@ -11,6 +11,9 @@
             v-model="checkboxes[index].checked"
           ></v-checkbox>
           <span>{{sensor.name}}</span>
+          <template v-slot:actions>
+            <v-icon :color="sensorColors[sensor.id]">mdi-chevron-down-circle</v-icon>
+          </template>
         </v-expansion-panel-header>
         <v-expansion-panel-content>
           Description: {{sensor.description}}
@@ -55,6 +58,7 @@
 <script>
 import axios from "axios";
 import SKEYS from "../storage/StorageKeys";
+import {SENSOR_COLORS} from "../storage/Settings";
 
 export default {
   props: ["modeID", "STORE"],
@@ -63,6 +67,7 @@ export default {
       model: [],
       checkboxes: [],
       sensorData: [],
+      sensorColors: SENSOR_COLORS,
       endpoint: process.env.API_URL + "/",
       temp_min: 10,
       temp_max: 80,

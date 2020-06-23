@@ -3,10 +3,7 @@
         <v-card v-for="anomaly in anomalies">
             <v-container class="pa-0">
                 <v-row align="center" justify="start" :no-gutters="true">
-                    <v-col cols="1">
-                        <span :style="`font-size:2rem; color:${sensor_colors[anomaly.start_data.sensor_id]}`"  class="mdi mdi-alert-circle"></span>
-                    </v-col>
-                    <v-col cols="11">
+                    <v-col cols="10">
                         <v-card-title>
                             {{`${sensorsById.get(anomaly.start_data.sensor_id).name}: ${anomaly.type}`}}
                         </v-card-title>
@@ -14,6 +11,9 @@
                             ${anomaly.end_data.date}`}}
                         </v-card-subtitle>
                         <v-card-subtitle v-else>{{`${anomaly.start_data.date}`}}</v-card-subtitle>
+                    </v-col>
+                    <v-col cols="2">
+                        <span :style="`font-size:2rem; color:${sensor_colors[anomaly.start_data.sensor_id]}`"  class="mdi mdi-alert-circle"></span>
                     </v-col>
                 </v-row>
             </v-container>
