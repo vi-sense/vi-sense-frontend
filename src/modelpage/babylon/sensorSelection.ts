@@ -58,8 +58,8 @@ export async function updateSelectedSensor(sensor_id: number, action: String) {
     mat.albedoColor = sensorColor;
     sensorLabels[sensor_id].rect.alpha = 0;
     sensorLabels[sensor_id].arrow.alpha = 0;
-    sensorLabels[sensor_id].circle.width = "50px";
-    sensorLabels[sensor_id].circle.height = "50px";
+    sensorLabels[sensor_id].circle.width = "30px";
+    sensorLabels[sensor_id].circle.height = "30px";
     // sensorLabels[sensor_id].label.children[0].text = "";
   }
 }
@@ -175,7 +175,6 @@ async function addUIElements(modelID: number) {
     // GUI SETUP
     let stackPanel = new GUI.StackPanel();
     stackPanel.isVertical = true;
-    stackPanel.isPointerBlocker = false;
     advancedTexture.addControl(stackPanel);
 
     let arrow = new GUI.Image("arrow", arrow_svg)
@@ -185,12 +184,13 @@ async function addUIElements(modelID: number) {
     arrow.alpha = 0
 
     let circle = new GUI.Ellipse();
-    circle.width = "50px";
-    circle.height = "50px";
+    circle.width = "30px";
+    circle.height = "30px";
     circle.alpha = 1;
     circle.background = SENSOR_COLORS[sensors[i].id];
     circle.addControl(arrow)
     circle.isPointerBlocker = true;
+    circle.hoverCursor = "pointer"
     circle.onPointerDownObservable.add(function () {
       if (mesh.state == "") storage.selectSensor(sensors[i].id)
       else storage.unselectSensor(sensors[i].id)
@@ -198,13 +198,20 @@ async function addUIElements(modelID: number) {
     stackPanel.addControl(circle)
 
     let rect = new GUI.Rectangle();
-    rect.height = "35px";
     rect.alpha = 0;
     rect.background = "white";
     stackPanel.addControl(rect);
     let label = new GUI.TextBlock();
+    label.width = "120px"
+    label.fontSizeInPixels = 14
+    label.paddingBottomInPixels = 3
+    label.paddingTopInPixels = 3
+    label.paddingLeftInPixels = 3
+    label.paddingRightInPixels = 3
     label.text = sensors[i].name;
+    label.textWrapping = GUI.TextWrapping.WordWrap
     label.resizeToFit = true;
+    rect.adaptHeightToChildren = true;
     rect.adaptWidthToChildren = true;
     rect.addControl(label);
 
