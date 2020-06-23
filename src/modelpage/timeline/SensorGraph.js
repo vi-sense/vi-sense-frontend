@@ -60,9 +60,11 @@ export default class SensorGraph{
             .attr("d", this.line);  
     }
     show(){
+        this.isHidden = false
         this.path.attr("display", "unset");
     }
     hide(){
+        this.isHidden = true
         this.path.attr("display", "none");
     }
     getGradient(date){
@@ -73,7 +75,7 @@ export default class SensorGraph{
         }else{
             index = this.cachedGradientDates.indexUpper
         }
-        if(index <=0 || index >= this.data.length){
+        if(index <= 1 || index >= this.data.length -1){
             return undefined
         }
         let interpolationPosition = 1 - (this.data[index].date - date) / (this.data[index].date-this.data[index-1].date)

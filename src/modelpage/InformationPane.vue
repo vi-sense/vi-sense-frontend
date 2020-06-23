@@ -150,7 +150,6 @@ export default {
 /* information pane id is set from outsite */
 #informationpane {
   width: 100%;
-  height: 100%;
   overflow-y: scroll;
 
   p {
@@ -167,7 +166,7 @@ export default {
 }
 
 .v-expansion-panel-header {
-  padding: 10px;
+  padding: 0 10px 0 10px;
 }
 
 .v-expansion-panel-content > div {
