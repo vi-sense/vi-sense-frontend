@@ -1,26 +1,26 @@
 <template lang="html">
     <div class="history" v-if="anomaliesLoaded">
-            <v-card v-for="anomaly in anomalies">
-                <v-container class="pa-0">
-                    <v-row align="center" justify="start" :no-gutters="true">
-                        <v-col cols="1">
-                            <svg viewBox="0 0 50 50" >
-                                <circle cx="25" cy="25" r="20" stroke="none"
-                                        :fill="sensor_colors[anomaly.start_data.sensor_id]"/>
-                            </svg>
-                        </v-col>
-                        <v-col cols="11">
-                            <v-card-title>
-                                {{`${sensorsById.get(anomaly.start_data.sensor_id).name}: ${anomaly.type}`}}
-                            </v-card-title>
-                            <v-card-subtitle v-if="anomaly.end_data">{{`${anomaly.start_data.date} -
-                                ${anomaly.end_data.date}`}}
-                            </v-card-subtitle>
-                            <v-card-subtitle v-else>{{`${anomaly.start_data.date}`}}</v-card-subtitle>
-                        </v-col>
-                    </v-row>
-                </v-container>
-            </v-card>
+        <v-card v-for="anomaly in anomalies">
+            <v-container class="pa-0">
+                <v-row align="center" justify="start" :no-gutters="true">
+                    <v-col cols="1">
+                        <svg viewBox="0 0 50 50">
+                            <circle cx="25" cy="25" r="20" stroke="none"
+                                    :fill="sensor_colors[anomaly.start_data.sensor_id]"/>
+                        </svg>
+                    </v-col>
+                    <v-col cols="11">
+                        <v-card-title>
+                            {{`${sensorsById.get(anomaly.start_data.sensor_id).name}: ${anomaly.type}`}}
+                        </v-card-title>
+                        <v-card-subtitle v-if="anomaly.end_data">{{`${anomaly.start_data.date} -
+                            ${anomaly.end_data.date}`}}
+                        </v-card-subtitle>
+                        <v-card-subtitle v-else>{{`${anomaly.start_data.date}`}}</v-card-subtitle>
+                    </v-col>
+                </v-row>
+            </v-container>
+        </v-card>
     </div>
 </template>
 
@@ -60,8 +60,6 @@
                 }))
                 this.anomalies.sort((b, a) => a.start_data.date.localeCompare(b.start_data.date))
                 this.anomaliesLoaded = true
-
-
             }
         },
         created() {
@@ -79,16 +77,19 @@
     .v-card {
         margin: 5px
     }
+
     .v-card__title {
-         font-size: 1rem;
-         line-height: 1rem;
-         word-break: normal;
-         margin-bottom: 10px;
+        font-size: 1rem;
+        line-height: 1rem;
+        word-break: normal;
+        margin-bottom: 10px;
     }
+
     .v-card__subtitle {
         line-height: 1rem;
     }
-    .history{
+
+    .history {
         overflow-y: scroll;
     }
 </style>
