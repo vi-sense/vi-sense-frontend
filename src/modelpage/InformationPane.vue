@@ -2,10 +2,12 @@
   <div>
     <p>Sensors</p>
     <v-expansion-panels class="condensed" focusable accordion>
-      <v-expansion-panel v-for="(sensor, index) in sensorData" :key="sensor.id">
+      <v-expansion-panel v-for="(sensor, index) in sensorData" :key="sensor.id"
+                  :style="`border-right: 5px solid ${sensor_colors[sensor.id]}!important`"
+      >
         <v-expansion-panel-header>
           <v-checkbox
-            color="rgba(82, 186, 162, 1)"
+                  color="rgba(82, 186, 162, 1)"
             @change="onItemChecked(sensor.id, index)"
             :key="sensor.id"
             v-model="checkboxes[index].checked"
@@ -13,23 +15,17 @@
           <span>{{sensor.name}}</span>
         </v-expansion-panel-header>
         <v-expansion-panel-content>
-          Description: {{sensor.description}}
           <v-btn
-            class="button"
-            color="rgba(82, 186, 162, 1)"
-            dark
-            raised
-            block
+            class="button" color="rgba(82, 186, 162, 1)" fab small dark elevation="2"
             @click.prevent="startCameraMove(sensor.id)"
-          >Go to Sensor</v-btn>
+          ><v-icon>mdi-video</v-icon></v-btn>
+          <v-btn class="button" color="rgba(82, 186, 162, 1)" fab small dark elevation="2"
+                 @click.prevent="initSensor(sensor.id)"
+          ><v-icon>mdi-information-variant</v-icon></v-btn>
           <v-btn
-            class="button"
-            color="rgba(82, 186, 162, 1)"
-            dark
-            raised
-            block
+            class="button" color="rgba(82, 186, 162, 1)" fab small dark elevation="2"
             @click.prevent="initSensor(sensor.id)"
-          >Init Sensor</v-btn>
+          ><v-icon>mdi-crosshairs-question</v-icon></v-btn>
           <div>
             <v-subheader>Max Temperature</v-subheader>
             <v-slider
@@ -55,6 +51,7 @@
 <script>
 import axios from "axios";
 import SKEYS from "../storage/StorageKeys";
+import {SENSOR_COLORS} from "../storage/Settings";
 
 export default {
   props: ["modeID", "STORE"],
@@ -63,6 +60,7 @@ export default {
       model: [],
       checkboxes: [],
       sensorData: [],
+      sensor_colors: SENSOR_COLORS,
       endpoint: process.env.API_URL + "/",
       temp_min: 10,
       temp_max: 80,

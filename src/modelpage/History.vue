@@ -1,10 +1,10 @@
 <template lang="html">
     <div class="history" v-if="anomaliesLoaded">
-        <v-card v-for="anomaly in anomalies">
+        <v-card v-for="anomaly in anomalies" :style="`border-right: 5px solid ${sensor_colors[anomaly.start_data.sensor_id]}!important`">
             <v-container class="pa-0">
                 <v-row align="center" justify="start" :no-gutters="true">
                     <v-col cols="1">
-                        <span :style="`font-size:2rem; color:${sensor_colors[anomaly.start_data.sensor_id]}`"  class="mdi mdi-alert-circle"></span>
+                        <span :style="`font-size:2rem; color:rgba(82, 186, 162, 1)`"  class="mdi mdi-alert-circle"></span>
                     </v-col>
                     <v-col cols="11">
                         <v-card-title>
