@@ -165,7 +165,10 @@ async function addUIElements(modelID: number) {
     if(!mesh) continue;
     mesh.metadata.sensor_id = sensors[i].id;
 
-    if (i == 1) defaultMat = mesh.material
+    if (i == 1) {
+      defaultMat = mesh.material
+      defaultMat.freeze()
+    }
     //QPRJU9#12 - sine water flow
     //QPRJU9#16 - sine color change
     //JN2BSF#54 - turbulence fire
