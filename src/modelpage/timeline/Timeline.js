@@ -50,15 +50,15 @@ const Timeline = (function(parentElement){
 
    const xScaleRef = d3.scaleUtc()
         .range([margin.left, width - margin.right-1]) // -1 otherwise you wouldn see tickSizeOuter() in xAxis
-        .domain([_start, _end])  
+        .domain([_start, _end]).nice()  
 
     const xScale = xScaleRef.copy() 
 
 
     let formatMinute = (date) => moment(date).format("HH:mm")
     let formatHour = (date) => moment(date).format("HH:mm")
-    let formatDay = (date) => moment(date).format("dd DD.MM.yyyy")
-    let formatMonth = (date) => moment(date).format("MMMM")
+    let formatDay = (date) => moment(date).format("DD.MM.YY")
+    let formatMonth = (date) => "1." + moment(date).format("MMMM")
     let formatYear = (date) => moment(date).format("YYYY")
     
     // Idee: timeDay zb gibt date mit selbem tag 0 uhr zurück. durch die vergleiche wird geringster abstand gesucht zum nächsten umschwung 
@@ -82,7 +82,7 @@ const Timeline = (function(parentElement){
 
     const yScale = d3.scaleLinear()
         .range([height - margin.bottom, margin.top])
-        .domain([-10, 100]) //.domain([0, d3.max(data, d => d.value)]).nice()
+        .domain([-10, 80]) 
         
     const yAxis = g => g
         .attr("transform", `translate(${margin.left-2},0)`)
@@ -119,7 +119,7 @@ const Timeline = (function(parentElement){
     */
     const zoom = d3.zoom()
         .extent([[margin.left, 0], [width-margin.right, height]])
-        .scaleExtent([0.5, 8]) // zoom factor range, depends on preselected domain 
+        .scaleExtent([0.5, 20]) // zoom factor range, depends on preselected domain 
         .translateExtent([[xScale(new Date(2020, 0, 1))], [xScale(_end)]]) // pan range
         .on("zoom", () => {
 
@@ -199,7 +199,7 @@ const Timeline = (function(parentElement){
     .attr("font-family", "sans-serif")
     .style('font-size', 'smaller')
 
-    endlineText.append("tspan").attr("x", 11).attr('dy', 14).text("Right now, it's:")
+    endlineText.append("tspan").attr("x", 11).attr('dy', 14).text("Today it's")
     const endTextDay = endlineText.append("tspan").attr("x", 11).attr('dy', 14)
     const endTextDate = endlineText.append("tspan").attr("x", 11).attr('dy', 14)
     const endTextTime = endlineText.append("tspan").attr("x", 11).attr('dy', 14)
@@ -358,6 +358,11 @@ const Timeline = (function(parentElement){
         } else{
             let graph = new SensorGraph(id, clipper, xScale, yScale)
             graphs.set(id, graph)
+
+            //graph.path.on("mouseover", function(d,i) {
+               //console.log(d3.select(this))
+               //d3.select(this).attr("fill-opacity", 0.4);
+            //});
         }
     }
 
