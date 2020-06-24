@@ -3,7 +3,7 @@
     <p>Sensors</p>
     <v-expansion-panels class="condensed" focusable accordion>
       <v-expansion-panel v-for="(sensor, index) in sensorData" :key="sensor.id"
-                  :style="`border-right: 5px solid ${sensor_colors[sensor.id]}!important`"
+                  :style="`border-left: 5px solid ${sensor_colors[sensor.id]}!important`"
       >
         <v-expansion-panel-header>
           <v-checkbox
@@ -147,8 +147,9 @@ export default {
 
 /* information pane id is set from outsite */
 #informationpane {
-  width: 100%;
   overflow-y: scroll;
+  margin-left: 5px;
+  margin-right: 5px;
 
   p {
     display: block;
@@ -161,6 +162,9 @@ export default {
 
 .condensed {
   max-height: 15%;
+}
+.v-expansion-panels{
+
 }
 
 .v-expansion-panel-header {
