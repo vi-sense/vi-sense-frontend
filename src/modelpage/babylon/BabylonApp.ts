@@ -41,6 +41,10 @@ export default class BabylonApp {
 
         loadModel(modelID, this.scene, (meshes) => {
             this.scene.createDefaultEnvironment();
+            meshes.forEach(mesh=>{
+                mesh.isPickable=false
+                mesh.freezeWorldMatrix()
+            })
             //this.scene.clearColor = new BABYLON.Color4(0.5, 0.5, 0.5, 1);
             setupSensorSelection(this.scene, modelID, meshes, STORE).then(() => {
                 this.engine.hideLoadingUI();

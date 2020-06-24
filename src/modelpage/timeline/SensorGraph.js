@@ -43,7 +43,6 @@ export default class SensorGraph{
 
     
     redraw(){        
-
         this.dataFetcher.get(this.xScale.domain()).then(data => {
             if(data) {
                 this.data = data

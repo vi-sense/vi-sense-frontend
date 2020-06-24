@@ -17,23 +17,40 @@ const Timeline = (function(parentElement){
 
     const width = parentElement.clientWidth // is on 100% width per default
     const height = parentElement.clientHeight
-    const margin = ({top: 15, right: 20, bottom: 25, left: 30}) // used for labels, axis etc
+    const margin = ({top: 15, right: 0, bottom: 25, left: 30}) // used for labels, axis etc
 
     const svg = d3.create("svg").attr("viewBox", [0, 0, width, height])
     .attr("user-select", "none")
     parentElement.appendChild(svg.node())
-    
+
 
 
     svg.append("clipPath")
     .attr("id", "clip")
-    .append("rect")            
+    .append("rect") 
+    .attr("y", margin.top)           
 	.attr("x", margin.left)
-    .attr("height",height)
+    .attr("height",height-margin.top)
 	.attr("width",width-margin.left-margin.right)
 
     const clipper = svg.append("g")
     .attr("clip-path","url(#clip)")
+    
+    let formatMinute = (date) => moment(date).format("HH:mm")
+    let formatHour = (date) => moment(date).format("HH:mm")
+    let formatDay = (date) => moment(date).format("DD.MM.YY")
+    let formatMonth = (date) => "1" + moment(date).format("MMMM")
+    let formatYear = (date) => moment(date).format("YYYY")
+    
+    // Idee: timeDay zb gibt date mit selbem tag 0 uhr zurück. durch die vergleiche wird geringster abstand gesucht zum nächsten umschwung 
+    // https://stackoverflow.com/a/42043782/7764088  
+    function multiFormat(date) { 
+        return (d3.utcHour(date) < date.getTime() ? formatMinute
+          : d3.utcDay(date) < date.getTime() ? formatHour
+          : d3.utcMonth(date) < date.getTime() ? formatDay
+          : d3.utcYear(date) < date.getTime() ? formatMonth : formatYear
+        )(date);
+    }
 
 
     /**
@@ -49,45 +66,25 @@ const Timeline = (function(parentElement){
    _end.setTime(_end.getTime() + 24*60*60*1000)
 
    const xScaleRef = d3.scaleUtc()
-        .range([margin.left, width - margin.right])
-        .domain([_start, _end])  
-        // TODO scaleTick use 24 h
+        .range([margin.left, width - margin.right-1]) // -1 otherwise you wouldn see tickSizeOuter() in xAxis
+        .domain([_start, _end]).nice()  
 
     const xScale = xScaleRef.copy() 
-
-
-    let formatMinute = (date) => moment(date).format("HH:mm")
-    let formatHour = (date) => moment(date).format("HH:mm")
-    let formatDay = (date) => moment(date).format("dd DD.MM.yyyy")
-    let formatMonth = (date) => moment(date).format("MMMM")
-    let formatYear = (date) => moment(date).format("YYYY")
-    
-    // Idee: timeDay zb gibt date mit selbem tag 0 uhr zurück. durch die vergleiche wird geringster abstand gesucht zum nächsten umschwung 
-    // https://stackoverflow.com/a/42043782/7764088  
-    function multiFormat(date) { 
-        return (d3.utcHour(date) < date.getTime() ? formatMinute
-          : d3.utcDay(date) < date.getTime() ? formatHour
-          : d3.utcMonth(date) < date.getTime() ? formatDay
-          : d3.utcYear(date) < date.getTime() ? formatMonth : formatYear
-        )(date);
-    }
 
     const xAxis = g => g
         .attr("transform", `translate(0,${height-margin.bottom})`)
         .call(d3
             .axisBottom(xScale)
             .ticks(width/110)
-            .tickSizeOuter(20)
+            .tickSizeOuter(18)
             .tickFormat(multiFormat)
         )
 
     const yScale = d3.scaleLinear()
         .range([height - margin.bottom, margin.top])
-        .domain([-10, 100]) //.domain([0, d3.max(data, d => d.value)]).nice()
+        .domain([-10, 80])
         
-    const yAxis = g => g
-        .attr("transform", `translate(${margin.left},0)`)
-        .call(d3.axisLeft(yScale))
+    const yLabel = g => g
         .call(g => g.select(".domain").remove())
         .call(g => g.select(".tick:last-of-type text").clone()
             .attr("class", "domain")
@@ -96,6 +93,23 @@ const Timeline = (function(parentElement){
             .attr("text-anchor", "start")
             .attr("font-weight", "bold")
             .text("C°/Bar"))
+
+    const yGrid = g => g
+        .call(g => g.selectAll(".ygrid")
+            .attr("x2", xScale(Date.now())-margin.left))
+            .attr("stroke-opacity", 0.05)
+
+    const yAxis = g => g
+        .attr("transform", `translate(${margin.left-2},0)`)
+        .call(d3.axisLeft(yScale))
+        .call(yLabel)
+        .call(g => g.selectAll(".ygrid").remove())
+        .call(g => g.selectAll(".tick line").clone()
+            .attr("class", "ygrid"))
+        .call(yGrid)
+
+
+
 
     const gx = clipper.append("g").call(xAxis);
     const gy = svg.append("g").call(yAxis);
@@ -114,7 +128,7 @@ const Timeline = (function(parentElement){
     */
     const zoom = d3.zoom()
         .extent([[margin.left, 0], [width-margin.right, height]])
-        .scaleExtent([0.5, 8]) // zoom factor range, depends on preselected domain 
+        .scaleExtent([0.5, 20]) // zoom factor range, depends on preselected domain 
         .translateExtent([[xScale(new Date(2020, 0, 1))], [xScale(_end)]]) // pan range
         .on("zoom", () => {
 
@@ -122,10 +136,11 @@ const Timeline = (function(parentElement){
             let t = d3.event.transform
             xScale.domain(t.rescaleX(xScaleRef).domain()); // continous scale with transformed domain  
     
-            redrawTimepin()
             gx.call(xAxis); 
-            graphs.forEach(g => g.redraw())        
+            gy.call(yGrid); 
             if(selection) brushGroup.call(brush.move, [xScale(selection[0]), xScale(selection[1])]);    
+            graphs.forEach(g => g.redraw())    
+            redrawTimepin()    
         })
 
     svg.call(zoom)
@@ -194,11 +209,11 @@ const Timeline = (function(parentElement){
     .attr("font-family", "sans-serif")
     .style('font-size', 'smaller')
 
-    endlineText.append("tspan").attr("x", 11).attr('dy', 14).text("Cuurrent local time:")
     const endTextDay = endlineText.append("tspan").attr("x", 11).attr('dy', 14)
     const endTextDate = endlineText.append("tspan").attr("x", 11).attr('dy', 14)
     const endTextTime = endlineText.append("tspan").attr("x", 11).attr('dy', 14)
 
+    
 
 
     /**                    
@@ -215,9 +230,9 @@ const Timeline = (function(parentElement){
 
     timepin.append("line")
     .attr("stroke", "grey")
-    .attr("stroke-dasharray", 4)
+    .attr("stroke-dasharray", 2)
     .attr("y1", margin.top)
-    .attr("y2", height-4)
+    .attr("y2", height-margin.bottom+18)
 
     timepin.append("circle")
     .attr("fill", "white")
@@ -227,16 +242,16 @@ const Timeline = (function(parentElement){
     .attr("r", 4)
 
     timepin.append("rect")
-    .attr("width", 170)
+    .attr("width", 130)
     .attr("height", 16)
     .style("fill", "white")
-    .attr("y", height-margin.top-margin.bottom-4)
-    .attr("x", -170/2)
+    .attr("y", height-margin.top-6)
+    .attr("x", -130/2)
     .attr("stroke", "black")
 
     timepin.append("text")
     .attr('text-anchor', 'middle')
-    .attr("y", height-margin.top-margin.bottom+9)
+    .attr("y", height-margin.top+7)
     .style('font-size', 'smaller')
     .attr("font-family", "sans-serif")
 
@@ -260,12 +275,12 @@ const Timeline = (function(parentElement){
     }
 
     function redrawTimepin(){  
-        timepin.select("text").text(() => moment(timepinDate).format("ddd DD.MM.YYYY, HH:mm:ss"))
+        timepin.select("text").text(() => moment(timepinDate).format("ddd DD.MM.YY,  HH:mm"))
         timepin.attr("transform", `translate(${xScale(timepinDate)}, 0)`)
         Array.from(graphs.keys()).forEach(key => {
             const graph = graphs.get(key)
             if(!graph.isHidden){
-                turnArrow(key, graph.getGradient(timepinDate))
+                //turnArrow(key, graph.getGradient(timepinDate))
             }})
     }
 
@@ -303,8 +318,8 @@ const Timeline = (function(parentElement){
 
         endline.attr("transform", `translate(${xScale(now)}, 0)`)
 
-        endTextDay.text((d, i) => moment(now).format("dddd"));
-        endTextDate.text((d, i) => moment(now).format("DD.MM.YYYY"));
+        endTextDay.text((d, i) => "It's " + moment(now).format("dddd"));
+        endTextDate.text((d, i) => "the " + moment(now).format("DD MMMM YYYY"));
         endTextTime.text((d, i) => moment(now).format("HH:mm:ss"));
 
         if(playing){
@@ -352,6 +367,17 @@ const Timeline = (function(parentElement){
         } else{
             let graph = new SensorGraph(id, clipper, xScale, yScale)
             graphs.set(id, graph)
+
+            graph.path.on("mouseover", function(d,i) {
+                graphs.forEach((graph) => {
+                    graph.path.attr("stroke-opacity", graph.sensorId == id ? "1" : "0.4");                    
+                })
+            });
+            graph.path.on("mouseout", function(d,i) {
+                graphs.forEach((graph) => {
+                    graph.path.attr("stroke-opacity", "1");                    
+                })
+            })
         }
     }
 
