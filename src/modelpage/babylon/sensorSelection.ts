@@ -44,6 +44,7 @@ export async function updateSelectedSensor(sensor_id: number, action: String) {
     let mat = mesh.material as BABYLON.PBRMaterial;
     mat.albedoColor = selectedSensorColor;
     sensorLabels[sensor_id].rect.alpha = 1;
+    sensorLabels[sensor_id].rect.isVisible = true;
     sensorLabels[sensor_id].arrow.alpha = 1;
     sensorLabels[sensor_id].circle.width = "70px";
     sensorLabels[sensor_id].circle.height = "70px";
@@ -57,6 +58,7 @@ export async function updateSelectedSensor(sensor_id: number, action: String) {
     let mat = mesh.material as BABYLON.PBRMaterial;
     mat.albedoColor = sensorColor;
     sensorLabels[sensor_id].rect.alpha = 0;
+    sensorLabels[sensor_id].rect.isVisible = false;
     sensorLabels[sensor_id].arrow.alpha = 0;
     sensorLabels[sensor_id].circle.width = "30px";
     sensorLabels[sensor_id].circle.height = "30px";
@@ -159,6 +161,8 @@ async function addUIElements(modelID: number) {
     let mesh: BABYLON.AbstractMesh;
     if (model.id == 4) mesh = myScene.getMeshByUniqueID(parseInt(sensors[i].mesh_id));
     else mesh = myScene.getMeshByName(sensors[i].mesh_id);
+
+    if(!mesh) continue;
     mesh.metadata.sensor_id = sensors[i].id;
 
     if (i == 1) defaultMat = mesh.material
@@ -179,6 +183,7 @@ async function addUIElements(modelID: number) {
     // GUI SETUP
     let stackPanel = new GUI.StackPanel();
     stackPanel.isVertical = true;
+    stackPanel.isHitTestVisible = false;
     advancedTexture.addControl(stackPanel);
 
     let arrow = new GUI.Image("arrow", arrow_svg)
@@ -203,8 +208,11 @@ async function addUIElements(modelID: number) {
 
     let rect = new GUI.Rectangle();
     rect.alpha = 0;
+    rect.isVisible = false;
     rect.background = "white";
+    rect.isPointerBlocker = false;
     stackPanel.addControl(rect);
+
     let label = new GUI.TextBlock();
     label.width = "120px"
     label.fontSizeInPixels = 14
@@ -221,7 +229,6 @@ async function addUIElements(modelID: number) {
 
     stackPanel.addControl(rect);
     stackPanel.linkWithMesh(mesh);
-    stackPanel.adaptWidthToChildren = true;
 
     sensorLabels[sensors[i].id] = { rect: rect, arrow: arrow, circle: circle, color: SENSOR_COLORS[sensors[i].id] };
 
