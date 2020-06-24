@@ -83,6 +83,10 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
 
   SELECTABLES = myScene.getNodeByName("selectables").getChildMeshes();
 
+  SELECTABLES.forEach((mesh) => {
+    mesh.isPickable= true
+  })
+
   // setup of highlight layer
   highlight = new BABYLON.HighlightLayer("highlight", myScene);
   highlight.innerGlow = true
