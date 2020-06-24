@@ -27,9 +27,10 @@ const Timeline = (function(parentElement){
 
     svg.append("clipPath")
     .attr("id", "clip")
-    .append("rect")            
+    .append("rect") 
+    .attr("y", margin.top)           
 	.attr("x", margin.left)
-    .attr("height",height)
+    .attr("height",height-margin.top)
 	.attr("width",width-margin.left-margin.right)
 
     const clipper = svg.append("g")
