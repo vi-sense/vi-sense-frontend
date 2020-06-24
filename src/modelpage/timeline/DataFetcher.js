@@ -5,6 +5,9 @@
  * if the requestet data is not fetched yet, it will be fetched and saved locally 
  * if the requested data is already fetched, it will return the lolca data
  * by that, d3 is never showing the whole data but only a excerpt. this increases the performance a lot 
+ * 
+ * Bugs
+ * - wenn daten für einen chunk geladen werden, wird nicht geprüft, ob auch alle daten in den hash gehören oder eigentlich schon zum nächsten gehören würden
  */
 
 import moment from 'moment';
