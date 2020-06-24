@@ -43,7 +43,6 @@ export default class SensorGraph{
 
     
     redraw(){        
-
         this.dataFetcher.get(this.xScale.domain()).then(data => {
             if(data) {
                 this.data = data
@@ -60,18 +59,43 @@ export default class SensorGraph{
             .attr("d", this.line);  
     }
     show(){
+        this.isHidden = false
         this.path.attr("display", "unset");
     }
     hide(){
+        this.isHidden = true
         this.path.attr("display", "none");
     }
     getGradient(date){
-        // TODO use bisect for better performance?
-        let index = this.data.findIndex(entry => entry.date > date)
-        if(index === -1 || index === 0){
-            return 0
+        let index
+        if(!this.cachedGradientDates || date < this.cachedGradientDates.lower || date > this.cachedGradientDates.upper){
+            index = d3.bisect(this.data.map(d=>d.date), date)
+            this.cachedGradientDates = {lower: this.data[index-1].date, upper: this.data[index-1].date, indexUpper: index}
+        }else{
+            index = this.cachedGradientDates.indexUpper
         }
-        let m = -(this.yScale(this.data[index].value) - this.yScale(this.data[index -1].value))/(this.xScale(this.data[index].date) - this.xScale(this.data[index -1].date))
+        if(index <= 1 || index >= this.data.length -1){
+            return undefined
+        }
+        let interpolationPosition = 1 - (this.data[index].date - date) / (this.data[index].date-this.data[index-1].date)
+        let a, b, c, m
+        if(interpolationPosition < 0.5){
+            a = index -2
+            b = index -1
+            c = index
+        }else{
+            a = index -1
+            b = index
+            c = index +1
+        }
+        let m1 = -(this.yScale(this.data[b].value) - this.yScale(this.data[a].value))/(this.xScale(this.data[b].date) - this.xScale(this.data[a].date))
+        let m2 = -(this.yScale(this.data[c].value) - this.yScale(this.data[b].value))/(this.xScale(this.data[c].date) - this.xScale(this.data[b].date))
+
+        if(interpolationPosition < 0.5){
+            m = (0.5-interpolationPosition)*m1 + (0.5+interpolationPosition)*m2
+        }else{
+            m = (1.5-interpolationPosition)*m1 + (interpolationPosition -0.5)*m2
+        }
         return m
     }
 }

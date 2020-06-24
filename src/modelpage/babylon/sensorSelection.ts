@@ -44,6 +44,7 @@ export async function updateSelectedSensor(sensor_id: number, action: String) {
     let mat = mesh.material as BABYLON.PBRMaterial;
     mat.albedoColor = selectedSensorColor;
     sensorLabels[sensor_id].rect.alpha = 1;
+    sensorLabels[sensor_id].rect.isVisible = true;
     sensorLabels[sensor_id].arrow.alpha = 1;
     sensorLabels[sensor_id].circle.width = "70px";
     sensorLabels[sensor_id].circle.height = "70px";
@@ -57,9 +58,10 @@ export async function updateSelectedSensor(sensor_id: number, action: String) {
     let mat = mesh.material as BABYLON.PBRMaterial;
     mat.albedoColor = sensorColor;
     sensorLabels[sensor_id].rect.alpha = 0;
+    sensorLabels[sensor_id].rect.isVisible = false;
     sensorLabels[sensor_id].arrow.alpha = 0;
-    sensorLabels[sensor_id].circle.width = "50px";
-    sensorLabels[sensor_id].circle.height = "50px";
+    sensorLabels[sensor_id].circle.width = "30px";
+    sensorLabels[sensor_id].circle.height = "30px";
     // sensorLabels[sensor_id].label.children[0].text = "";
   }
 }
@@ -82,6 +84,10 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
   storage = STORE;
 
   SELECTABLES = myScene.getNodeByName("selectables").getChildMeshes();
+
+  SELECTABLES.forEach((mesh) => {
+    mesh.isPickable= true
+  })
 
   // setup of highlight layer
   highlight = new BABYLON.HighlightLayer("highlight", myScene);
@@ -155,9 +161,14 @@ async function addUIElements(modelID: number) {
     let mesh: BABYLON.AbstractMesh;
     if (model.id == 4) mesh = myScene.getMeshByUniqueID(parseInt(sensors[i].mesh_id));
     else mesh = myScene.getMeshByName(sensors[i].mesh_id);
+
+    if(!mesh) continue;
     mesh.metadata.sensor_id = sensors[i].id;
 
-    if (i == 1) defaultMat = mesh.material
+    if (i == 1) {
+      defaultMat = mesh.material
+      defaultMat.freeze()
+    }
     //QPRJU9#12 - sine water flow
     //QPRJU9#16 - sine color change
     //JN2BSF#54 - turbulence fire
@@ -175,7 +186,7 @@ async function addUIElements(modelID: number) {
     // GUI SETUP
     let stackPanel = new GUI.StackPanel();
     stackPanel.isVertical = true;
-    stackPanel.isPointerBlocker = true;
+    stackPanel.isHitTestVisible = false;
     advancedTexture.addControl(stackPanel);
 
     let arrow = new GUI.Image("arrow", arrow_svg)
@@ -185,11 +196,13 @@ async function addUIElements(modelID: number) {
     arrow.alpha = 0
 
     let circle = new GUI.Ellipse();
-    circle.width = "50px";
-    circle.height = "50px";
+    circle.width = "30px";
+    circle.height = "30px";
     circle.alpha = 1;
     circle.background = SENSOR_COLORS[sensors[i].id];
     circle.addControl(arrow)
+    circle.isPointerBlocker = true;
+    circle.hoverCursor = "pointer"
     circle.onPointerDownObservable.add(function () {
       if (mesh.state == "") storage.selectSensor(sensors[i].id)
       else storage.unselectSensor(sensors[i].id)
@@ -197,19 +210,28 @@ async function addUIElements(modelID: number) {
     stackPanel.addControl(circle)
 
     let rect = new GUI.Rectangle();
-    rect.height = "35px";
     rect.alpha = 0;
+    rect.isVisible = false;
     rect.background = "white";
+    rect.isPointerBlocker = false;
     stackPanel.addControl(rect);
+
     let label = new GUI.TextBlock();
+    label.width = "120px"
+    label.fontSizeInPixels = 14
+    label.paddingBottomInPixels = 3
+    label.paddingTopInPixels = 3
+    label.paddingLeftInPixels = 3
+    label.paddingRightInPixels = 3
     label.text = sensors[i].name;
+    label.textWrapping = GUI.TextWrapping.WordWrap
     label.resizeToFit = true;
+    rect.adaptHeightToChildren = true;
     rect.adaptWidthToChildren = true;
     rect.addControl(label);
 
     stackPanel.addControl(rect);
     stackPanel.linkWithMesh(mesh);
-    stackPanel.adaptWidthToChildren = true;
 
     sensorLabels[sensors[i].id] = { rect: rect, arrow: arrow, circle: circle, color: SENSOR_COLORS[sensors[i].id] };
 
@@ -251,17 +273,12 @@ async function addUIElements(modelID: number) {
 }
 
 export function turnArrow(sensorId, gradient){
-  sensorLabels[sensorId].arrow.rotation = -Math.atan(gradient)
-  // if(!arrow.getScene){ //hack to make babylon animations work with gui elements
-  //   arrow.getScene = function () { return myScene };
-  // }
-  // if(arrow.animation){
-  //   arrow.animation.stop()
-  // }
-  // arrow.animation = BABYLON.Animation.CreateAndStartAnimation('arrowRotation',
-  //     arrow,
-  //     'rotation',
-  //     60, 2, arrow.rotation, -Math.atan(gradient), BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
+  if(gradient === undefined){
+    sensorLabels[sensorId].arrow.alpha = 0
+  }else{
+    sensorLabels[sensorId].arrow.alpha = 1
+    sensorLabels[sensorId].arrow.rotation = -Math.atan(gradient)
+  }
 }
 
 async function getModelData(id: number) {
