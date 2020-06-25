@@ -118,6 +118,9 @@ main {
       background-color: white;
     }
   }
+  div::-webkit-scrollbar {
+    display: none;
+  }
   #informationpane{
     height:60%;
   }

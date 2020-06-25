@@ -280,7 +280,7 @@ const Timeline = (function(parentElement){
         Array.from(graphs.keys()).forEach(key => {
             const graph = graphs.get(key)
             if(!graph.isHidden){
-                //turnArrow(key, graph.getGradient(timepinDate))
+                turnArrow(key, graph.getGradient(timepinDate))
             }})
     }
 

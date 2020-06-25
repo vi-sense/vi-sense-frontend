@@ -1,32 +1,43 @@
 <template>
     <div>
         <p>Sensors</p>
-        <v-expansion-panels class="condensed" focusable accordion>
+        <v-expansion-panels focusable accordion>
             <v-expansion-panel :key="sensor.id" :style="`border-left: 5px solid ${sensor_colors[sensor.id]}!important`"
                                v-for="(sensor, index) in sensorData">
-                <v-expansion-panel-header>
-                    <v-checkbox :key="sensor.id" @change="onItemChecked(sensor.id, index)" color="rgba(82, 186, 162, 1)"
+                <v-expansion-panel-header disable-icon-rotate>
+                    <v-simple-checkbox class="pr-1" dense :key="sensor.id" v-on:input="onItemChecked(sensor.id, index)" color="rgba(82, 186, 162, 1)"
                                 v-model="checkboxes[index].checked"
-                    ></v-checkbox>
+                    ></v-simple-checkbox>
                     <span>{{sensor.name}}</span>
+                    <template #actions>
+                    <v-tooltip bottom max-width="20rem">
+                        <template #activator="{ on, attrs }">
+                            <v-icon class="px-1"
+                                    small
+                                    v-bind="attrs"
+                                    v-on="on"
+                            >mdi-help-circle</v-icon>
+                        </template>
+                        <span>{{sensor.description}}</span>
+                    </v-tooltip>
+                    <v-tooltip bottom>
+                        <template #activator="{ on, attrs }">
+                            <v-icon @click.prevent="startCameraMove(sensor.id)"
+                                    color="rgba(82, 186, 162, 1)"
+                                    v-bind="attrs"
+                                    v-on="on"
+                            >mdi-arrow-right-circle</v-icon>
+                        </template>
+                        <span>Go To Sensor</span>
+                    </v-tooltip>
+                    </template>
                 </v-expansion-panel-header>
                 <v-expansion-panel-content>
-                    <v-tooltip bottom>
-                        <v-btn @click.prevent="startCameraMove(sensor.id)" alt="move camera to sensor" class="button"
-                               color="rgba(82, 186, 162, 1)" dark elevation="2" fab
-                               small>
-                            <v-icon>mdi-video</v-icon>
-                        </v-btn>
-                        <v-btn @click.prevent="initSensor(sensor.id)" alt="show details" class="button"
-                               color="rgba(82, 186, 162, 1)" dark elevation="2" fab
-                               small>
-                            <v-icon>mdi-information-variant</v-icon>
-                        </v-btn>
-                        <v-btn @click.prevent="initSensor(sensor.id)" alt="Select sensor position" class="button"
-                               color="rgba(82, 186, 162, 1)" dark elevation="2" fab small>
-                            <v-icon>mdi-crosshairs-question</v-icon>
-                        </v-btn>
-                    </v-tooltip>
+                            <v-btn @click.prevent="initSensor(sensor.id)" alt="Select sensor position" class="button"
+                                   color="rgba(82, 186, 162, 1)" dark elevation="2" block
+                                   >
+                                Place Sensor
+                            </v-btn>
                 </v-expansion-panel-content>
             </v-expansion-panel>
         </v-expansion-panels>
