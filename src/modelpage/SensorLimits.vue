@@ -47,7 +47,7 @@
             async saveLimits(){
                     let update = {
                         upper_bound: parseFloat(this.upperBound),
-                        lower_bound: parseFloat(this.upperBound),
+                        lower_bound: parseFloat(this.lowerBound),
                         gradient_bound: parseFloat(this.gradientBound)
                     }
                 try {
