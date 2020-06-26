@@ -37,7 +37,7 @@
             };
         },
         methods: {
-            async getModel(id) {
+            async getAnomalies(id) {
                 try {
                     const response = await fetch(this.endpoint + "/models/" + id)
                     this.model = await response.json()
@@ -60,11 +60,11 @@
             }
         },
         created() {
-            this.getModel(this.modelId);
+            this.getAnomalies(this.modelId);
         },
         watch: {
             $route() {
-                this.getModel(this.modelId);
+                this.getAnomalies(this.modelId);
             }
         }
     };

@@ -80,43 +80,28 @@
 
             this.STORE.getSelectedSensors(sensorIds => {
                 for (let id of sensorIds) {
-                    const i = this.indexWhere(this.checkboxes, item => item.id === id);
-                    this.checkboxes[i].checked; // TODO check sensor checkbox passiert im normalfall nicht aber der vollständigkeit halber
+                    const i =this.checkboxes.findIndex( item => item.id === id);
+                    this.checkboxes[i].checked = true; //check sensor checkbox just to be sure
                 }
             });
 
             this.STORE.onSensorSelectionChanged((sensorId, action) => {
-                const i = this.indexWhere(this.checkboxes, item => item.id === sensorId);
-                if (action == "new") {
+                const i = this.checkboxes.findIndex(item => item.id === sensorId);
+                if (action === "new") {
                     this.checkboxes[i].checked = true;
-                } else if (action == "removed") {
+                } else if (action === "removed") {
                     this.checkboxes[i].checked = false;
                 }
             });
         },
         methods: {
-            onSliderChanged(key, value, id) {
-                //console.log(key, value);
-                switch (key) {
-                    case "temp":
-                        //console.log(this.sensorData[id].latest_data.value);
-                        this.sensorData[id].latest_data.value = value;
-                        break;
-                    default:
-                        break;
-                }
-            },
             onItemChecked(id, index) {
                 event.stopPropagation();
-                if (this.checkboxes[index].checked == true) {
+                if (this.checkboxes[index].checked === true) {
                     this.STORE.selectSensor(id);
-                } else if (this.checkboxes[index].checked == false) {
+                } else if (this.checkboxes[index].checked === false) {
                     this.STORE.unselectSensor(id);
                 }
-            },
-            indexWhere(array, conditionFn) {
-                const item = array.find(conditionFn);
-                return array.indexOf(item);
             },
             startCameraMove(id) {
                 this.STORE.set(SKEYS.CAMERA_DRIVE_SENSOR, id);
