@@ -4,6 +4,7 @@ import Storage from '../../storage/Storage';
 import { focusOnMesh } from './focusOnMesh';
 import { PulseShader, GradientShader } from './shaders';
 import { SENSOR_COLORS } from '../../storage/Settings';
+import SKEYS from "../../storage/StorageKeys";
 
 const API_URL = process.env.API_URL;
 const sensorColor = BABYLON.Color3.Purple();
@@ -103,13 +104,13 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
   })
 
   // CALLBACK FOR CAMERA DRIVE
-  storage.registerOnUpdateCallback(2, (id) => {
+  storage.registerOnUpdateCallback(SKEYS.CAMERA_DRIVE_SENSOR, (id) => {
     if (id == null) myScene.stopAnimation(myScene.activeCamera);
     else moveToMesh(myScene, id);
   })
 
   // CALLBACK FOR SENSOR INIT
-  storage.registerOnUpdateCallback(3, (id) => {
+  storage.registerOnUpdateCallback(SKEYS.INIT_SENSOR, (id) => {
     if (id == null) {
       SELECTABLES.forEach((mesh) => {
         highlight.removeMesh(mesh.subMeshes[0].getRenderingMesh());
@@ -131,7 +132,7 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
               }
               await updateSensorMeshID(id, mesh.name);
               mesh.metadata.sensor_id = id;
-              storage.set(3, null);
+              storage.set(SKEYS.INIT_SENSOR, null);
 
               advancedTexture.dispose();
               for (const prop of Object.getOwnPropertyNames(sensorLabels)) {
