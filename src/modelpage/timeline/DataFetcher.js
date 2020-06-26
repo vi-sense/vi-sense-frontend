@@ -1,21 +1,19 @@
 /**
  * @author Tom Wendland
  * @description 
- * the main function of this class is DataFetcher.get() which is returning the data corresponding to the given time range with a offset in both directions
+ * this class handles fetching and storing of sensor data
+ * the main function is DataFetcher.get(), returning the data to the given time range with a offset in both directions
  * if the requestet data is not fetched yet, it will be fetched and saved locally 
  * if the requested data is already fetched, it will return the lolca data
  * by that, d3 is never showing the whole data but only a excerpt. this increases the performance a lot 
- * 
- * Bugs
- * - wenn daten für einen chunk geladen werden, wird nicht geprüft, ob auch alle daten in den hash gehören oder eigentlich schon zum nächsten gehören würden
  */
 
-import moment from 'moment';
-const API_URL = process.env.API_URL  
+// import moment from 'moment';
+// const API_URL = process.env.API_URL  
 
-//const API_URL = "https://visense.f4.htw-berlin.de:44344"
+const API_URL = "https://visense.f4.htw-berlin.de:44344"
 
-const CHUCK_SIZE = 3*24*60*60*1000 // 3 d
+const CHUCK_SIZE = 4*24*60*60*1000 // 3 d
 const RT_PAUSE = 2*60*1000 // 2 min pause between realtime calls
 
 
@@ -61,7 +59,7 @@ export default class DataFetcher{
      * @param {Date} end 
      */
     _toStartEndApiURL(start, end){
-        return API_URL + `/sensors/${this.sensorId}/data?limit=${200}&start_date=${this._dateFormat(start)}&end_date=${this._dateFormat(end)}`
+        return API_URL + `/sensors/${this.sensorId}/data?start_date=${this._dateFormat(start)}&end_date=${this._dateFormat(end)}`
     }
 
     async _fetchHashChunk(hash) {
@@ -95,9 +93,9 @@ export default class DataFetcher{
 
     async _apiCall(requestURL){
         return fetch(requestURL)
-        .catch(error => { console.log(error) })
         .then(res => { return res.json() })
         .then(json => { return json.map(d => { return {date: new Date(d.date), value: d.value}}) }) 
+        //.catch(error => { console.log(error) })
     }
 
     /**
@@ -120,14 +118,17 @@ export default class DataFetcher{
     /**
      * @param {Array} domain D3 xScale.domain()
      * @returns Promise with data array (if new area was loaded) or null (if data didnt change from last call) 
+     * 
+     * TODO problem https://github.com/vi-sense/vi-sense/issues/114
+     * vermutlich weil async? und geladene async kommt später zurück als die wo schon vorgeladen ist zurück gibt
      */
     async get(domain){
         let minHash = this._hash(domain[0].getTime())
         let maxHash = this._hash(domain[1].getTime())
 
         // Return option 1: return empty promise if domain did not change and realtime update not available
-        if(!this._rtUpdateAvailable && this._lastMinHash && this._lastMinHash <= minHash && this._lastMaxHash >= maxHash){
-            return new Promise((resolve, reject) => {
+        if(!this._rtUpdateAvailable && this._lastMinHash <= minHash && this._lastMaxHash >= maxHash){
+            return new Promise(resolve => {
                 resolve(null)
             })
         }
