@@ -55,7 +55,6 @@ export default class BabylonApp {
                 if (v.y > maxV3.y) maxV3.y = v.y;
                 if (v.z > maxV3.z) maxV3.z = v.z;
             })
-            console.log(minV3, maxV3)
             let center = BABYLON.Vector3.Center(minV3, maxV3);
             // save model center in scene attribute to be used whenever needed
             this.scene.metadata = {modelCenter: center}

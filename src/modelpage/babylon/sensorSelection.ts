@@ -34,36 +34,36 @@ var savedSensors = {};
   */
 export async function updateSelectedSensor(sensor_id: number, action: String) {
   let sensor = savedSensors[sensor_id];
-  if(sensor) {
-    if(action == "new") {
-      let mesh = myScene.getMeshByName(sensor.mesh_id);
-      mesh.state = "selected";
-      highlight.addMesh(mesh.subMeshes[0].getRenderingMesh(), BABYLON.Color3.Black());
-      mesh = mesh.subMeshes[0].getRenderingMesh();
-      mesh.outlineWidth = .05;
-      mesh.outlineColor = BABYLON.Color3.Black();
-      sensorLabels[sensor_id].rect.alpha = 1;
-      //sensorLabels[sensor_id].rect.isVisible = true;
-      sensorLabels[sensor_id].arrow.alpha = 1;
-      sensorLabels[sensor_id].circle.width = "70px";
-      sensorLabels[sensor_id].circle.height = "70px";
-    }
-    else if (action == "removed") {
-      let mesh = myScene.getMeshByName(sensor.mesh_id);
-      mesh.state = "";
-      highlight.removeMesh(mesh.subMeshes[0].getRenderingMesh());
-      sensorLabels[sensor_id].rect.alpha = 0;
-      //sensorLabels[sensor_id].rect.isVisible = false;
-      sensorLabels[sensor_id].arrow.alpha = 0;
-      sensorLabels[sensor_id].circle.width = "30px";
-      sensorLabels[sensor_id].circle.height = "30px";
-    }
+  if (!sensor) throw new Error("Did not find a sensor with id: " + sensor_id)
+  let mesh = myScene.getMeshByUniqueID(sensor.mesh_id);
+  if (!mesh) throw new Error("Did not find a mesh with id: " + sensor.mesh_id)
+
+  if(action == "new") {  
+    mesh.state = "selected";
+    highlight.addMesh(mesh.subMeshes[0].getRenderingMesh(), BABYLON.Color3.Black());
+    mesh = mesh.subMeshes[0].getRenderingMesh();
+    mesh.outlineWidth = .05;
+    mesh.outlineColor = BABYLON.Color3.Black();
+    sensorLabels[sensor_id].rect.alpha = 1;
+    //sensorLabels[sensor_id].rect.isVisible = true;
+    sensorLabels[sensor_id].arrow.alpha = 1;
+    sensorLabels[sensor_id].circle.width = "70px";
+    sensorLabels[sensor_id].circle.height = "70px";
+  }
+  else if (action == "removed") {
+    mesh.state = "";
+    highlight.removeMesh(mesh.subMeshes[0].getRenderingMesh());
+    sensorLabels[sensor_id].rect.alpha = 0;
+    //sensorLabels[sensor_id].rect.isVisible = false;
+    sensorLabels[sensor_id].arrow.alpha = 0;
+    sensorLabels[sensor_id].circle.width = "30px";
+    sensorLabels[sensor_id].circle.height = "30px";
   }
 }
 
 export async function moveToMesh(scene: BABYLON.Scene, sensor_id: number) {
   let sensor = savedSensors[sensor_id];
-  let mesh = scene.getMeshByName(sensor.mesh_id);
+  let mesh = scene.getMeshByUniqueID(sensor.mesh_id);
   let target = mesh.getBoundingInfo().boundingSphere.centerWorld;
   focusOnMesh(scene, target);
 }
@@ -124,7 +124,7 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
                 console.log("was already set; removing sensor from this mesh");
                 updateSensorMeshID(mesh.metadata.sensor_id, null);
               }
-              await updateSensorMeshID(id, mesh.name);
+              await updateSensorMeshID(id, mesh.uniqueId);
               mesh.metadata.sensor_id = id;
               storage.set(3, null);
 
@@ -155,7 +155,7 @@ async function addUIElements(modelID: number) {
 
     let mesh: BABYLON.AbstractMesh;
     if (model.id == 4) mesh = myScene.getMeshByUniqueID(parseInt(sensors[i].mesh_id));
-    else mesh = myScene.getMeshByName(sensors[i].mesh_id);
+    else mesh = myScene.getMeshByUniqueID(sensors[i].mesh_id);
 
     if(!mesh) continue;
     mesh.metadata.sensor_id = sensors[i].id;
@@ -285,7 +285,7 @@ async function getModelData(id: number) {
   return response;
 }
 
-async function updateSensorMeshID(sensor_id: number, mesh_id: string) {
+async function updateSensorMeshID(sensor_id: number, mesh_id: number) {
   let update = {
     'mesh_id': mesh_id,
   }

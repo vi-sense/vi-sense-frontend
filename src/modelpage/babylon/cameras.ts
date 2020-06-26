@@ -69,7 +69,7 @@ export function createArcCamera(canvas: HTMLCanvasElement, engine:BABYLON.Engine
     arcCamera.wheelPrecision = 20
 
     storage.onSensorSelectionChanged(() => {
-        let target = changeArcCameraTarget(myStorage)
+        let target = changeArcCameraTarget()
         arcCamera.setTarget(target)
     })
 
@@ -112,7 +112,7 @@ export function switchCamera() {
     if (myScene.activeCamera.name == "floorCam") {
         let active = myScene.activeCamera as FloorCamera;
         let cam = myScene.getCameraByName("arcCam") as BABYLON.ArcRotateCamera;
-        let target = changeArcCameraTarget(myStorage)
+        let target = changeArcCameraTarget()
         
         let animateTarget = new BABYLON.Animation("anim4", "lockedTarget", 30, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
         let targetKeys = [];
@@ -154,8 +154,8 @@ export function switchCamera() {
     }
 }
 
-function changeArcCameraTarget(storage) {
-    let sensor_ids = storage.getSelectedSensors()
+function changeArcCameraTarget() {
+    let sensor_ids = myStorage.getSelectedSensors()
     if (sensor_ids.length == 0) return myScene.metadata.modelCenter;
     if (sensor_ids.length == 1) return myScene.getMeshByName(myScene.metadata.savedSensors[sensor_ids[0]].mesh_id).getBoundingInfo().boundingSphere.centerWorld;
     if (sensor_ids.length == 2) {
