@@ -32,7 +32,6 @@ import Timeline from "./Timeline";
 import InformationPane from "./InformationPane";
 import OptionPane from "./OptionPane";
 import Storage from "../storage/Storage";
-import axios from "axios";
 import History from "./History";
 
 export default {
@@ -120,9 +119,6 @@ main {
   }
   div::-webkit-scrollbar {
     display: none;
-  }
-  #informationpane{
-    height:60%;
   }
   #historypane{
     height:40%;

@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div id="informationpane">
         <p>Sensors</p>
         <v-expansion-panels focusable accordion>
             <v-expansion-panel :key="sensor.id" :style="`border-left: 5px solid ${sensor_colors[sensor.id]}!important`"
@@ -149,9 +149,7 @@
     /* information pane id is set from outsite */
     #informationpane {
         overflow-y: scroll;
-        margin-left: 5px;
-        margin-right: 5px;
-
+        padding: 5px;
         p {
             display: block;
             color: black;
@@ -161,13 +159,6 @@
         }
     }
 
-    .condensed {
-        max-height: 15%;
-    }
-
-    .v-expansion-panels {
-
-    }
 
     .v-expansion-panel-header {
         padding: 0 10px 0 10px;
