@@ -49,6 +49,7 @@
                                 <span v-if="sensor.mesh_id">Reposition Sensor</span>
                                 <span v-else>Position Sensor</span>
                             </v-btn>
+                <sensor-limits :sensor="sensor"></sensor-limits>
                 </v-expansion-panel-content>
             </v-expansion-panel>
         </v-expansion-panels>
@@ -60,9 +61,11 @@
     import axios from "axios";
     import SKEYS from "../storage/StorageKeys";
     import {SENSOR_COLORS} from "../storage/Settings";
+    import SensorLimits from "./SensorLimits";
 
     export default {
-        props: ["modeID", "STORE"],
+        components: {SensorLimits},
+        props: ["modelID", "STORE"],
         data() {
             return {
                 model: [],
@@ -76,7 +79,7 @@
             };
         },
         created() {
-            this.loadSensorData(this.modeID);
+            this.loadSensorData(this.modelID);
 
             this.STORE.getSelectedSensors(sensorIds => {
                 for (let id of sensorIds) {
@@ -108,7 +111,7 @@
             },
             initSensor(id) {
                 this.STORE.set(SKEYS.INIT_SENSOR, id);
-                this.STORE.registerOnUpdateCallback(SKEYS.INIT_SENSOR, async (se nsorID) =>{
+                this.STORE.registerOnUpdateCallback(SKEYS.INIT_SENSOR, async (sensorID) =>{
                     const newSensorRes = await fetch(this.endpoint + "sensors/" + id)
                     const newSensorData = await newSensorRes.json()
                     this.model.sensors.find((sensor) => sensor.id === id).mesh_id = newSensorData.mesh_id

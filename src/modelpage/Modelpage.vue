@@ -9,18 +9,18 @@
 
     <main>
       <div id="sidepane">
-        <InformationPane id="informationpane" :modeID="id" :STORE="STORE"/>
-        <History id="historypane" :modelId="id"/>
+        <information-pane id="informationpane" :modelID="id" :STORE="STORE"/>
+        <history id="historypane" :modelID="id"/>
       </div>
 
       <div id="mainpane">
         <div id="canvaswrapper">
           <canvas id="babyloncanvas"></canvas>
         </div>
-        <Timeline id="timeline" :STORE="STORE" />
+        <timeline id="timeline" :STORE="STORE" />
       </div>
 
-      <OptionPane id="optionpane" :STORE="STORE"/>
+      <option-pane id="optionpane" :STORE="STORE"/>
     </main>
   </div>
 </template>

@@ -25,7 +25,7 @@
     import {SENSOR_COLORS} from '../storage/Settings';
 
     export default {
-        props: ["modelId"],
+        props: ["modelID"],
         data() {
             return {
                 model: null,
@@ -60,11 +60,11 @@
             }
         },
         created() {
-            this.getAnomalies(this.modelId);
+            this.getAnomalies(this.modelID);
         },
         watch: {
             $route() {
-                this.getAnomalies(this.modelId);
+                this.getAnomalies(this.modelID);
             }
         }
     };
