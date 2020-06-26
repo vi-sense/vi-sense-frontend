@@ -1,6 +1,6 @@
 <template lang="html">
     <div class="history" v-if="anomaliesLoaded">
-        <v-card v-for="(anomaly, index) in anomalies" :key="index"  :style="`border-left: 5px solid ${sensor_colors[anomaly.start_data.sensor_id]}!important`">
+        <v-card class="my-1" v-for="(anomaly, index) in anomalies" :key="index"  :style="`border-left: 5px solid ${sensor_colors[anomaly.start_data.sensor_id]}!important`">
             <v-container class="pa-0">
                 <v-row align="center" justify="start" :no-gutters="true">
                     <v-col cols="10">
@@ -71,9 +71,6 @@
 </script>
 
 <style scoped lang="scss">
-    .v-card {
-        margin: 5px
-    }
 
     .v-card__title {
         font-size: 1rem;

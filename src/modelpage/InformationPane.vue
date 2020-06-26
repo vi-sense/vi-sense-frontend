@@ -1,6 +1,5 @@
 <template>
-    <div class="pa-2">
-        <p id="header">Sensors</p>
+    <div>
         <v-expansion-panels focusable accordion>
             <v-expansion-panel :key="sensor.id" :style="`border-left: 5px solid ${sensor_colors[sensor.id]}!important`"
                                v-for="(sensor, index) in sensorData">
@@ -146,14 +145,6 @@
 <style scoped lang="scss">
     // do we really need the scoped attribute? overriding vuetify styles doesnt work with that
     // yes we do need it because its very confusing if every component sets globas css attributes. you can change vuetify styles with the >>> operator
-    #header {
-        display: block;
-        color: black;
-        padding: 16px;
-        margin: 0;
-        text-decoration: none;
-    }
-
 
     .v-expansion-panel-header {
         padding: 0 10px 0 10px;

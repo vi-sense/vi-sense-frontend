@@ -9,8 +9,10 @@
 
     <main>
       <div id="sidepane">
-        <information-pane id="informationpane" :modelID="id" :STORE="STORE"/>
-        <history id="historypane" :modelID="id"/>
+        <h3 class="pb-1">Sensors</h3>
+        <information-pane class="pa-1" id="informationpane" :modelID="id" :STORE="STORE"/>
+        <h3 class="pb-1">Anomalies</h3>
+        <history class="pa-1" id="historypane" :modelID="id"/>
       </div>
 
       <div id="mainpane">
@@ -120,17 +122,23 @@ main {
   div::-webkit-scrollbar {
     display: none;
   }
-  #historypane{
-    height:40%;
-    overflow-y: scroll;
-  }
+
   #sidepane {
     display: inline-block;
     min-width: 200px;
     width: 15%;
     height: 100%;
     background-color: white;
-  }
+    overflow-y: scroll;
+    h3 {
+        display: block;
+        color: black;
+        padding: 16px;
+        margin: 0;
+        text-decoration: none;
+      }
+    }
+
 
   #optionpane{
     min-width: 200px;
