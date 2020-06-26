@@ -4,7 +4,7 @@ import Storage from '../../storage/Storage';
 import { focusOnMesh } from './focusOnMesh';
 import { PulseShader, GradientShader } from './shaders';
 import { SENSOR_COLORS } from '../../storage/Settings';
-import { RecastJSCrowd } from 'babylonjs';
+import SKEYS from "../../storage/StorageKeys";
 
 const API_URL = process.env.API_URL;
 const sensorColor = BABYLON.Color3.Purple();
@@ -38,7 +38,7 @@ export async function updateSelectedSensor(sensor_id: number, action: String) {
   let mesh = myScene.getMeshByUniqueID(sensor.mesh_id);
   if (!mesh) throw new Error("Did not find a mesh with id: " + sensor.mesh_id)
 
-  if(action == "new") {  
+  if(action == "new") {
     mesh.state = "selected";
     highlight.addMesh(mesh.subMeshes[0].getRenderingMesh(), BABYLON.Color3.Black());
     mesh = mesh.subMeshes[0].getRenderingMesh();
@@ -98,13 +98,13 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
   })
 
   // CALLBACK FOR CAMERA DRIVE
-  storage.registerOnUpdateCallback(2, (id) => {
+  storage.registerOnUpdateCallback(SKEYS.CAMERA_DRIVE_SENSOR, (id) => {
     if (id == null) myScene.stopAnimation(myScene.activeCamera);
     else moveToMesh(myScene, id);
   })
 
   // CALLBACK FOR SENSOR INIT
-  storage.registerOnUpdateCallback(3, (id) => {
+  storage.registerOnUpdateCallback(SKEYS.INIT_SENSOR, (id) => {
     if (id == null) {
       SELECTABLES.forEach((mesh) => {
         highlight.removeMesh(mesh.subMeshes[0].getRenderingMesh());
@@ -126,7 +126,7 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
               }
               await updateSensorMeshID(id, mesh.uniqueId);
               mesh.metadata.sensor_id = id;
-              storage.set(3, null);
+              storage.set(SKEYS.INIT_SENSOR, null);
 
               advancedTexture.dispose();
               for (const prop of Object.getOwnPropertyNames(sensorLabels)) {
@@ -162,7 +162,6 @@ async function addUIElements(modelID: number) {
 
     if (i == 1) {
       defaultMat = mesh.material
-      defaultMat.freeze()
     }
     //QPRJU9#12 - sine water flow
     //QPRJU9#16 - sine color change
@@ -297,7 +296,7 @@ async function updateSensorMeshID(sensor_id: number, mesh_id: number) {
     },
     body: JSON.stringify(update)
   })
-    .then(res => { return res.json() })
-    .catch(err => { throw new Error("Can not update sensors mesh id") });
+      .then(res => { return res.json() })
+      .catch(err => { throw new Error("Can not update sensors mesh id") });
   return response;
 }
