@@ -4,10 +4,11 @@
 
 import * as BABYLON from 'babylonjs';
 import FloorCamera from './FloorCamera';
-import { Scene, Vector3, FreeCamera } from 'babylonjs';
+import Storage from '../../storage/Storage';
 
 
 var myScene: BABYLON.Scene;
+var myStorage: Storage;
 
 /**
  * Prety simple and hacky FPS camera script locked to XZ-axis movement
@@ -19,7 +20,6 @@ var myScene: BABYLON.Scene;
  * @param camera
  */
 export function createFloorCamera(canvas: HTMLCanvasElement, engine:BABYLON.Engine, scene: BABYLON.Scene): BABYLON.UniversalCamera {
-    myScene = scene;
     var cam = new FloorCamera('floorCam', new BABYLON.Vector3(0, 5, -15), this.scene);
 
     cam.setTarget(new BABYLON.Vector3(0, cam.fixedY, 0));
@@ -57,14 +57,21 @@ export function createFloorCamera(canvas: HTMLCanvasElement, engine:BABYLON.Engi
 }
 
 
-export function createArcCamera(canvas: HTMLCanvasElement, engine:BABYLON.Engine, scene: BABYLON.Scene) : BABYLON.ArcRotateCamera {
+export function createArcCamera(canvas: HTMLCanvasElement, engine:BABYLON.Engine, scene: BABYLON.Scene, storage: Storage) : BABYLON.ArcRotateCamera {
+    myScene = scene;
+    myStorage = storage;
     var arcCamera = new BABYLON.ArcRotateCamera("arcCam", 42, 0.8, 400, BABYLON.Vector3.Zero(), scene);
     arcCamera.attachControl(canvas, false);
     arcCamera.setTarget(new BABYLON.Vector3(0,1,0));
-    arcCamera.radius = 10
+    arcCamera.radius = 20
     arcCamera.lowerRadiusLimit = 10
-    arcCamera.upperRadiusLimit =  50 
+    arcCamera.upperRadiusLimit = 75 
     arcCamera.wheelPrecision = 20
+
+    storage.onSensorSelectionChanged(() => {
+        let target = changeArcCameraTarget(myStorage)
+        arcCamera.setTarget(target)
+    })
 
     return arcCamera
 }
@@ -100,22 +107,74 @@ export function changeCameraClipping(value) {
 }
 
 export function switchCamera() {
-    let active = myScene.activeCamera;
-    let pos = active.position.clone()
-    if (active.name == "floorCam") {
-        let target = (active as FreeCamera).getTarget()
-        let newTar = target.subtract(pos)
-        newTar.normalize();
-        newTar.scaleInPlace(1);
-        console.log(newTar)
+    let ease = new BABYLON.CubicEase();
+    ease.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEINOUT);
+    if (myScene.activeCamera.name == "floorCam") {
+        let active = myScene.activeCamera as FloorCamera;
         let cam = myScene.getCameraByName("arcCam") as BABYLON.ArcRotateCamera;
-        cam.position = pos;
-        cam.setTarget(pos.add(newTar));
-        myScene.activeCamera = cam;
+        let target = changeArcCameraTarget(myStorage)
+        
+        let animateTarget = new BABYLON.Animation("anim4", "lockedTarget", 30, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
+        let targetKeys = [];
+        targetKeys.push({ frame: 0, value: active.getTarget() });
+        targetKeys.push({ frame: 30, value: target });
+        animateTarget.setKeys(targetKeys);
+        animateTarget.setEasingFunction(ease);
+        active.animations.push(animateTarget);
+
+        let a = myScene.beginAnimation(active, 0, 30, false);
+        a.onAnimationEnd = () => {
+            active.lockedTarget = undefined;
+            //cam.position = active.position.clone();
+            cam.setTarget(target)
+            myScene.activeCamera = cam;
+        };
     }
-    else if (active.name == "arcCam") {
-        let cam = myScene.getCameraByName("floorCam") as FloorCamera;
-        cam.position = pos;
-        myScene.activeCamera = cam;
+    else if (myScene.activeCamera.name == "arcCam") {
+        let active = myScene.activeCamera as BABYLON.ArcRotateCamera;
+        active.lowerRadiusLimit = 3
+
+        let animateRadius = new BABYLON.Animation("anim3", "radius", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
+        let radiusKeys = [];
+        radiusKeys.push({ frame: 0, value: active.radius });
+        radiusKeys.push({ frame: 30, value: 3 });
+        animateRadius.setKeys(radiusKeys);
+        animateRadius.setEasingFunction(ease);
+        active.animations.push(animateRadius);
+
+        let a = myScene.beginAnimation(active, 0, 30, false);
+        a.onAnimationEnd = () => {
+            let cam = myScene.getCameraByName("floorCam") as FloorCamera;
+            cam.position = active.position.clone()
+            cam.setTarget(active.getTarget())
+            cam.fixedY = cam.position.clone().y;
+            myScene.activeCamera = cam;
+            active.lowerRadiusLimit = 10
+        };
+    }
+}
+
+function changeArcCameraTarget(storage) {
+    let sensor_ids = storage.getSelectedSensors()
+    if (sensor_ids.length == 0) return myScene.metadata.modelCenter;
+    if (sensor_ids.length == 1) return myScene.getMeshByName(myScene.metadata.savedSensors[sensor_ids[0]].mesh_id).getBoundingInfo().boundingSphere.centerWorld;
+    if (sensor_ids.length == 2) {
+        let v1 = myScene.getMeshByName(myScene.metadata.savedSensors[sensor_ids[0]].mesh_id).getBoundingInfo().boundingSphere.centerWorld
+        let v2 = myScene.getMeshByName(myScene.metadata.savedSensors[sensor_ids[1]].mesh_id).getBoundingInfo().boundingSphere.centerWorld
+        return BABYLON.Vector3.Center(v1, v2);
+    }
+    if (sensor_ids.length > 2) {
+        let myX = 0;
+        let myY = 0;
+        let myZ = 0;
+        for (let i = 0; i < sensor_ids.length; i++) {
+            let mesh = myScene.getMeshByName(myScene.metadata.savedSensors[sensor_ids[i]].mesh_id)
+            let v = mesh.getBoundingInfo().boundingSphere.centerWorld
+            console.log(v)
+            myX += v.x
+            myY += v.y
+            myZ += v.z
+        }
+        return new BABYLON.Vector3(myX / sensor_ids.length, myY / sensor_ids.length, myZ / sensor_ids.length);
     }
 }

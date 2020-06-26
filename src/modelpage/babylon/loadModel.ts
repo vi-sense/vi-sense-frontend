@@ -28,8 +28,8 @@ export function loadModel(id: number, scene: BABYLON.Scene, callback: (meshes: B
         var url: string
         switch(id){
             case 1: url = 'gltf/facility-mechanical-room/'; break
-            case 2: url = 'gltf/mep-building-model/'; break
-            case 3: url = 'gltf/overhead-mep-installation/'; break
+            case 2: url = 'gltf/facility-mechanical-room/'; break
+            case 3: url = 'gltf/facility-mechanical-room/'; break
             case 4: url = 'gltf/pgn-model/'; break
             default: throw new Error("model id is not defined or not valid")
         }

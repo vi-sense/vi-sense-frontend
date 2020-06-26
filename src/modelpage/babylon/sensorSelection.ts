@@ -4,6 +4,7 @@ import Storage from '../../storage/Storage';
 import { focusOnMesh } from './focusOnMesh';
 import { PulseShader, GradientShader } from './shaders';
 import { SENSOR_COLORS } from '../../storage/Settings';
+import { RecastJSCrowd } from 'babylonjs';
 
 const API_URL = process.env.API_URL;
 const sensorColor = BABYLON.Color3.Purple();
@@ -33,36 +34,30 @@ var savedSensors = {};
   */
 export async function updateSelectedSensor(sensor_id: number, action: String) {
   let sensor = savedSensors[sensor_id];
-  if(action == "new") {
-    let mesh = myScene.getMeshByName(sensor.mesh_id);
-    mesh.state = "selected";
-    highlight.addMesh(mesh.subMeshes[0].getRenderingMesh(), BABYLON.Color3.Black());
-    mesh = mesh.subMeshes[0].getRenderingMesh();
-    mesh.outlineWidth = .05;
-    mesh.outlineColor = BABYLON.Color3.Black();
-    //mesh.renderOutline = true;
-    let mat = mesh.material as BABYLON.PBRMaterial;
-    mat.albedoColor = selectedSensorColor;
-    sensorLabels[sensor_id].rect.alpha = 1;
-    sensorLabels[sensor_id].rect.isVisible = true;
-    sensorLabels[sensor_id].arrow.alpha = 1;
-    sensorLabels[sensor_id].circle.width = "70px";
-    sensorLabels[sensor_id].circle.height = "70px";
-    // sensorLabels[sensor_id].label.children[0].text = sensor.name;
-  }
-  else if (action == "removed") {
-    let mesh = myScene.getMeshByName(sensor.mesh_id);
-    mesh.state = "";
-    highlight.removeMesh(mesh.subMeshes[0].getRenderingMesh());
-    //mesh.renderOutline = false;
-    let mat = mesh.material as BABYLON.PBRMaterial;
-    mat.albedoColor = sensorColor;
-    sensorLabels[sensor_id].rect.alpha = 0;
-    sensorLabels[sensor_id].rect.isVisible = false;
-    sensorLabels[sensor_id].arrow.alpha = 0;
-    sensorLabels[sensor_id].circle.width = "30px";
-    sensorLabels[sensor_id].circle.height = "30px";
-    // sensorLabels[sensor_id].label.children[0].text = "";
+  if(sensor) {
+    if(action == "new") {
+      let mesh = myScene.getMeshByName(sensor.mesh_id);
+      mesh.state = "selected";
+      highlight.addMesh(mesh.subMeshes[0].getRenderingMesh(), BABYLON.Color3.Black());
+      mesh = mesh.subMeshes[0].getRenderingMesh();
+      mesh.outlineWidth = .05;
+      mesh.outlineColor = BABYLON.Color3.Black();
+      sensorLabels[sensor_id].rect.alpha = 1;
+      //sensorLabels[sensor_id].rect.isVisible = true;
+      sensorLabels[sensor_id].arrow.alpha = 1;
+      sensorLabels[sensor_id].circle.width = "70px";
+      sensorLabels[sensor_id].circle.height = "70px";
+    }
+    else if (action == "removed") {
+      let mesh = myScene.getMeshByName(sensor.mesh_id);
+      mesh.state = "";
+      highlight.removeMesh(mesh.subMeshes[0].getRenderingMesh());
+      sensorLabels[sensor_id].rect.alpha = 0;
+      //sensorLabels[sensor_id].rect.isVisible = false;
+      sensorLabels[sensor_id].arrow.alpha = 0;
+      sensorLabels[sensor_id].circle.width = "30px";
+      sensorLabels[sensor_id].circle.height = "30px";
+    }
   }
 }
 
@@ -211,8 +206,9 @@ async function addUIElements(modelID: number) {
 
     let rect = new GUI.Rectangle();
     rect.alpha = 0;
-    rect.isVisible = false;
+    //rect.isVisible = false;
     rect.background = "white";
+    rect.cornerRadius = 5;
     rect.isPointerBlocker = false;
     stackPanel.addControl(rect);
 
@@ -270,6 +266,7 @@ async function addUIElements(modelID: number) {
     //     )
     //   ));
   }
+  myScene.metadata.savedSensors = savedSensors;
 }
 
 export function turnArrow(sensorId, gradient){
