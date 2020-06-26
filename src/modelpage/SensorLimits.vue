@@ -4,23 +4,24 @@
         <v-container pa-0>
             <v-row dense>
                 <v-col cols="6">
-                    <v-text-field dense
+                    <v-text-field dense type="number"
                                   label="Lower Bound"
-                                  v-model="lower_bound"
+                                  v-model="lowerBound"
                     ></v-text-field>
                 </v-col>
                 <v-col cols="6">
-                    <v-text-field dense
+                    <v-text-field dense type="number"
                                   label="Upper Bound"
-                                  v-model="upper_bound"
+                                  v-model="upperBound"
+
                     ></v-text-field>
                 </v-col>
             </v-row>
             <v-row dense>
                 <v-col cols="6">
-                    <v-text-field dense
+                    <v-text-field dense type="number"
                                   label="Gradient Bound"
-                                  v-model="gradient_bound"
+                                  v-model="gradientBound"
                     ></v-text-field>
                 </v-col>
                 <v-col cols="6">
@@ -37,14 +38,38 @@
         props: ["sensor"],
         data() {
             return {
-                upper_bound: this.sensor.upper_bound,
-                lower_bound: this.sensor.lower_bound,
-                gradient_bound: this.sensor.gradient_bound
+                upperBound: this.sensor.upper_bound,
+                lowerBound: this.sensor.lower_bound,
+                gradientBound: this.sensor.gradient_bound
             }
         },
         methods:{
-            saveLimits(){
+            async saveLimits(){
+                    let update = {
+                        upper_bound: parseFloat(this.upperBound),
+                        lower_bound: parseFloat(this.upperBound),
+                        gradient_bound: parseFloat(this.gradientBound)
+                    }
+                try {
+                    let response = await fetch(process.env.API_URL + "/sensors/" + this.sensor.id, {
+                        method: 'PATCH',
+                        mode: 'cors',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(update)})
 
+                    console.log(JSON.stringify(update))
+
+                    const newSensorData = await response.json()
+
+                    this.upperBound = newSensorData.upper_bound
+                    this.lowerBound = newSensorData.lower_bound
+                    this.gradientBound = newSensorData.gradient_bound
+
+                } catch (error) {
+                    console.log(error)
+                }
             }
         }
     }

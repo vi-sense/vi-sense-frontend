@@ -301,7 +301,7 @@ async function updateSensorMeshID(sensor_id: number, mesh_id: string) {
     },
     body: JSON.stringify(update)
   })
-    .then(res => { return res.json() })
-    .catch(err => { throw new Error("Can not update sensors mesh id") });
+      .then(res => { return res.json() })
+      .catch(err => { throw new Error("Can not update sensors mesh id") });
   return response;
 }
