@@ -20,7 +20,7 @@
                         </template>
                         <span>{{sensor.description}}</span>
                     </v-tooltip>
-                    <v-tooltip bottom>
+                    <v-tooltip v-if="sensor.mesh_id" bottom>
                         <template #activator="{ on, attrs }">
                             <v-icon @click.prevent="startCameraMove(sensor.id)"
                                     color="rgba(82, 186, 162, 1)"
@@ -30,13 +30,24 @@
                         </template>
                         <span>Go To Sensor</span>
                     </v-tooltip>
+                        <v-tooltip v-else bottom>
+                        <template #activator="{ on, attrs }">
+                            <v-icon @click.prevent="initSensor(sensor.id)"
+                                    color="yellow accent-4"
+                                    v-bind="attrs"
+                                    v-on="on"
+                            >mdi-alert-circle</v-icon>
+                        </template>
+                        <span>Please set sensor position</span>
+                    </v-tooltip>
                     </template>
                 </v-expansion-panel-header>
                 <v-expansion-panel-content>
                             <v-btn @click.prevent="initSensor(sensor.id)" alt="Select sensor position" class="button"
                                    color="rgba(82, 186, 162, 1)" dark elevation="2" block
                                    >
-                                Place Sensor
+                                <span v-if="sensor.mesh_id">Reposition Sensor</span>
+                                <span v-else>Position Sensor</span>
                             </v-btn>
                 </v-expansion-panel-content>
             </v-expansion-panel>
