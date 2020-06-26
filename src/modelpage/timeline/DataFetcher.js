@@ -118,9 +118,6 @@ export default class DataFetcher{
     /**
      * @param {Array} domain D3 xScale.domain()
      * @returns Promise with data array (if new area was loaded) or null (if data didnt change from last call) 
-     * 
-     * TODO problem https://github.com/vi-sense/vi-sense/issues/114
-     * vermutlich weil async? und geladene async kommt später zurück als die wo schon vorgeladen ist zurück gibt
      */
     async get(domain){
         let minHash = this._hash(domain[0].getTime())
@@ -136,7 +133,6 @@ export default class DataFetcher{
         this._lastMaxHash = maxHash
         this._rtUpdateAvailable = false
 
-
         // Return option 2: return the data chunks based on the domain
         // load a data chunk from storage variable or fetch it from server 
         let promises = []        
@@ -146,14 +142,20 @@ export default class DataFetcher{
                 promises.push(p)                
             }
         }
+
+        
+        // problem fix https://github.com/vi-sense/vi-sense/issues/114
+        let thisGet = Date.now()
+        this._lastGet = thisGet
         
         return Promise.all(promises).then(()=>{
             let result = []
             for(let hash=minHash-1; hash<maxHash+1; hash++){                
                 let d = this.map.get(hash)
                 result.push(...d)
-            }    
-            return result
+            }  
+
+            if(this._lastGet == thisGet) return result
         })
     }
 }
