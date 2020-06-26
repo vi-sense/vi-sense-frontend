@@ -168,7 +168,6 @@ async function addUIElements(modelID: number) {
 
     if (i == 1) {
       defaultMat = mesh.material
-      defaultMat.freeze()
     }
     //QPRJU9#12 - sine water flow
     //QPRJU9#16 - sine color change
