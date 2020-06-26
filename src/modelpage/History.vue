@@ -13,7 +13,7 @@
                         <v-card-subtitle v-else>{{`${anomaly.start_data.date}`}}</v-card-subtitle>
                     </v-col>
                     <v-col cols="2">
-                        <v-icon large color="yellow accent-4">mdi-alert-circle</v-icon>
+                        <v-icon large color="amber accent-4">mdi-alert-circle</v-icon>
                     </v-col>
                 </v-row>
             </v-container>

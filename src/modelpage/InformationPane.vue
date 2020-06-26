@@ -33,7 +33,7 @@
                         <v-tooltip v-else bottom>
                         <template #activator="{ on, attrs }">
                             <v-icon @click.prevent="initSensor(sensor.id)"
-                                    color="yellow accent-4"
+                                    color="amber accent-4"
                                     v-bind="attrs"
                                     v-on="on"
                             >mdi-alert-circle</v-icon>
@@ -108,6 +108,11 @@
             },
             initSensor(id) {
                 this.STORE.set(SKEYS.INIT_SENSOR, id);
+                this.STORE.registerOnUpdateCallback(SKEYS.INIT_SENSOR, async (se nsorID) =>{
+                    const newSensorRes = await fetch(this.endpoint + "sensors/" + id)
+                    const newSensorData = await newSensorRes.json()
+                    this.model.sensors.find((sensor) => sensor.id === id).mesh_id = newSensorData.mesh_id
+                })
             },
             loadSensorData(id) {
                 axios(this.endpoint + "models/" + id)
