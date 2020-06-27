@@ -2,11 +2,12 @@
     <div>
         <v-expansion-panels focusable accordion>
             <v-expansion-panel :key="sensor.id" :style="`border-left: 5px solid ${sensor_colors[sensor.id]}!important`"
-                               v-for="(sensor, index) in sensorData">
+                               v-for="sensor in sensorData">
                 <v-expansion-panel-header disable-icon-rotate>
-                    <v-simple-checkbox class="pr-1" dense :key="sensor.id" v-on:input="onItemChecked(sensor.id, index)" color="rgba(82, 186, 162, 1)"
-                                v-model="checkboxes[index].checked"
-                    ></v-simple-checkbox>
+                    <v-checkbox class="pr-1 mt-0" hide-details dense :id="'sensorcheckbox'  + sensor.id" :value="sensor.id" color="rgba(82, 186, 162, 1)"
+                                multiple v-model="selectedSensors" @change="updateSensorSelection(sensor.id)"
+                    >
+                    </v-checkbox>
                     <span>{{sensor.name}}</span>
                     <template #actions>
                     <v-tooltip bottom max-width="20rem">
@@ -70,6 +71,7 @@
                 model: [],
                 checkboxes: [],
                 sensorData: [],
+                selectedSensors: [],
                 sensor_colors: SENSOR_COLORS,
                 endpoint: process.env.API_URL + "/",
                 temp_min: 10,
@@ -80,29 +82,21 @@
         created() {
             this.loadSensorData(this.modelID);
 
-            this.STORE.getSelectedSensors(sensorIds => {
-                for (let id of sensorIds) {
-                    const i =this.checkboxes.findIndex( item => item.id === id);
-                    this.checkboxes[i].checked = true; //check sensor checkbox just to be sure
-                }
-            });
-
             this.STORE.onSensorSelectionChanged((sensorId, action) => {
-                const i = this.checkboxes.findIndex(item => item.id === sensorId);
                 if (action === "new") {
-                    this.checkboxes[i].checked = true;
-                } else if (action === "removed") {
-                    this.checkboxes[i].checked = false;
+                    this.selectedSensors.push(sensorId)
+                } else {
+                    this.selectedSensors = this.selectedSensors.filter(id => id !== sensorId)
                 }
             });
         },
         methods: {
-            onItemChecked(id, index) {
-                event.stopPropagation();
-                if (this.checkboxes[index].checked === true) {
-                    this.STORE.selectSensor(id);
-                } else if (this.checkboxes[index].checked === false) {
-                    this.STORE.unselectSensor(id);
+            updateSensorSelection(sensorID) {
+                event.stopPropagation()
+                if (this.selectedSensors.includes(sensorID)) {
+                    this.STORE.selectSensor(sensorID);
+                } else {
+                    this.STORE.unselectSensor(sensorID);
                 }
             },
             startCameraMove(id) {
@@ -121,12 +115,6 @@
                     .then(response => {
                         this.model = response.data;
                         this.sensorData = this.model.sensors;
-                        this.checkboxes = this.sensorData.map(sensor => {
-                            return {
-                                checked: false,
-                                id: sensor.id
-                            };
-                        });
                         this.$route.meta.title = this.model.name;
                         // add a temporary variable
                         this.$router.replace({query: {temp: Date.now()}});
@@ -150,12 +138,15 @@
         padding: 0 10px 0 10px;
     }
 
-    .v-expansion-panel-header>>>:not(.v-expansion-panel-header__icon){
+    .v-expansion-panel-header > > > :not(.v-expansion-panel-header__icon) {
         flex: unset;
     }
 
-    .v-expansion-panel-content >>> .v-expansion-panel-content__wrap {
+    .v-expansion-panel-content > > > .v-expansion-panel-content__wrap {
         padding: 10px 10px !important;
     }
+
+
+
 
 </style>

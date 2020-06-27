@@ -25,7 +25,7 @@
                     ></v-text-field>
                 </v-col>
                 <v-col cols="6">
-                    <v-btn class="ma-0" text color="rgba(82, 186, 162, 1)" v-on:click="saveLimits"><strong>Save Limits</strong></v-btn>
+                    <v-btn block class="ma-0" text color="rgba(82, 186, 162, 1)" v-on:click="saveLimits"><strong>Save</strong></v-btn>
                 </v-col>
             </v-row>
         </v-container>
