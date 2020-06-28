@@ -35,7 +35,7 @@ var savedSensors = {};
 export async function updateSelectedSensor(sensor_id: number, action: String) {
   let sensor = savedSensors[sensor_id];
   if (!sensor) throw new Error("Did not find a sensor with id: " + sensor_id)
-  let mesh = myScene.getMeshByUniqueID(parseInt(sensor.mesh_id));
+  let mesh = myScene.getMeshByUniqueID(sensor.mesh_id);
   if (!mesh) throw new Error("Did not find a mesh with id: " + sensor.mesh_id)
 
   if(action == "new") {
@@ -64,7 +64,7 @@ export async function updateSelectedSensor(sensor_id: number, action: String) {
 export async function moveToMesh(scene: BABYLON.Scene, sensor_id: number) {
   let sensor = savedSensors[sensor_id];
   if (!sensor) throw new Error("Did not find a sensor with id: " + sensor_id)
-  let mesh = scene.getMeshByUniqueID(parseInt(sensor.mesh_id));
+  let mesh = scene.getMeshByUniqueID((sensor.mesh_id);
   if (!mesh) throw new Error("Did not find a mesh with id: " + sensor.mesh_id)
   let target = mesh.getBoundingInfo().boundingSphere.centerWorld;
   focusOnMesh(scene, target);
@@ -110,7 +110,6 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
     if (id == null) {
       SELECTABLES.forEach((mesh) => {
         highlight.removeMesh(mesh.subMeshes[0].getRenderingMesh());
-        mesh.material = defaultMat;
         mesh.actionManager.actions.splice(0, 1)
       })
     }
@@ -126,7 +125,19 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
 
               storage.onInitStateChanged(async (id, state) => {
                 if(state === "confirmed") {
-                  mesh.material = new GradientShader(0, 100, 50);
+
+                  let selectedSensors = storage.getSelectedSensors()
+                  selectedSensors.forEach((sensor) => {
+                    storage.unselectSensor(sensor)
+                  })
+
+                  if (savedSensors[id] && savedSensors[id].mesh_id) {
+                    console.log(savedSensors[id].mesh_id)
+                    let prevMesh = scene.getMeshByUniqueID(savedSensors[id].mesh_id)
+                    prevMesh.material = scene.getMaterialByName("Mat");
+                    prevMesh.metadata.sensor_id = null;
+                  }
+
                   if (mesh.metadata.sensor_id) {
                     console.log("was already set; removing sensor from this mesh");
                     updateSensorMeshID(mesh.metadata.sensor_id, null);
@@ -146,7 +157,7 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
                   addUIElements(modelID);
                 }
               })
-              
+
         }));
       })
     }
@@ -164,7 +175,7 @@ async function addUIElements(modelID: number) {
     savedSensors[sensors[i].id] = sensors[i]
 
     let mesh: BABYLON.AbstractMesh;
-    mesh = myScene.getMeshByUniqueID(parseInt(sensors[i].mesh_id));
+    mesh = myScene.getMeshByUniqueID((sensors[i].mesh_id);
     if(!mesh) {
       console.log("Did not find a mesh with id: " + sensors[i].mesh_id);
       continue;
@@ -175,7 +186,7 @@ async function addUIElements(modelID: number) {
     if (i == 1) {
       defaultMat = mesh.material
     }
-    
+
     //QPRJU9#12 - sine water flow
     //QPRJU9#16 - sine color change
     //JN2BSF#54 - turbulence fire
