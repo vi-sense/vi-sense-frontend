@@ -85,6 +85,26 @@ export default class Storage{
             this.#sensorSelectionCallbacks.push(callback)
         else throw new Error("Thats not a callback function")
     }
+
+
+
+
+
+
+    #sensorInitCallbacks = []
+
+    onInitStateChanged(callback: (sensorId: number, state: String) => void) {
+        if (callback instanceof Function)
+            this.#sensorInitCallbacks.push(callback)
+        else throw new Error("Thats not a callback function")
+    }
+
+    updateInitState(sensorId, state) {
+        for (let c of this.#sensorInitCallbacks) {
+            console.log(sensorId, state)
+            c(sensorId, state)
+        }
+    }
 }
 
 

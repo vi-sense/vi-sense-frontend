@@ -24,6 +24,8 @@
 
       <option-pane id="optionpane" :STORE="STORE"/>
     </main>
+
+    <pop-up :STORE="STORE"/>
   </div>
 </template>
 
@@ -35,17 +37,17 @@ import InformationPane from "./InformationPane";
 import OptionPane from "./OptionPane";
 import Storage from "../storage/Storage";
 import History from "./History";
+import PopUp from "./PopUp";
 
 export default {
   props: ["id"],
   components: {
-    History,
-    Timeline, InformationPane, OptionPane
+    History, Timeline, InformationPane, OptionPane, PopUp
   },
   data() {
     return {
       STORE: new Storage(),
-      title: ""
+      title: "",
     };
   },
   created(){

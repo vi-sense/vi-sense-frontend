@@ -122,24 +122,31 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
           new BABYLON.ExecuteCodeAction(
             BABYLON.ActionManager.OnPickTrigger, async function (e) {
               // START CALLBACK TO POPUP
-              //storage.openInitPopup(id);
-              mesh.material = new GradientShader(0, 100, 50);
-              if(mesh.metadata.sensor_id) {
-                console.log("was already set; removing sensor from this mesh");
-                updateSensorMeshID(mesh.metadata.sensor_id, null);
-              }
-              await updateSensorMeshID(id, mesh.uniqueId.toString());
-              mesh.metadata.sensor_id = id;
-              storage.set(SKEYS.INIT_SENSOR, null);
+              storage.updateInitState(id, 'mesh_picked')
 
-              advancedTexture.dispose();
-              for (const prop of Object.getOwnPropertyNames(sensorLabels)) {
-                delete sensorLabels[prop];
-              }
-              for (const prop of Object.getOwnPropertyNames(savedSensors)) {
-                delete savedSensors[prop];
-              }
-              addUIElements(modelID);
+              storage.onInitStateChanged(async (id, state) => {
+                if(state === "confirmed") {
+                  mesh.material = new GradientShader(0, 100, 50);
+                  if (mesh.metadata.sensor_id) {
+                    console.log("was already set; removing sensor from this mesh");
+                    updateSensorMeshID(mesh.metadata.sensor_id, null);
+                  }
+                  await updateSensorMeshID(id, mesh.uniqueId);
+                  mesh.metadata.sensor_id = id;
+                  storage.updateInitState(id, 'updated');
+                  storage.set(SKEYS.INIT_SENSOR, null);
+
+                  advancedTexture.dispose();
+                  for (const prop of Object.getOwnPropertyNames(sensorLabels)) {
+                    delete sensorLabels[prop];
+                  }
+                  for (const prop of Object.getOwnPropertyNames(savedSensors)) {
+                    delete savedSensors[prop];
+                  }
+                  addUIElements(modelID);
+                }
+              })
+              
         }));
       })
     }
@@ -290,7 +297,7 @@ async function getModelData(id: number) {
   return response;
 }
 
-async function updateSensorMeshID(sensor_id: number, mesh_id: string) {
+async function updateSensorMeshID(sensor_id: number, mesh_id: number) {
   let update = {
     'mesh_id': mesh_id,
   }

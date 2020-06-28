@@ -62,10 +62,11 @@
     import SKEYS from "../storage/StorageKeys";
     import {SENSOR_COLORS} from "../storage/Settings";
     import SensorLimits from "./SensorLimits";
+    import PopUp from "./PopUp";
 
     export default {
-        components: {SensorLimits},
-        props: ["modelID", "STORE"],
+        components: {SensorLimits, PopUp},
+        props: ["modelID", "STORE", "popUp"],
         data() {
             return {
                 model: [],
@@ -100,14 +101,20 @@
                 }
             },
             startCameraMove(id) {
+                event.stopPropagation()
                 this.STORE.set(SKEYS.CAMERA_DRIVE_SENSOR, id);
             },
             initSensor(id) {
                 this.STORE.set(SKEYS.INIT_SENSOR, id);
+                this.STORE.onInitStateChanged(async (id, state) => {
+                    if(state === "updated") {
+                        const newSensorRes = await fetch(this.endpoint + "sensors/" + id)
+                        const newSensorData = await newSensorRes.json()
+                        this.model.sensors.find((sensor) => sensor.id === id).mesh_id = newSensorData.mesh_id
+                    }
+                })
                 this.STORE.registerOnUpdateCallback(SKEYS.INIT_SENSOR, async (sensorID) =>{
-                    const newSensorRes = await fetch(this.endpoint + "sensors/" + id)
-                    const newSensorData = await newSensorRes.json()
-                    this.model.sensors.find((sensor) => sensor.id === id).mesh_id = newSensorData.mesh_id
+                    console.log("auch noch da hihihihi")
                 })
             },
             loadSensorData(id) {
@@ -138,11 +145,11 @@
         padding: 0 10px 0 10px;
     }
 
-    .v-expansion-panel-header > > > :not(.v-expansion-panel-header__icon) {
+    .v-expansion-panel-header >>> :not(.v-expansion-panel-header__icon) {
         flex: unset;
     }
 
-    .v-expansion-panel-content > > > .v-expansion-panel-content__wrap {
+    .v-expansion-panel-content > div {
         padding: 10px 10px !important;
     }
 
