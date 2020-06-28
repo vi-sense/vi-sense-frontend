@@ -63,13 +63,13 @@ export function createArcCamera(canvas: HTMLCanvasElement, engine:BABYLON.Engine
     var arcCamera = new BABYLON.ArcRotateCamera("arcCam", 42, 0.8, 400, BABYLON.Vector3.Zero(), scene);
     arcCamera.attachControl(canvas, false);
     arcCamera.setTarget(new BABYLON.Vector3(0,1,0));
-    arcCamera.radius = 20
-    arcCamera.lowerRadiusLimit = 10
-    arcCamera.upperRadiusLimit = 75 
+    arcCamera.radius = 25
+    arcCamera.lowerRadiusLimit = 5
+    arcCamera.upperRadiusLimit = 150
     arcCamera.wheelPrecision = 20
 
     storage.onSensorSelectionChanged(() => {
-        let target = changeArcCameraTarget()
+        let target = getArcCameraTarget()
         arcCamera.setTarget(target)
     })
 
@@ -112,8 +112,11 @@ export function switchCamera() {
     if (myScene.activeCamera.name == "floorCam") {
         let active = myScene.activeCamera as FloorCamera;
         let cam = myScene.getCameraByName("arcCam") as BABYLON.ArcRotateCamera;
-        let target = changeArcCameraTarget()
+        let target = getArcCameraTarget()
         
+        cam.setTarget(target)
+        myScene.activeCamera = cam;
+        /*
         let animateTarget = new BABYLON.Animation("anim4", "lockedTarget", 30, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
         let targetKeys = [];
         targetKeys.push({ frame: 0, value: active.getTarget() });
@@ -126,9 +129,9 @@ export function switchCamera() {
         a.onAnimationEnd = () => {
             active.lockedTarget = undefined;
             //cam.position = active.position.clone();
-            cam.setTarget(target)
-            myScene.activeCamera = cam;
+            
         };
+        */
     }
     else if (myScene.activeCamera.name == "arcCam") {
         let active = myScene.activeCamera as BABYLON.ArcRotateCamera;
@@ -137,30 +140,42 @@ export function switchCamera() {
         let animateRadius = new BABYLON.Animation("anim3", "radius", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
         let radiusKeys = [];
         radiusKeys.push({ frame: 0, value: active.radius });
-        radiusKeys.push({ frame: 30, value: 3 });
+        radiusKeys.push({ frame: 30, value: 5 });
         animateRadius.setKeys(radiusKeys);
         animateRadius.setEasingFunction(ease);
         active.animations.push(animateRadius);
 
         let a = myScene.beginAnimation(active, 0, 30, false);
+
+        let cam = myScene.getCameraByName("floorCam") as FloorCamera;
+        console.log(active.getTarget())
+        console.log(getArcCameraTarget())
+        console.log(cam.getTarget())
+
         a.onAnimationEnd = () => {
-            let cam = myScene.getCameraByName("floorCam") as FloorCamera;
             cam.position = active.position.clone()
-            cam.setTarget(active.getTarget())
             cam.fixedY = cam.position.clone().y;
+
+            // let direction = active.getTarget().subtract(active.position.clone())
+            // let distance = direction.length() + 1;
+            // direction.normalize();
+            // direction.scaleInPlace(distance);
+            // let target = active.position.add(direction);
+
             myScene.activeCamera = cam;
-            active.lowerRadiusLimit = 10
+            
+            cam.setTarget(getArcCameraTarget());
         };
     }
 }
 
-function changeArcCameraTarget() {
+function getArcCameraTarget() {
     let sensor_ids = myStorage.getSelectedSensors()
     if (sensor_ids.length == 0) return myScene.metadata.modelCenter;
-    if (sensor_ids.length == 1) return myScene.getMeshByName(myScene.metadata.savedSensors[sensor_ids[0]].mesh_id).getBoundingInfo().boundingSphere.centerWorld;
+    if (sensor_ids.length == 1) return myScene.getMeshByUniqueID(myScene.metadata.savedSensors[sensor_ids[0]].mesh_id).getBoundingInfo().boundingSphere.centerWorld;
     if (sensor_ids.length == 2) {
-        let v1 = myScene.getMeshByName(myScene.metadata.savedSensors[sensor_ids[0]].mesh_id).getBoundingInfo().boundingSphere.centerWorld
-        let v2 = myScene.getMeshByName(myScene.metadata.savedSensors[sensor_ids[1]].mesh_id).getBoundingInfo().boundingSphere.centerWorld
+        let v1 = myScene.getMeshByUniqueID(myScene.metadata.savedSensors[sensor_ids[0]].mesh_id).getBoundingInfo().boundingSphere.centerWorld
+        let v2 = myScene.getMeshByUniqueID(myScene.metadata.savedSensors[sensor_ids[1]].mesh_id).getBoundingInfo().boundingSphere.centerWorld
         return BABYLON.Vector3.Center(v1, v2);
     }
     if (sensor_ids.length > 2) {
@@ -168,9 +183,8 @@ function changeArcCameraTarget() {
         let myY = 0;
         let myZ = 0;
         for (let i = 0; i < sensor_ids.length; i++) {
-            let mesh = myScene.getMeshByName(myScene.metadata.savedSensors[sensor_ids[i]].mesh_id)
+            let mesh = myScene.getMeshByUniqueID(myScene.metadata.savedSensors[sensor_ids[i]].mesh_id)
             let v = mesh.getBoundingInfo().boundingSphere.centerWorld
-            console.log(v)
             myX += v.x
             myY += v.y
             myZ += v.z
