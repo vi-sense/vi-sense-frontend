@@ -129,14 +129,14 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
                 storage.unselectSensor(sensor)
               })
 
-              if(savedSensors[id].mesh_id) {
+              if (savedSensors[id] && savedSensors[id].mesh_id) {
                 console.log(savedSensors[id].mesh_id)
                 let prevMesh = scene.getMeshByUniqueID(savedSensors[id].mesh_id)
                 prevMesh.material = scene.getMaterialByName("Mat");
                 prevMesh.metadata.sensor_id = null;
               }
               
-              if(mesh.metadata.sensor_id) {
+              if (mesh.metadata.sensor_id) {
                 console.log("was already set; removing previous sensor from this mesh");
                 updateSensorMeshID(mesh.metadata.sensor_id, null);
               }
