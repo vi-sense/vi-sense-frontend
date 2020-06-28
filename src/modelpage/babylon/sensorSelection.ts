@@ -12,7 +12,6 @@ const selectedSensorColor = BABYLON.Color3.Teal();
 
 var SELECTABLES: BABYLON.AbstractMesh[];
 var advancedTexture: GUI.AdvancedDynamicTexture;
-var defaultMat: BABYLON.Material;
 
 var myScene: BABYLON.Scene;
 var storage: Storage;
@@ -35,7 +34,7 @@ var savedSensors = {};
 export async function updateSelectedSensor(sensor_id: number, action: String) {
   let sensor = savedSensors[sensor_id];
   if(action == "new") {
-    let mesh = myScene.getMeshByName(sensor.mesh_id);
+    let mesh = myScene.getMeshByUniqueID(sensor.mesh_id);
     mesh.state = "selected";
     highlight.addMesh(mesh.subMeshes[0].getRenderingMesh(), BABYLON.Color3.Black());
     mesh = mesh.subMeshes[0].getRenderingMesh();
@@ -52,7 +51,7 @@ export async function updateSelectedSensor(sensor_id: number, action: String) {
     // sensorLabels[sensor_id].label.children[0].text = sensor.name;
   }
   else if (action == "removed") {
-    let mesh = myScene.getMeshByName(sensor.mesh_id);
+    let mesh = myScene.getMeshByUniqueID(sensor.mesh_id);
     mesh.state = "";
     highlight.removeMesh(mesh.subMeshes[0].getRenderingMesh());
     //mesh.renderOutline = false;
@@ -69,7 +68,7 @@ export async function updateSelectedSensor(sensor_id: number, action: String) {
 
 export async function moveToMesh(scene: BABYLON.Scene, sensor_id: number) {
   let sensor = savedSensors[sensor_id];
-  let mesh = scene.getMeshByName(sensor.mesh_id);
+  let mesh = scene.getMeshByUniqueID(sensor.mesh_id);
   let target = mesh.getBoundingInfo().boundingSphere.centerWorld;
   focusOnMesh(scene, target);
 }
@@ -88,6 +87,7 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
 
   SELECTABLES.forEach((mesh) => {
     mesh.isPickable= true
+    //mesh.material = new GradientShader(0, 100, 50);
   })
 
   // setup of highlight layer
@@ -114,7 +114,6 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
     if (id == null) {
       SELECTABLES.forEach((mesh) => {
         highlight.removeMesh(mesh.subMeshes[0].getRenderingMesh());
-        mesh.material = defaultMat;
         mesh.actionManager.actions.splice(0, 1)
       })
     }
@@ -125,12 +124,23 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
         mesh.actionManager.registerAction(
           new BABYLON.ExecuteCodeAction(
             BABYLON.ActionManager.OnPickTrigger, async function (e) {
-              mesh.material = new GradientShader(0, 100, 50);
+              let selectedSensors = storage.getSelectedSensors()
+              selectedSensors.forEach((sensor) => {
+                storage.unselectSensor(sensor)
+              })
+
+              if(savedSensors[id].mesh_id) {
+                console.log(savedSensors[id].mesh_id)
+                let prevMesh = scene.getMeshByUniqueID(savedSensors[id].mesh_id)
+                prevMesh.material = scene.getMaterialByName("Mat");
+                prevMesh.metadata.sensor_id = null;
+              }
+              
               if(mesh.metadata.sensor_id) {
-                console.log("was already set; removing sensor from this mesh");
+                console.log("was already set; removing previous sensor from this mesh");
                 updateSensorMeshID(mesh.metadata.sensor_id, null);
               }
-              await updateSensorMeshID(id, mesh.name);
+              await updateSensorMeshID(id, mesh.uniqueId);
               mesh.metadata.sensor_id = id;
               storage.set(SKEYS.INIT_SENSOR, null);
 
@@ -161,14 +171,11 @@ async function addUIElements(modelID: number) {
 
     let mesh: BABYLON.AbstractMesh;
     if (model.id == 4) mesh = myScene.getMeshByUniqueID(parseInt(sensors[i].mesh_id));
-    else mesh = myScene.getMeshByName(sensors[i].mesh_id);
+    else mesh = myScene.getMeshByUniqueID(sensors[i].mesh_id);
 
     if(!mesh) continue;
     mesh.metadata.sensor_id = sensors[i].id;
 
-    if (i == 1) {
-      defaultMat = mesh.material
-    }
     //QPRJU9#12 - sine water flow
     //QPRJU9#16 - sine color change
     //JN2BSF#54 - turbulence fire
@@ -288,7 +295,7 @@ async function getModelData(id: number) {
   return response;
 }
 
-async function updateSensorMeshID(sensor_id: number, mesh_id: string) {
+async function updateSensorMeshID(sensor_id: number, mesh_id: number) {
   let update = {
     'mesh_id': mesh_id,
   }
