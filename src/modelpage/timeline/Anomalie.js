@@ -2,12 +2,12 @@
  * @author Tom Wendland
  */
 
-// import * as d3 from 'd3'
-// import { SENSOR_COLORS } from '../../storage/Settings';
-// const API_URL = process.env.API_URL  
+import * as d3 from 'd3'
+import { SENSOR_COLORS } from '../../storage/Settings';
+const API_URL = process.env.API_URL  
 
-const API_URL = "https://visense.f4.htw-berlin.de:44344"
-const SENSOR_COLORS = d3.schemeCategory10 
+//const API_URL = "https://visense.f4.htw-berlin.de:44344"
+//const SENSOR_COLORS = d3.schemeCategory10 
 
 const ABOVE = "Above Upper Limit"
 const BELOW = "Below Upper Limit"
@@ -31,8 +31,9 @@ export default class Anomalie {
         this.rect = parentElement.append("rect")
         .style("fill", SENSOR_COLORS[this.data.start_data.sensor_id])
         .style("opacity", 0.3)
-        console.log(this.data);
 
+        if(data.type==UPGRADIENT || data.type == DOWNGRADIENT)console.log(data);
+        
         this.redraw()
     }
 
@@ -47,7 +48,7 @@ export default class Anomalie {
     
                 this.rect
                 .attr("x", ss)
-                .attr("width",  this.xScale(e)-ss)
+                .attr("width", this.xScale(e)-ss)
                 
                 if(data.type==ABOVE){
                     this.rect.attr("y", this.yScale(data.peak_data.value))              
@@ -62,8 +63,13 @@ export default class Anomalie {
                 // TODO visualize 1 datapoint anomalie 
             }
         }   
-        else if(data.type==UPGRADIENT || data.type == DOWNGRADIENT){
-
+        else if(data.type==UPGRADIENT || data.type==DOWNGRADIENT){    
+                        
+            this.rect
+            .attr("x", this.xScale(new Date(data.start_data.date))-10)
+            .attr("width",  20)
+            .attr("y", this.yScale(data.start_data.value)-50)              
+            .attr("height", 100) 
         }
     }
 }

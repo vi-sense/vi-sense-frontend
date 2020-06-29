@@ -8,16 +8,16 @@
  * by that, d3 is never showing the whole data but only a excerpt. this increases the performance a lot 
  */
 
-// import moment from 'moment';
-// const API_URL = process.env.API_URL  
+import moment from 'moment';
+const API_URL = process.env.API_URL  
 
-const API_URL = "https://visense.f4.htw-berlin.de:44344"
+// const API_URL = "https://visense.f4.htw-berlin.de:44344"
 
 const CHUCK_SIZE = 7*24*60*60*1000 // 1 week
 const RT_PAUSE = 2*60*1000 // 2 min pause between realtime calls
 
 
-export default class DataFetcher{
+export default class SensorGraphDataFetcher{
 
     constructor(sensorId){
         this.sensorId = sensorId
@@ -58,8 +58,9 @@ export default class DataFetcher{
      * @param {Date} start 
      * @param {Date} end 
      */
-    _toStartEndApiURL(start, end){
-        return API_URL + `/sensors/${this.sensorId}/data?start_date=${this._dateFormat(start)}&end_date=${this._dateFormat(end)}`
+    _toStartEndApiURL(start, end){        
+        let s = API_URL + `/sensors/${this.sensorId}/data?density=${2}&start_date=${this._dateFormat(start)}&end_date=${this._dateFormat(end)}`        
+        return s
     }
 
     async _fetchHashChunk(hash) {
@@ -69,7 +70,9 @@ export default class DataFetcher{
         if(end > Date.now()) 
             end = new Date() // because our data is fake and already exists for time that did not passed yet we have to limit the fetching by Date.now()    
 
-        return this._apiCall(this._toStartEndApiURL(start, end)).then(data => {            
+        if(start > end) return
+
+        return this._apiCall(this._toStartEndApiURL(start, end)).then(data => {   
             this.map.set(hash, data)
         })
     }
@@ -99,8 +102,8 @@ export default class DataFetcher{
     }
 
     /**
-     * 
-     * @param {*} callback only called when new data was loaded 
+     * checking if new realtime data is available and if yes fetching it
+     * @param {*} callback only called when new realtime data was fetched
      */
     checkAndUpdateRealtimeData(callback){
         let now = new Date()

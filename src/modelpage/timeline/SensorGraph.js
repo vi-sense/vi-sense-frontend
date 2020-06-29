@@ -2,12 +2,12 @@
  * @author Tom Wendland
  */
 
-import DataFetcher from "./DataFetcher.js"
+import SensorGraphDataFetcher from "./SensorGraphDataFetcher.js"
 
-// import * as d3 from 'd3'
-// import { SENSOR_COLORS } from '../../storage/Settings';
+import * as d3 from 'd3'
+import { SENSOR_COLORS } from '../../storage/Settings';
 
-const SENSOR_COLORS = d3.schemeCategory10 // position mapped to sensorId
+//const SENSOR_COLORS = d3.schemeCategory10 // position mapped to sensorId
 
 
 export default class SensorGraph{
@@ -25,7 +25,7 @@ export default class SensorGraph{
         this.sensorId = sensorId
         this.color = SENSOR_COLORS[sensorId]
         this.data = []
-        this.dataFetcher = new DataFetcher(sensorId)
+        this.dataFetcher = new SensorGraphDataFetcher(sensorId)
 
         this.line = d3.line()
             .defined(d => !isNaN(d.value) && !isNaN(d.date))

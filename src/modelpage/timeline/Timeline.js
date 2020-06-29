@@ -5,11 +5,11 @@
 import SensorGraph from "./SensorGraph.js";
 import Anomalie from "./Anomalie.js";
 
-// import * as d3 from 'd3'
-// import moment from 'moment';
-// import { turnArrow } from "../babylon/sensorSelection"
+import * as d3 from 'd3'
+import moment from 'moment';
+import { turnArrow } from "../babylon/sensorSelection"
 
-const API_URL = "https://visense.f4.htw-berlin.de:44344"
+//const API_URL = "https://visense.f4.htw-berlin.de:44344"
 
 
 
@@ -290,7 +290,7 @@ const Timeline = (function(parentElement){
         Array.from(graphs.keys()).forEach(key => {
             const graph = graphs.get(key)
             if(!graph.isHidden){
-                //turnArrow(key, graph.getGradient(timepinDate))
+                turnArrow(key, graph.getGradient(timepinDate))
             }})
     }
 
