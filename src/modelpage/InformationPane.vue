@@ -4,7 +4,7 @@
             <v-expansion-panel :key="sensor.id" :style="`border-left: 5px solid ${sensorColor(sensor.id)}!important`"
                                v-for="sensor in sensorData">
                 <v-expansion-panel-header disable-icon-rotate>
-                    <v-checkbox class="pr-1 mt-0" hide-details dense :id="'sensorcheckbox'  + sensor.id" :value="sensor.id" color="rgba(82, 186, 162, 1)"
+                    <v-checkbox class="pr-1 mt-0" hide-details :disabled="sensor.mesh_id == null" dense :id="'sensorcheckbox' + sensor.id" :value="sensor.id" color="rgba(82, 186, 162, 1)"
                                 multiple v-model="selectedSensors" @change="updateSensorSelection(sensor.id)"
                     >
                     </v-checkbox>
@@ -61,11 +61,12 @@
     import axios from "axios";
     import SKEYS from "../storage/StorageKeys";
     import SensorLimits from "./SensorLimits";
+    import PopUp from "./PopUp";
     import {getSensorColor} from "../storage/SensorColors";
 
     export default {
-        components: {SensorLimits},
-        props: ["modelID", "STORE"],
+        components: {SensorLimits, PopUp},
+        props: ["modelID", "STORE", "popUp"],
         data() {
             return {
                 model: [],
@@ -81,6 +82,11 @@
         },
         created() {
             this.loadSensorData(this.modelID);
+            this.STORE.onInitStateChanged(async (id, state) => {
+                    if(state === "updated") {
+                        this.loadSensorData(this.modelID);
+                    }
+                })
 
             this.STORE.onSensorSelectionChanged((sensorId, action) => {
                 if (action === "new") {
@@ -100,14 +106,17 @@
                 }
             },
             startCameraMove(id) {
+                event.stopPropagation()
                 this.STORE.set(SKEYS.CAMERA_DRIVE_SENSOR, id);
             },
             initSensor(id) {
                 this.STORE.set(SKEYS.INIT_SENSOR, id);
-                this.STORE.registerOnUpdateCallback(SKEYS.INIT_SENSOR, async (sensorID) =>{
-                    const newSensorRes = await fetch(this.endpoint + "sensors/" + id)
-                    const newSensorData = await newSensorRes.json()
-                    this.model.sensors.find((sensor) => sensor.id === id).mesh_id = newSensorData.mesh_id
+                this.STORE.onInitStateChanged(async (id, state) => {
+                    if(state === "updated") {
+                        const newSensorRes = await fetch(this.endpoint + "sensors/" + id)
+                        const newSensorData = await newSensorRes.json()
+                        this.model.sensors.find((sensor) => sensor.id === id).mesh_id = newSensorData.mesh_id
+                    }
                 })
             },
             loadSensorData(id) {
@@ -138,11 +147,11 @@
         padding: 0 10px 0 10px;
     }
 
-    .v-expansion-panel-header > > > :not(.v-expansion-panel-header__icon) {
+    .v-expansion-panel-header >>> :not(.v-expansion-panel-header__icon) {
         flex: unset;
     }
 
-    .v-expansion-panel-content > > > .v-expansion-panel-content__wrap {
+    .v-expansion-panel-content > div {
         padding: 10px 10px !important;
     }
 

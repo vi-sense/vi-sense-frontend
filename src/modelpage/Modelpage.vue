@@ -24,6 +24,8 @@
 
       <option-pane id="optionpane" :STORE="STORE"/>
     </main>
+
+    <pop-up :STORE="STORE"/>
   </div>
 </template>
 
@@ -35,18 +37,18 @@ import InformationPane from "./InformationPane";
 import OptionPane from "./OptionPane";
 import Storage from "../storage/Storage";
 import History from "./History";
+import PopUp from "./PopUp";
 import {registerSensorColors} from "../storage/SensorColors";
 
 export default {
   props: ["id"],
   components: {
-    History,
-    Timeline, InformationPane, OptionPane
+    History, Timeline, InformationPane, OptionPane, PopUp
   },
   data() {
     return {
       STORE: new Storage(),
-      title: ""
+      title: "",
     };
   },
   created(){
@@ -56,7 +58,7 @@ export default {
     this.getModelData(this.id).then(res=>{
       this.title = res.name
       registerSensorColors(res.sensors.map(sensor => sensor.id))
-    })     
+    })
   },
   mounted() {
     var canvas = document.getElementById("babyloncanvas");
@@ -79,7 +81,7 @@ header {
   min-height: 7%;
   height: 7% !important;
   z-index: 3;
-  
+
   #logo {
     display: contents;
     img {
