@@ -142,20 +142,20 @@ export default class DataFetcher{
                 promises.push(p)                
             }
         }
-
         
-        // problem fix https://github.com/vi-sense/vi-sense/issues/114
+        // fixed https://github.com/vi-sense/vi-sense/issues/114
         let thisGet = Date.now()
         this._lastGet = thisGet
         
         return Promise.all(promises).then(()=>{
+            if(this._lastGet != thisGet) return
+
             let result = []
             for(let hash=minHash-1; hash<maxHash+1; hash++){                
                 let d = this.map.get(hash)
                 result.push(...d)
             }  
-
-            if(this._lastGet == thisGet) return result
+            return result
         })
     }
 }
