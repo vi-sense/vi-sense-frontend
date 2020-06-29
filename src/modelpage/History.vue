@@ -1,9 +1,12 @@
 <template lang="html">
     <div class="history" v-if="anomaliesLoaded">
-        <v-card class="my-1" v-for="(anomaly, index) in anomalies" :key="index"  :style="`border-left: 5px solid ${getSensorColor(anomaly.start_data.sensor_id)}!important`">
+        <v-card v-for="(anomaly, index) in anomalies" :key="index">
             <v-container class="pa-0">
                 <v-row align="center" justify="start" :no-gutters="true">
-                    <v-col cols="10">
+                    <v-col cols="1">
+                        <span :style="`font-size:2rem; color:${sensor_colors[anomaly.start_data.sensor_id]}`"  class="mdi mdi-alert-circle"></span>
+                    </v-col>
+                    <v-col cols="11">
                         <v-card-title>
                             {{`${sensorsById.get(anomaly.start_data.sensor_id).name}: ${anomaly.type}`}}
                         </v-card-title>
@@ -12,9 +15,6 @@
                         </v-card-subtitle>
                         <v-card-subtitle v-else>{{`${anomaly.start_data.date}`}}</v-card-subtitle>
                     </v-col>
-                    <v-col cols="2">
-                        <v-icon large color="amber accent-4">mdi-alert-circle</v-icon>
-                    </v-col>
                 </v-row>
             </v-container>
         </v-card>
@@ -22,10 +22,10 @@
 </template>
 
 <script>
-    import {getSensorColor} from "../storage/SensorColors";
+    import {SENSOR_COLORS} from '../storage/Settings';
 
     export default {
-        props: ["modelID"],
+        props: ["modelId"],
         data() {
             return {
                 model: null,
@@ -33,11 +33,11 @@
                 anomalies: [],
                 anomaliesLoaded: false,
                 endpoint: process.env.API_URL,
-                getSensorColor: getSensorColor
+                sensor_colors: SENSOR_COLORS
             };
         },
         methods: {
-            async getAnomalies(id) {
+            async getModel(id) {
                 try {
                     const response = await fetch(this.endpoint + "/models/" + id)
                     this.model = await response.json()
@@ -60,17 +60,20 @@
             }
         },
         created() {
-            this.getAnomalies(this.modelID);
+            this.getModel(this.modelId);
         },
         watch: {
             $route() {
-                this.getAnomalies(this.modelID);
+                this.getModel(this.modelId);
             }
         }
     };
 </script>
 
 <style scoped lang="scss">
+    .v-card {
+        margin: 5px
+    }
 
     .v-card__title {
         font-size: 1rem;
