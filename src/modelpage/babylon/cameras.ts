@@ -69,8 +69,10 @@ export function createArcCamera(canvas: HTMLCanvasElement, engine:BABYLON.Engine
     arcCamera.wheelPrecision = 20
 
     storage.onSensorSelectionChanged(() => {
-        let target = getArcCameraTarget()
-        arcCamera.setTarget(target)
+        if(myScene.activeCamera == arcCamera) {
+            let target = getArcCameraTarget()
+            arcCamera.setTarget(target)
+        }
     })
 
     return arcCamera
@@ -148,9 +150,9 @@ export function switchCamera() {
         let a = myScene.beginAnimation(active, 0, 30, false);
 
         let cam = myScene.getCameraByName("floorCam") as FloorCamera;
-        console.log(active.getTarget())
-        console.log(getArcCameraTarget())
-        console.log(cam.getTarget())
+        // console.log(active.getTarget())
+        // console.log(getArcCameraTarget())
+        // console.log(cam.getTarget())
 
         a.onAnimationEnd = () => {
             cam.position = active.position.clone()

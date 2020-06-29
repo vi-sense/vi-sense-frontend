@@ -101,10 +101,11 @@ export default class Storage{
 
     updateInitState(sensorId, state) {
         for (let c of this.#sensorInitCallbacks) {
-            console.log(sensorId, state)
             c(sensorId, state)
         }
     }
+
+    removeCallback() {
+        this.#sensorInitCallbacks.splice(2, 10)
+    }
 }
-
-

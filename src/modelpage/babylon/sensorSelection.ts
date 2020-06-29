@@ -64,7 +64,7 @@ export async function updateSelectedSensor(sensor_id: number, action: String) {
 export async function moveToMesh(scene: BABYLON.Scene, sensor_id: number) {
   let sensor = savedSensors[sensor_id];
   if (!sensor) throw new Error("Did not find a sensor with id: " + sensor_id)
-  let mesh = scene.getMeshByUniqueID((sensor.mesh_id);
+  let mesh = scene.getMeshByUniqueID(sensor.mesh_id);
   if (!mesh) throw new Error("Did not find a mesh with id: " + sensor.mesh_id)
   let target = mesh.getBoundingInfo().boundingSphere.centerWorld;
   focusOnMesh(scene, target);
@@ -81,10 +81,6 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
   storage = STORE;
 
   SELECTABLES = myScene.getNodeByName("selectables").getChildMeshes();
-
-  SELECTABLES.forEach((mesh) => {
-    mesh.isPickable = true
-  })
 
   // setup of highlight layer
   highlight = new BABYLON.HighlightLayer("highlight", myScene);
@@ -109,39 +105,41 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
   storage.registerOnUpdateCallback(SKEYS.INIT_SENSOR, (id) => {
     if (id == null) {
       SELECTABLES.forEach((mesh) => {
+        mesh.isPickable = false
         highlight.removeMesh(mesh.subMeshes[0].getRenderingMesh());
-        mesh.actionManager.actions.splice(0, 1)
+        mesh.actionManager.actions.splice(0, 1);
       })
     }
     else {
       SELECTABLES.forEach((mesh) => {
+        mesh.isPickable = true
         highlight.addMesh(mesh.subMeshes[0].getRenderingMesh(), BABYLON.Color3.White());
         mesh.actionManager = new BABYLON.ActionManager(myScene);
         mesh.actionManager.registerAction(
           new BABYLON.ExecuteCodeAction(
             BABYLON.ActionManager.OnPickTrigger, async function (e) {
-              // START CALLBACK TO POPUP
               storage.updateInitState(id, 'mesh_picked')
 
               storage.onInitStateChanged(async (id, state) => {
                 if(state === "confirmed") {
-
                   let selectedSensors = storage.getSelectedSensors()
                   selectedSensors.forEach((sensor) => {
                     storage.unselectSensor(sensor)
                   })
 
-                  if (savedSensors[id] && savedSensors[id].mesh_id) {
-                    console.log(savedSensors[id].mesh_id)
-                    let prevMesh = scene.getMeshByUniqueID(savedSensors[id].mesh_id)
-                    prevMesh.material = scene.getMaterialByName("Mat");
+                  if (savedSensors[id] && savedSensors[id].mesh_id != null) {
+                    // REPOSITION A SENSOR
+                    let prevMesh = myScene.getMeshByUniqueID(savedSensors[id].mesh_id)
+                    prevMesh.material = myScene.getMaterialByName("Mat");
                     prevMesh.metadata.sensor_id = null;
                   }
-
-                  if (mesh.metadata.sensor_id) {
-                    console.log("was already set; removing sensor from this mesh");
-                    updateSensorMeshID(mesh.metadata.sensor_id, null);
+                  
+                  if (mesh.metadata.sensor_id && mesh.metadata.sensor_id != null) {
+                    // OVERRIDE A MESH WITH ANOTHER SENSOR
+                    await updateSensorMeshID(mesh.metadata.sensor_id, null);
                   }
+
+                  // SIMPLY INIT SENSOR
                   await updateSensorMeshID(id, mesh.uniqueId);
                   mesh.metadata.sensor_id = id;
                   storage.updateInitState(id, 'updated');
@@ -154,10 +152,10 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
                   for (const prop of Object.getOwnPropertyNames(savedSensors)) {
                     delete savedSensors[prop];
                   }
+                  storage.removeCallback();
                   addUIElements(modelID);
                 }
               })
-
         }));
       })
     }
@@ -169,13 +167,12 @@ async function addUIElements(modelID: number) {
   let model = await getModelData(modelID);
   let sensors = model.sensors;
   advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
-
   for (let i = 0; i < sensors.length; i++) {
     if (sensors[i].mesh_id == null || sensors[i].mesh_id == "") continue;
     savedSensors[sensors[i].id] = sensors[i]
 
     let mesh: BABYLON.AbstractMesh;
-    mesh = myScene.getMeshByUniqueID((sensors[i].mesh_id);
+    mesh = myScene.getMeshByUniqueID(sensors[i].mesh_id);
     if(!mesh) {
       console.log("Did not find a mesh with id: " + sensors[i].mesh_id);
       continue;
@@ -183,7 +180,7 @@ async function addUIElements(modelID: number) {
 
     mesh.metadata.sensor_id = sensors[i].id;
 
-    if (i == 1) {
+    if (i == 0) {
       defaultMat = mesh.material
     }
 
@@ -292,10 +289,10 @@ async function addUIElements(modelID: number) {
   myScene.metadata.savedSensors = savedSensors;
 }
 
-export function turnArrow(sensorId, gradient){
-  if(gradient === undefined){
+export function turnArrow(sensorId, gradient) {
+  if(gradient === undefined) {
     sensorLabels[sensorId].arrow.alpha = 0
-  }else{
+  } else{
     sensorLabels[sensorId].arrow.alpha = 1
     sensorLabels[sensorId].arrow.rotation = -Math.atan(gradient)
   }

@@ -4,7 +4,7 @@
             <v-expansion-panel :key="sensor.id" :style="`border-left: 5px solid ${sensor_colors[sensor.id]}!important`"
                                v-for="sensor in sensorData">
                 <v-expansion-panel-header disable-icon-rotate>
-                    <v-checkbox class="pr-1 mt-0" hide-details dense :id="'sensorcheckbox'  + sensor.id" :value="sensor.id" color="rgba(82, 186, 162, 1)"
+                    <v-checkbox class="pr-1 mt-0" hide-details :disabled="sensor.mesh_id == null" dense :id="'sensorcheckbox' + sensor.id" :value="sensor.id" color="rgba(82, 186, 162, 1)"
                                 multiple v-model="selectedSensors" @change="updateSensorSelection(sensor.id)"
                     >
                     </v-checkbox>
@@ -82,6 +82,11 @@
         },
         created() {
             this.loadSensorData(this.modelID);
+            this.STORE.onInitStateChanged(async (id, state) => {
+                    if(state === "updated") {
+                        this.loadSensorData(this.modelID);
+                    }
+                })
 
             this.STORE.onSensorSelectionChanged((sensorId, action) => {
                 if (action === "new") {
@@ -112,9 +117,6 @@
                         const newSensorData = await newSensorRes.json()
                         this.model.sensors.find((sensor) => sensor.id === id).mesh_id = newSensorData.mesh_id
                     }
-                })
-                this.STORE.registerOnUpdateCallback(SKEYS.INIT_SENSOR, async (sensorID) =>{
-                    console.log("auch noch da hihihihi")
                 })
             },
             loadSensorData(id) {
