@@ -5,7 +5,7 @@
 import DataFetcher from "./DataFetcher.js"
 
 import * as d3 from 'd3'
-import {getSensorColor} from "../../storage/SensorColors";
+import { SENSOR_COLORS } from '../../storage/Settings';
 
 //const SENSOR_COLORS = d3.schemeCategory10 // position mapped to sensorId
 
@@ -23,7 +23,7 @@ export default class SensorGraph{
         this.xScale = xScale
         this.yScale = yScale
         this.sensorId = sensorId
-        this.color = getSensorColor(sensorId)
+        this.color = SENSOR_COLORS[sensorId]
         this.data = []
         this.dataFetcher = new DataFetcher(sensorId)
 

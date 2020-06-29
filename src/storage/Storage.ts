@@ -85,29 +85,6 @@ export default class Storage{
             this.#sensorSelectionCallbacks.push(callback)
         else throw new Error("Thats not a callback function")
     }
-
-
-
-
-
-
-    #sensorInitCallbacks = []
-
-    onInitStateChanged(callback: (sensorId: number, state: String) => void) {
-        if (callback instanceof Function)
-            this.#sensorInitCallbacks.push(callback)
-        else throw new Error("Thats not a callback function")
-    }
-
-    updateInitState(sensorId, state) {
-        for (let c of this.#sensorInitCallbacks) {
-            c(sensorId, state)
-        }
-    }
-
-    // hacky way to remove all callbacks that should only be used once
-    // the callbacks initialized for every mesh in setupSensorSelection would be called for every init state change otherwise
-    removeCallbacks() {
-        this.#sensorInitCallbacks.splice(2, 10)
-    }
 }
+
+

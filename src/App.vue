@@ -28,7 +28,6 @@ html {
 html, body, #app{
   width: 100%;
   height: 100%;
-    font-size: small;
 }
 
 #app{
@@ -37,5 +36,4 @@ html, body, #app{
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
 }
-
 </style>
