@@ -59,11 +59,11 @@ export default class Anomalie {
                 }
             }
             else {
-                // TODO 1 datapoint anomalie 
+                // TODO visualize 1 datapoint anomalie 
             }
         }   
-        else if(data.type == UPGRADIENT){}
-        else if(data.type == DOWNGRADIENT){}
-        else console.log("anomaly type not valid")
+        else if(data.type==UPGRADIENT || data.type == DOWNGRADIENT){
+
+        }
     }
 }
