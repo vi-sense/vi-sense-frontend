@@ -43,7 +43,6 @@
         return {
             dialog: false,
             sensor_id: null,
-            action: "position"
         }
         },
         mounted() {
@@ -62,7 +61,7 @@
             },
             cancel() {
                 this.dialog = false;
-                this.STORE.removeCallback()
+                this.STORE.removeCallbacks()
             }
         }
     }

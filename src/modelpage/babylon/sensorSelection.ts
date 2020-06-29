@@ -149,7 +149,7 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
                   for (const prop of Object.getOwnPropertyNames(savedSensors)) {
                     delete savedSensors[prop];
                   }
-                  storage.removeCallback();
+                  storage.removeCallbacks();
                   addUIElements(modelID);
                 }
               })

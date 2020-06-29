@@ -146,27 +146,14 @@ export function switchCamera() {
         animateRadius.setKeys(radiusKeys);
         animateRadius.setEasingFunction(ease);
         active.animations.push(animateRadius);
-
         let a = myScene.beginAnimation(active, 0, 30, false);
 
-        let cam = myScene.getCameraByName("floorCam") as FloorCamera;
-        // console.log(active.getTarget())
-        // console.log(getArcCameraTarget())
-        // console.log(cam.getTarget())
-
         a.onAnimationEnd = () => {
+            let cam = myScene.getCameraByName("floorCam") as FloorCamera;
             cam.position = active.position.clone()
             cam.fixedY = cam.position.clone().y;
-
-            // let direction = active.getTarget().subtract(active.position.clone())
-            // let distance = direction.length() + 1;
-            // direction.normalize();
-            // direction.scaleInPlace(distance);
-            // let target = active.position.add(direction);
-
-            myScene.activeCamera = cam;
-            
             cam.setTarget(getArcCameraTarget());
+            myScene.activeCamera = cam;
         };
     }
 }

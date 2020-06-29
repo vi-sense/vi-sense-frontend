@@ -105,7 +105,9 @@ export default class Storage{
         }
     }
 
-    removeCallback() {
+    // hacky way to remove all callbacks that should only be used once
+    // the callbacks initialized for every mesh in setupSensorSelection would be called for every init state change otherwise
+    removeCallbacks() {
         this.#sensorInitCallbacks.splice(2, 10)
     }
 }
