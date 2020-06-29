@@ -7,12 +7,9 @@ import { SENSOR_COLORS } from '../../storage/Settings';
 import SKEYS from "../../storage/StorageKeys";
 
 const API_URL = process.env.API_URL;
-const sensorColor = BABYLON.Color3.Purple();
-const selectedSensorColor = BABYLON.Color3.Teal();
 
 var SELECTABLES: BABYLON.AbstractMesh[];
 var advancedTexture: GUI.AdvancedDynamicTexture;
-var defaultMat: BABYLON.Material;
 
 var myScene: BABYLON.Scene;
 var storage: Storage;
@@ -179,11 +176,7 @@ async function addUIElements(modelID: number) {
     }
 
     mesh.metadata.sensor_id = sensors[i].id;
-
-    if (i == 0) {
-      defaultMat = mesh.material
-    }
-
+    
     //QPRJU9#12 - sine water flow
     //QPRJU9#16 - sine color change
     //JN2BSF#54 - turbulence fire
