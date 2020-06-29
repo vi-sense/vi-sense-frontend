@@ -2,10 +2,17 @@
  * @author Tom Wendland
  */
 
- // const API_URL = process.env.API_URL  
+// import * as d3 from 'd3'
+// import { SENSOR_COLORS } from '../../storage/Settings';
+// const API_URL = process.env.API_URL  
 
 const API_URL = "https://visense.f4.htw-berlin.de:44344"
+const SENSOR_COLORS = d3.schemeCategory10 
 
+const ABOVE = "Above Upper Limit"
+const BELOW = "Below Upper Limit"
+const UPGRADIENT = "High Upward Gradient"
+const DOWNGRADIENT = "High Downward Gradient"
 
 export default class Anomalie {
     
@@ -22,25 +29,41 @@ export default class Anomalie {
         this.data = data 
 
         this.rect = parentElement.append("rect")
-        .attr("stroke", "red")     
-        .style("fill", "none")
-
-        console.log(data);
+        .style("fill", SENSOR_COLORS[this.data.start_data.sensor_id])
+        .style("opacity", 0.3)
+        console.log(this.data);
 
         this.redraw()
     }
 
     redraw(){    
-        let s = new Date(this.data.start_data.date)
-        let e = new Date(this.data.end_data.date) 
-        s = new Date(2020, 5, 23)
-        e = new Date(2020, 5, 24) 
-        let ss = this.xScale(s)
+        let data = this.data
 
-        this.rect
-        .attr("x", ss)
-        .attr("width",  this.xScale(e)-ss)
-        .attr("y", this.yScale(Math.min(this.data.start_data.value, this.data.end_date.value)))
-        .attr("height", Math.abs(this.data.start_data.value-this.data.end_date.value))
+        if(data.type==ABOVE || data.type==BELOW){
+            if(data.end_data){
+                let s = new Date(data.start_data.date)
+                let e = new Date(data.end_data.date) 
+                let ss = this.xScale(s)
+    
+                this.rect
+                .attr("x", ss)
+                .attr("width",  this.xScale(e)-ss)
+                
+                if(data.type==ABOVE){
+                    this.rect.attr("y", this.yScale(data.peak_data.value))              
+                    this.rect.attr("height", this.yScale(Math.min(data.start_data.value, data.end_data.value)) - this.yScale(data.peak_data.value)) 
+                }
+                else if(data.type==BELOW) {
+                    this.rect.attr("y", this.yScale(Math.max(data.start_data.value, data.end_data.value)))   
+                    this.rect.attr("height", this.yScale(data.peak_data.value))            
+                }
+            }
+            else {
+                // TODO 1 datapoint anomalie 
+            }
+        }   
+        else if(data.type == UPGRADIENT){}
+        else if(data.type == DOWNGRADIENT){}
+        else console.log("anomaly type not valid")
     }
 }

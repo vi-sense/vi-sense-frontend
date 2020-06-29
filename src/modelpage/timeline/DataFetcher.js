@@ -13,7 +13,7 @@
 
 const API_URL = "https://visense.f4.htw-berlin.de:44344"
 
-const CHUCK_SIZE = 4*24*60*60*1000 // 3 d
+const CHUCK_SIZE = 7*24*60*60*1000 // 1 week
 const RT_PAUSE = 2*60*1000 // 2 min pause between realtime calls
 
 
@@ -136,7 +136,7 @@ export default class DataFetcher{
         // Return option 2: return the data chunks based on the domain
         // load a data chunk from storage variable or fetch it from server 
         let promises = []        
-        for(let hash=minHash-2; hash<maxHash+2; hash++){
+        for(let hash=minHash-4; hash<maxHash+4; hash++){
             if(!this.map.has(hash)){
                 let p = this._fetchHashChunk(hash)
                 promises.push(p)                
