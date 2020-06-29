@@ -1,7 +1,7 @@
 <template>
     <div>
         <v-expansion-panels focusable accordion>
-            <v-expansion-panel :key="sensor.id" :style="`border-left: 5px solid ${sensor_colors[sensor.id]}!important`"
+            <v-expansion-panel :key="sensor.id" :style="`border-left: 5px solid ${sensorColor(sensor.id)}!important`"
                                v-for="sensor in sensorData">
                 <v-expansion-panel-header disable-icon-rotate>
                     <v-checkbox class="pr-1 mt-0" hide-details dense :id="'sensorcheckbox'  + sensor.id" :value="sensor.id" color="rgba(82, 186, 162, 1)"
@@ -60,8 +60,8 @@
 <script>
     import axios from "axios";
     import SKEYS from "../storage/StorageKeys";
-    import {SENSOR_COLORS} from "../storage/Settings";
     import SensorLimits from "./SensorLimits";
+    import {getSensorColor} from "../storage/SensorColors";
 
     export default {
         components: {SensorLimits},
@@ -72,7 +72,7 @@
                 checkboxes: [],
                 sensorData: [],
                 selectedSensors: [],
-                sensor_colors: SENSOR_COLORS,
+                sensorColor: getSensorColor,
                 endpoint: process.env.API_URL + "/",
                 temp_min: 10,
                 temp_max: 80,

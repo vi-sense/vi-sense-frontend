@@ -1,6 +1,6 @@
 <template lang="html">
     <div class="history" v-if="anomaliesLoaded">
-        <v-card class="my-1" v-for="(anomaly, index) in anomalies" :key="index"  :style="`border-left: 5px solid ${sensor_colors[anomaly.start_data.sensor_id]}!important`">
+        <v-card class="my-1" v-for="(anomaly, index) in anomalies" :key="index"  :style="`border-left: 5px solid ${getSensorColor(anomaly.start_data.sensor_id)}!important`">
             <v-container class="pa-0">
                 <v-row align="center" justify="start" :no-gutters="true">
                     <v-col cols="10">
@@ -22,7 +22,7 @@
 </template>
 
 <script>
-    import {SENSOR_COLORS} from '../storage/Settings';
+    import {getSensorColor} from "../storage/SensorColors";
 
     export default {
         props: ["modelID"],
@@ -33,7 +33,7 @@
                 anomalies: [],
                 anomaliesLoaded: false,
                 endpoint: process.env.API_URL,
-                sensor_colors: SENSOR_COLORS
+                getSensorColor: getSensorColor
             };
         },
         methods: {

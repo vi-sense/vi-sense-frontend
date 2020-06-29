@@ -3,8 +3,8 @@ import * as GUI from "babylonjs-gui";
 import Storage from '../../storage/Storage';
 import { focusOnMesh } from './focusOnMesh';
 import { PulseShader, GradientShader } from './shaders';
-import { SENSOR_COLORS } from '../../storage/Settings';
 import SKEYS from "../../storage/StorageKeys";
+import {getSensorColor} from "../../storage/SensorColors";
 
 const API_URL = process.env.API_URL;
 const sensorColor = BABYLON.Color3.Purple();
@@ -206,7 +206,7 @@ async function addUIElements(modelID: number) {
     circle.width = "30px";
     circle.height = "30px";
     circle.alpha = 1;
-    circle.background = SENSOR_COLORS[sensors[i].id];
+    circle.background = getSensorColor(sensors[i].id);
     circle.addControl(arrow)
     circle.isPointerBlocker = true;
     circle.hoverCursor = "pointer"
@@ -240,8 +240,7 @@ async function addUIElements(modelID: number) {
     stackPanel.addControl(rect);
     stackPanel.linkWithMesh(mesh);
 
-    sensorLabels[sensors[i].id] = { rect: rect, arrow: arrow, circle: circle, color: SENSOR_COLORS[sensors[i].id] };
-
+    sensorLabels[sensors[i].id] = { rect: rect, arrow: arrow, circle: circle, color: getSensorColor(sensors[i].id) };
     // REGISTER MESH ACTIONS
     // mesh.actionManager = new BABYLON.ActionManager(scene);
     // mesh.actionManager.registerAction(

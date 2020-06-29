@@ -1,8 +1,15 @@
 import {scaleOrdinal, schemeTableau10} from 'd3'
 
-export default function getSensorColors(sensorIDs: []){
+let ordinalScale;
+
+export function registerSensorColors(sensorIDs: []){
     const sortedSensorIDs = sensorIDs.sort()
-    const ordinalScale = scaleOrdinal(schemeTableau10)
+    ordinalScale = scaleOrdinal(schemeTableau10)
     ordinalScale.domain(sortedSensorIDs)
-    return ordinalScale
+    ordinalScale.unknown("")
+}
+export function getSensorColor(sensorID) {
+    if(ordinalScale){
+        return ordinalScale(sensorID)
+    }
 }

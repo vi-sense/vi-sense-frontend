@@ -35,6 +35,7 @@ import InformationPane from "./InformationPane";
 import OptionPane from "./OptionPane";
 import Storage from "../storage/Storage";
 import History from "./History";
+import {registerSensorColors} from "../storage/SensorColors";
 
 export default {
   props: ["id"],
@@ -54,6 +55,7 @@ export default {
     };
     this.getModelData(this.id).then(res=>{
       this.title = res.name
+      registerSensorColors(res.sensors.map(sensor => sensor.id))
     })     
   },
   mounted() {
