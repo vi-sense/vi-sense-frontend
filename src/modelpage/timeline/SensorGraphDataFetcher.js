@@ -71,6 +71,8 @@ export default class SensorGraphDataFetcher{
             end = new Date() // because our data is fake and already exists for time that did not passed yet we have to limit the fetching by Date.now()    
 
         if(start > end) return
+        
+        this.map.set(hash, null)
 
         return this._apiCall(this._toStartEndApiURL(start, end)).then(data => {   
             this.map.set(hash, data)

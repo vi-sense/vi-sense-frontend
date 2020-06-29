@@ -8,8 +8,10 @@ import Anomalie from "./Anomalie.js";
 import * as d3 from 'd3'
 import moment from 'moment';
 import { turnArrow } from "../babylon/sensorSelection"
+const API_URL = process.env.API_URL  
 
 //const API_URL = "https://visense.f4.htw-berlin.de:44344"
+
 
 
 

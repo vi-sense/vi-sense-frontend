@@ -33,7 +33,8 @@ export function loadModel(id: number, scene: BABYLON.Scene, callback: (meshes: B
             case 4: url = 'gltf/pgn-model/'; break
             default: throw new Error("model id is not defined or not valid")
         }
-
+        url = 'gltf/facility-mechanical-room/'
+        
         BABYLON.SceneLoader.ImportMesh("", url, "scene.gltf", scene, (meshes, particleSystems, skeletons) => {
             let buildingModel = <BABYLON.Mesh> meshes[0]
             //normalize(buildingModel)
