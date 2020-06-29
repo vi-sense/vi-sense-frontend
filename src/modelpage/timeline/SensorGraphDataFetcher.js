@@ -1,25 +1,23 @@
 /**
  * @author Tom Wendland
  * @description 
- * the main function of this class is DataFetcher.get() which is returning the data corresponding to the given time range with a offset in both directions
+ * this class handles fetching and storing of sensor data
+ * the main function is DataFetcher.get(), returning the data to the given time range with a offset in both directions
  * if the requestet data is not fetched yet, it will be fetched and saved locally 
  * if the requested data is already fetched, it will return the lolca data
  * by that, d3 is never showing the whole data but only a excerpt. this increases the performance a lot 
- * 
- * Bugs
- * - wenn daten für einen chunk geladen werden, wird nicht geprüft, ob auch alle daten in den hash gehören oder eigentlich schon zum nächsten gehören würden
  */
 
 import moment from 'moment';
 const API_URL = process.env.API_URL  
 
-//const API_URL = "https://visense.f4.htw-berlin.de:44344"
+// const API_URL = "https://visense.f4.htw-berlin.de:44344"
 
-const CHUCK_SIZE = 3*24*60*60*1000 // 3 d
+const CHUCK_SIZE = 7*24*60*60*1000 // 1 week
 const RT_PAUSE = 2*60*1000 // 2 min pause between realtime calls
 
 
-export default class DataFetcher{
+export default class SensorGraphDataFetcher{
 
     constructor(sensorId){
         this.sensorId = sensorId
@@ -60,8 +58,9 @@ export default class DataFetcher{
      * @param {Date} start 
      * @param {Date} end 
      */
-    _toStartEndApiURL(start, end){
-        return API_URL + `/sensors/${this.sensorId}/data?limit=${200}&start_date=${this._dateFormat(start)}&end_date=${this._dateFormat(end)}`
+    _toStartEndApiURL(start, end){        
+        let s = API_URL + `/sensors/${this.sensorId}/data?density=${2}&start_date=${this._dateFormat(start)}&end_date=${this._dateFormat(end)}`        
+        return s
     }
 
     async _fetchHashChunk(hash) {
@@ -71,7 +70,9 @@ export default class DataFetcher{
         if(end > Date.now()) 
             end = new Date() // because our data is fake and already exists for time that did not passed yet we have to limit the fetching by Date.now()    
 
-        return this._apiCall(this._toStartEndApiURL(start, end)).then(data => {            
+        if(start > end) return
+
+        return this._apiCall(this._toStartEndApiURL(start, end)).then(data => {   
             this.map.set(hash, data)
         })
     }
@@ -95,14 +96,14 @@ export default class DataFetcher{
 
     async _apiCall(requestURL){
         return fetch(requestURL)
-        .catch(error => { console.log(error) })
         .then(res => { return res.json() })
         .then(json => { return json.map(d => { return {date: new Date(d.date), value: d.value}}) }) 
+        //.catch(error => { console.log(error) })
     }
 
     /**
-     * 
-     * @param {*} callback only called when new data was loaded 
+     * checking if new realtime data is available and if yes fetching it
+     * @param {*} callback only called when new realtime data was fetched
      */
     checkAndUpdateRealtimeData(callback){
         let now = new Date()
@@ -126,8 +127,8 @@ export default class DataFetcher{
         let maxHash = this._hash(domain[1].getTime())
 
         // Return option 1: return empty promise if domain did not change and realtime update not available
-        if(!this._rtUpdateAvailable && this._lastMinHash && this._lastMinHash <= minHash && this._lastMaxHash >= maxHash){
-            return new Promise((resolve, reject) => {
+        if(!this._rtUpdateAvailable && this._lastMinHash <= minHash && this._lastMaxHash >= maxHash){
+            return new Promise(resolve => {
                 resolve(null)
             })
         }
@@ -135,23 +136,28 @@ export default class DataFetcher{
         this._lastMaxHash = maxHash
         this._rtUpdateAvailable = false
 
-
         // Return option 2: return the data chunks based on the domain
         // load a data chunk from storage variable or fetch it from server 
         let promises = []        
-        for(let hash=minHash-2; hash<maxHash+2; hash++){
+        for(let hash=minHash-4; hash<maxHash+4; hash++){
             if(!this.map.has(hash)){
                 let p = this._fetchHashChunk(hash)
                 promises.push(p)                
             }
         }
         
+        // fixed https://github.com/vi-sense/vi-sense/issues/114
+        let thisGet = Date.now()
+        this._lastGet = thisGet
+        
         return Promise.all(promises).then(()=>{
+            if(this._lastGet != thisGet) return
+
             let result = []
             for(let hash=minHash-1; hash<maxHash+1; hash++){                
                 let d = this.map.get(hash)
                 result.push(...d)
-            }    
+            }  
             return result
         })
     }

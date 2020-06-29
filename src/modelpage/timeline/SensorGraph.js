@@ -2,7 +2,7 @@
  * @author Tom Wendland
  */
 
-import DataFetcher from "./DataFetcher.js"
+import SensorGraphDataFetcher from "./SensorGraphDataFetcher.js"
 
 import * as d3 from 'd3'
 import { SENSOR_COLORS } from '../../storage/Settings';
@@ -15,22 +15,22 @@ export default class SensorGraph{
     /**
      * 
      * @param {Number} sensorId 
-     * @param {*} svgParent 
+     * @param {*} parentElement 
      * @param {*} xScale 
      * @param {*} yScale 
      */
-    constructor(sensorId, svgParent, xScale, yScale) {
+    constructor(sensorId, parentElement, xScale, yScale) {
         this.xScale = xScale
         this.yScale = yScale
         this.sensorId = sensorId
         this.color = SENSOR_COLORS[sensorId]
         this.data = []
-        this.dataFetcher = new DataFetcher(sensorId)
+        this.dataFetcher = new SensorGraphDataFetcher(sensorId)
 
         this.line = d3.line()
             .defined(d => !isNaN(d.value) && !isNaN(d.date))
 
-        this.path = svgParent.append("path")
+        this.path = parentElement.append("path")
             .datum(this.data)
             .attr("fill", "none")
             .attr("stroke", this.color)
