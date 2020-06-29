@@ -9,7 +9,7 @@ import { degToRad } from './utils';
  */
 export function loadModel(id: number, scene: BABYLON.Scene, callback: (meshes: BABYLON.AbstractMesh[]) => void, loadFromLocalFS: boolean = false) {
     
-    if(loadFromLocalFS === false){
+    if(loadFromLocalFS === true){
         let API_URL = process.env.API_URL
         fetch(API_URL + "/models/" + id).then(response => {
             response.json().then(bodyData => {
@@ -27,10 +27,9 @@ export function loadModel(id: number, scene: BABYLON.Scene, callback: (meshes: B
         id = parseInt(""+id) // vue probs is a string, typechecking not working here
         var url: string
         switch(id){
-            case 1: url = 'gltf/facility-mechanical-room/'; break
-            case 2: url = 'gltf/mep-building-model/'; break
-            case 3: url = 'gltf/overhead-mep-installation/'; break
-            case 4: url = 'gltf/pgn-model/'; break
+            case 1: url = 'gltf/office/'; break
+            case 2: url = 'gltf/facility-mechanical-room/'; break
+            case 3: url = 'gltf/house-complex/'; break
             default: throw new Error("model id is not defined or not valid")
         }
 
