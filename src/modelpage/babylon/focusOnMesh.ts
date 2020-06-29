@@ -53,7 +53,3 @@ export async function focusOnMesh(scene: BABYLON.Scene, target: BABYLON.Vector3)
         //camera.fixedY = targetWithDistance.y;
     };
 };
-
-export function smoothCameraChange(scene: BABYLON.Scene, target: BABYLON.Vector3) {
-
-}

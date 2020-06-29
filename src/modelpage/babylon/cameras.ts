@@ -117,6 +117,9 @@ export function switchCamera() {
         let target = getArcCameraTarget()
         
         cam.setTarget(target)
+        cam.fov = active.fov;
+        cam.minZ = active.minZ;
+        cam.maxZ = active.maxZ;
         myScene.activeCamera = cam;
         /*
         let animateTarget = new BABYLON.Animation("anim4", "lockedTarget", 30, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
@@ -153,6 +156,9 @@ export function switchCamera() {
             cam.position = active.position.clone()
             cam.fixedY = cam.position.clone().y;
             cam.setTarget(getArcCameraTarget());
+            cam.fov = active.fov;
+            cam.minZ = active.minZ;
+            cam.maxZ = active.maxZ;
             myScene.activeCamera = cam;
         };
     }

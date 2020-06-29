@@ -5,9 +5,9 @@
       max-width="290"
     >
       <v-card>
-        <v-card-title class="headline">Position sensor {{ sensor_id }}</v-card-title>
+        <v-card-title class="headline">Set Sensor Position</v-card-title>
 
-        <v-card-text>Are you sure you want to position the sensor {{ sensor_id }} on the selected mesh?</v-card-text>
+        <v-card-text>Are you sure you want to position the sensor {{ sensor_name }} on the selected mesh?</v-card-text>
 
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -41,13 +41,20 @@
         props: ["popUp", "STORE"],
         data () {
         return {
+            endpoint: process.env.API_URL + "/",
             dialog: false,
             sensor_id: null,
+            sensor_name: "",
         }
         },
         mounted() {
-            this.STORE.onInitStateChanged((id, state) => {
-                this.sensor_id = id
+            this.STORE.onInitStateChanged(async (id, state) => {
+                if(this.sensor_id != id) {
+                  this.sensor_id = id
+                  const sensor = await fetch(this.endpoint + "sensors/" + id)
+                  const sensorData = await sensor.json()
+                  this.sensor_name = sensorData.name;
+                }
                 if(state === "mesh_picked") {
                     this.dialog = true
                 }
