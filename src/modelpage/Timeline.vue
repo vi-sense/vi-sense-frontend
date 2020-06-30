@@ -2,10 +2,11 @@
   <div>
     <div id="chartWrapper"></div>
     <div id="tools">
-      <img class="iconBtn" id="btnPlay" alt="play/pause" src="src\assets\playIcon.png">
+      <v-icon large id="btnPlay" alt="play/pause">mdi-play</v-icon>
+<!--      <img class="iconBtn" id="btnPlay" alt="play/pause" src="src\assets\playIcon.png">-->
       <img class="iconBtn" id="btnMove" alt="move tool" src="src\assets\moveIcon.png">
       <img class="iconBtn" id="btnSelect" alt="selection tool" src="src\assets\selectionIcon.png">
-      <v-icon>fas fa-list</v-icon>
+<!--      <v-icon>fas-fa-list</v-icon>-->
     </div>
   </div>
 </template>
