@@ -13,21 +13,20 @@
                     <v-tooltip bottom max-width="20rem">
                         <template #activator="{ on, attrs }">
                             <v-icon class="px-1"
-                                    small
                                     v-bind="attrs"
                                     v-on="on"
-                            >mdi-help-circle</v-icon>
+                            >mdi-help-circle-outline</v-icon>
                         </template>
                         <span>{{sensor.description}}</span>
                     </v-tooltip>
                     <v-tooltip v-if="sensor.mesh_id" bottom>
                         <template #activator="{ on, attrs }">
                             <v-icon @click.prevent="startCameraMove(sensor.id)"
-                                    color="rgba(82, 186, 162, 1)"
                                     v-bind="attrs"
                                     v-on="on"
-                            >mdi-arrow-right-circle</v-icon>
+                            >mdi-arrow-right-circle-outline</v-icon>
                         </template>
+<!--                                    color="rgba(82, 186, 162, 1)"-->
                         <span>Go To Sensor</span>
                     </v-tooltip>
                         <v-tooltip v-else bottom>
@@ -36,7 +35,7 @@
                                     color="amber accent-4"
                                     v-bind="attrs"
                                     v-on="on"
-                            >mdi-alert-circle</v-icon>
+                            >mdi-alert-circle-outline</v-icon>
                         </template>
                         <span>Please set sensor position</span>
                     </v-tooltip>

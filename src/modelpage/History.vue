@@ -16,7 +16,7 @@
                             </v-card-subtitle>
                         </v-col>
                         <v-col cols="3" style="text-align: center">
-                            <v-icon  large color="amber accent-4">mdi-alert-circle</v-icon>
+                            <v-icon  large color="amber accent-4">mdi-alert-circle-outline</v-icon>
                         </v-col>
                     </v-row>
                 </v-container>
