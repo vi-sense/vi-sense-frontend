@@ -10,7 +10,7 @@ import moment from 'moment';
 import { turnArrow } from "../babylon/sensorSelection"
 
 const API_URL = process.env.API_URL  
-const SOLOTEST = true
+const SOLOTEST = false
 
 
 
