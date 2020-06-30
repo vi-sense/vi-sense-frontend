@@ -10,7 +10,7 @@ import moment from 'moment';
 import { turnArrow } from "../babylon/sensorSelection"
 
 const API_URL = process.env.API_URL  
-const SOLOTEST = false
+const SOLOTEST = true
 
 
 
@@ -470,10 +470,7 @@ const Timeline = (function(parentElement){
             return yScale.domain()
         },
         centerToDate(date){
-            let c = (xScaleRef(xScale.domain()[0]) + xScaleRef(xScale.domain()[1])) / 2               
-            let dx = xScaleRef(date)-c            
-
-            zoom.translateTo(svg, dx, 0)
+            zoom.translateTo(svg, xScaleRef(date))
         }
     }
 })
