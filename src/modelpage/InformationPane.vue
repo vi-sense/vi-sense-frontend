@@ -82,7 +82,7 @@
             this.STORE.onSensorSelectionChanged((sensorId, action) => {
                 if (action === "new" && !this.selectedSensors.includes(sensorId)) {
                     this.selectedSensors.push(sensorId)
-                } else if(action === "remove") {
+                } else if(action === "removed") {
                     this.selectedSensors = this.selectedSensors.filter(id => id !== sensorId)
                 }
             });
