@@ -2,9 +2,11 @@
   <div>
     <div id="chartWrapper"></div>
     <div id="tools">
-      <img class="iconBtn" id="btnPlay" alt="play/pause" src="src\assets\playIcon.png">
+      <v-icon large id="btnPlay" alt="play/pause">mdi-play</v-icon>
+<!--      <img class="iconBtn" id="btnPlay" alt="play/pause" src="src\assets\playIcon.png">-->
       <img class="iconBtn" id="btnMove" alt="move tool" src="src\assets\moveIcon.png">
       <img class="iconBtn" id="btnSelect" alt="selection tool" src="src\assets\selectionIcon.png">
+<!--      <v-icon>fas-fa-list</v-icon>-->
     </div>
   </div>
 </template>
@@ -28,9 +30,12 @@
     padding: 8px;
     padding-top: 12px;
 
-    .iconBtn {
+    > * {
       width: 100%;
       cursor: pointer;
+    }
+    > i{
+      height: 20px;
     }
   }
 }
@@ -48,8 +53,9 @@ export default {
   },
   mounted(){      
     let chartWrapper = document.querySelector("#chartWrapper")
-    let timeline = new Timeline(chartWrapper)
-          
+    chartWrapper.innerHTML = "" // clear old svg (in dev)
+
+    let timeline = new Timeline(chartWrapper)      
     this.STORE._timelineInstance = timeline // easiets and lasiest way to pass timeline to options pane
 
     this.STORE.getSelectedSensors((sensorIds)=>{

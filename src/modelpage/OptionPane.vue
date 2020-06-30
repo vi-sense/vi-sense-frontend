@@ -111,19 +111,18 @@ export default {
       }
     },
     mounted(){
-      this._timeline = this.STORE._timelineInstance // set from Timeline.vue
-      this.ydomain = [...this._timeline.getDomainY()]
+      this.ydomain = this.STORE._timelineInstance.getDomainY()
 
       let speed = document.querySelector("#speed")
-      speed.value = this._timeline.getSpeed()
-      speed.oninput = e => { this._timeline .setSpeed(e.target.value) }
+      speed.value = this.STORE._timelineInstance.getSpeed()
+      speed.oninput = e => { this.STORE._timelineInstance.setSpeed(e.target.value) }
     },
     methods: {
       onSliderChanged(key, value) {
         switch(key) {
           case 'fov': changeFOV(value); break;
           case 'clipping': changeCameraClipping(value); break;
-          case 'ydomain' :this._timeline.setDomainY(value[0], value[1]); break;
+          case 'ydomain' : this.STORE._timelineInstance.setDomainY(value[0], value[1]); break;
           default: break;
         }
       },

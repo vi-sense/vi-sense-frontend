@@ -8,8 +8,7 @@ import { degToRad } from './utils';
  * The model can also be loaded from the local filesystem by setting loadFromLocalFS=true. The hard coded id-model mapping correspond to the database
  */
 export function loadModel(id: number, scene: BABYLON.Scene, callback: (meshes: BABYLON.AbstractMesh[]) => void, loadFromLocalFS: boolean = false) {
-    
-    if(loadFromLocalFS === true){
+    if(loadFromLocalFS === false){
         let API_URL = process.env.API_URL
         fetch(API_URL + "/models/" + id).then(response => {
             response.json().then(bodyData => {

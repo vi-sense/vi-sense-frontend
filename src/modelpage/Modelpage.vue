@@ -10,9 +10,9 @@
     <main>
       <div id="sidepane">
         <h3 class="pb-1">Sensors</h3>
-        <information-pane class="pa-1" id="informationpane" :modelID="id" :STORE="STORE"/>
+        <information-pane  class="pa-1" id="informationpane" v-if="model" :model="model" :STORE="STORE" :sensor-colors="sensorColors"/>
         <h3 class="pb-1">Anomalies</h3>
-        <history class="pa-1" id="historypane" :modelID="id"/>
+        <history class="pa-1" id="historypane" v-if="model" :model="model" :s-t-o-r-e="STORE" :sensor-colors="sensorColors"/>
       </div>
 
       <div id="mainpane">
@@ -47,17 +47,23 @@ export default {
   },
   data() {
     return {
+      IS_PRODUCTION: Boolean(process.env.PRODUCTION),
       STORE: new Storage(),
       title: "",
+      model: undefined,
+      sensorColors: Map
     };
   },
   created(){
-    window.onbeforeunload = function () {
+    if(this.IS_PRODUCTION) window.onbeforeunload = function () {
       return "Do you really want to close?";
     };
     this.getModelData(this.id).then(res=>{
+      this.model = res
       this.title = res.name
-      registerSensorColors(res.sensors.map(sensor => sensor.id))
+      const ordinalScale = registerSensorColors(res.sensors.map(sensor => sensor.id))
+      this.sensorColors = new Map()
+      res.sensors.map(sensor => sensor.id).sort().forEach(sensorID => this.sensorColors.set(sensorID, ordinalScale(sensorID)))
     })
   },
   mounted() {
