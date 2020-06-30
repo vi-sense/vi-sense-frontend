@@ -2,10 +2,10 @@
  * @author Tom Wendland
  */
 
-import DataFetcher from "./DataFetcher.js"
+import SensorGraphDataFetcher from "./SensorGraphDataFetcher.js"
 
 import * as d3 from 'd3'
-import { SENSOR_COLORS } from '../../storage/Settings';
+import { getSensorColor } from "../../storage/SensorColors";
 
 //const SENSOR_COLORS = d3.schemeCategory10 // position mapped to sensorId
 
@@ -15,22 +15,22 @@ export default class SensorGraph{
     /**
      * 
      * @param {Number} sensorId 
-     * @param {*} svgParent 
+     * @param {*} parentElement 
      * @param {*} xScale 
      * @param {*} yScale 
      */
-    constructor(sensorId, svgParent, xScale, yScale) {
+    constructor(sensorId, parentElement, xScale, yScale) {
         this.xScale = xScale
         this.yScale = yScale
         this.sensorId = sensorId
-        this.color = SENSOR_COLORS[sensorId]
+        this.color = getSensorColor(sensorId)
         this.data = []
-        this.dataFetcher = new DataFetcher(sensorId)
+        this.dataFetcher = new SensorGraphDataFetcher(sensorId)
 
         this.line = d3.line()
             .defined(d => !isNaN(d.value) && !isNaN(d.date))
 
-        this.path = svgParent.append("path")
+        this.path = parentElement.append("path")
             .datum(this.data)
             .attr("fill", "none")
             .attr("stroke", this.color)
@@ -70,6 +70,7 @@ export default class SensorGraph{
         let index
         if(!this.cachedGradientDates || date < this.cachedGradientDates.lower || date > this.cachedGradientDates.upper){
             index = d3.bisect(this.data.map(d=>d.date), date)
+            if(index <= 1) return undefined
             this.cachedGradientDates = {lower: this.data[index-1].date, upper: this.data[index-1].date, indexUpper: index}
         }else{
             index = this.cachedGradientDates.indexUpper
