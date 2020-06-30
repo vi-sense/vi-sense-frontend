@@ -8,9 +8,9 @@ import Anomalie from "./Anomalie.js";
 import * as d3 from 'd3'
 import moment from 'moment';
 import { turnArrow } from "../babylon/sensorSelection"
-const API_URL = process.env.API_URL  
 
-//const API_URL = "https://visense.f4.htw-berlin.de:44344"
+const API_URL = process.env.API_URL  
+const SOLOTEST = true
 
 
 
@@ -50,6 +50,7 @@ const Timeline = (function(parentElement){
     const _end = new Date()
     _end.setTime(_end.getTime() + 24*60*60*1000)
 
+    // scaling reference https://stackoverflow.com/questions/56553384/d3-v5-axis-scale-change-panning-way-too-much
     const xScaleRef = d3.scaleUtc()
         .range([margin.left, width-margin.right-1]) // -1 otherwise tickSizeOuter() is not visible on xAxis end
         .domain([_start, _end]).nice()  
@@ -143,10 +144,14 @@ const Timeline = (function(parentElement){
         .translateExtent([[xScale(new Date(2019, 9, 1))], [xScale(_endTransform)]]) // pan range
         .on("zoom", () => {
 
-            // scaling reference https://stackoverflow.com/questions/56553384/d3-v5-axis-scale-change-panning-way-too-much
+
             let t = d3.event.transform
-            xScale.domain(t.rescaleX(xScaleRef).domain()); // continous scale with transformed domain  
-    
+
+            let scale = t.rescaleX(xScaleRef)
+            xScale.domain(scale.domain());   
+
+
+
             gx.call(xAxis); 
             gy.call(yGrid); 
             if(selection) brushGroup.call(brush.move, [xScale(selection[0]), xScale(selection[1])]);    
@@ -171,7 +176,7 @@ const Timeline = (function(parentElement){
     var selection
 
     const brush = d3.brushX()
-        .extent([[margin.left, margin.top], [width - margin.right, height - margin.bottom]])
+        .extent([[margin.left, margin.top], [width-margin.right, height-margin.bottom]])
         .on("end", () => {
             if(d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom") return // ignore brush-by-zoom
             if(d3.event.selection == null){
@@ -292,7 +297,7 @@ const Timeline = (function(parentElement){
         Array.from(graphs.keys()).forEach(key => {
             const graph = graphs.get(key)
             if(!graph.isHidden){
-                turnArrow(key, graph.getGradient(timepinDate))
+                if(!SOLOTEST)turnArrow(key, graph.getGradient(timepinDate))
             }})
     }
 
@@ -330,9 +335,9 @@ const Timeline = (function(parentElement){
 
         endline.attr("transform", `translate(${xScale(now)}, 0)`)
 
-        endTextDay.text((d, i) => "It's " + moment(now).format("dddd"));
-        endTextDate.text((d, i) => moment(now).format("DD MMMM YYYY"));
-        endTextTime.text((d, i) => moment(now).format("HH:mm:ss"));
+        endTextDay.text(() => "It's " + moment(now).format("dddd"));
+        endTextDate.text(() => moment(now).format("DD MMMM YYYY"));
+        endTextTime.text(() => moment(now).format("HH:mm:ss"));
 
         if(playing){
             timepinDate.setTime(timepinDate.getTime() + (speed*60*1000));
@@ -463,8 +468,13 @@ const Timeline = (function(parentElement){
         },
         getDomainY(){
             return yScale.domain()
-        }
+        },
+        centerToDate(date){
+            let c = (xScaleRef(xScale.domain()[0]) + xScaleRef(xScale.domain()[1])) / 2               
+            let dx = xScaleRef(date)-c            
 
+            zoom.translateTo(svg, dx, 0)
+        }
     }
 })
 export default Timeline

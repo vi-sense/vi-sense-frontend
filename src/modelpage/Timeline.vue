@@ -5,6 +5,7 @@
       <img class="iconBtn" id="btnPlay" alt="play/pause" src="src\assets\playIcon.png">
       <img class="iconBtn" id="btnMove" alt="move tool" src="src\assets\moveIcon.png">
       <img class="iconBtn" id="btnSelect" alt="selection tool" src="src\assets\selectionIcon.png">
+      <v-icon>fas fa-list</v-icon>
     </div>
   </div>
 </template>
@@ -28,9 +29,12 @@
     padding: 8px;
     padding-top: 12px;
 
-    .iconBtn {
+    > * {
       width: 100%;
       cursor: pointer;
+    }
+    > i{
+      height: 20px;
     }
   }
 }

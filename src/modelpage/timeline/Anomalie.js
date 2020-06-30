@@ -5,8 +5,6 @@
 import * as d3 from 'd3'
 import { getSensorColor } from '../../storage/SensorColors';
 
-//const SENSOR_COLORS = d3.schemeCategory10 
-
 const ABOVE = "Above Upper Limit"
 const BELOW = "Below Upper Limit"
 const UPGRADIENT = "High Upward Gradient"
@@ -38,7 +36,7 @@ export default class Anomalie {
     redraw(){    
         let data = this.data
 
-        // TODO nicht über Date.now()
+        // TODO anomalien nicht über Date.now() nehmen
         
         if(data.type==ABOVE || data.type==BELOW){
             if(data.end_data){
@@ -69,6 +67,7 @@ export default class Anomalie {
                 // TODO
             }   
             else {
+                // TODO get previous data for sizing
                 this.rect
                 .attr("x", this.xScale(new Date(data.start_data.date))-10)
                 .attr("width",  20)
