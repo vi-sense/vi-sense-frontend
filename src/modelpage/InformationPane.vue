@@ -136,8 +136,8 @@
         flex: unset;
     }
 
-    .v-expansion-panel-content > div {
-        padding: 10px 10px !important;
+    .v-expansion-panel-content >>> .v-expansion-panel-content__wrap {
+        padding: 10px !important;
     }
 
 
