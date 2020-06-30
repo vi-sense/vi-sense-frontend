@@ -7,18 +7,16 @@
             <v-card v-ripple :color="hover? 'grey lighten-4':'white'" :elevation="hover? 4: 2" class="my-1"
                     :style="`border-left: 5px solid ${sensorColors.get(anomaly.start_data.sensor_id)}!important`" v-on:click="centerTimeline(anomaly)">
                 <v-container class="pa-0">
-                    <v-row align="center" justify="start" :no-gutters="true">
-                        <v-col cols="10">
-                            <v-card-title>
+                    <v-row align="center" justify="start" :no-gutters="true" >
+                        <v-col cols="9">
+                            <v-card-title class="pr-1">
                                 {{`${sensorsById.get(anomaly.start_data.sensor_id).name}: ${anomaly.type}`}}
                             </v-card-title>
-                            <v-card-subtitle v-if="anomaly.end_data">{{`${anomaly.start_data.date} -
-                                ${anomaly.end_data.date}`}}
+                            <v-card-subtitle class="pr-1" ><span class="date_span">{{ reformatDate(anomaly.start_data.date)}} - </span> <span v-if="anomaly.end_data" class="date_span"> {{reformatDate(anomaly.end_data.date)}} </span>
                             </v-card-subtitle>
-                            <v-card-subtitle v-else>{{`${anomaly.start_data.date}`}}</v-card-subtitle>
                         </v-col>
-                        <v-col cols="2">
-                            <v-icon large color="amber accent-4">mdi-alert-circle</v-icon>
+                        <v-col cols="3" style="text-align: center">
+                            <v-icon  large color="amber accent-4">mdi-alert-circle</v-icon>
                         </v-col>
                     </v-row>
                 </v-container>
@@ -29,6 +27,7 @@
 
 <script>
     import Vue from "vue";
+    import moment from 'moment'
 
     export default {
         props: ["model", "sensorColors", "STORE"],
@@ -58,8 +57,14 @@
                 this.anomaliesLoaded = true
             },
             centerTimeline(anomaly){
-                const date = new Date(anomaly.start_data.date)
-                this.STORE._timelineInstance.centerToDate(date)
+                const startDate = new Date(anomaly.start_data.date)
+                //if there are two dates, center in between those. if there is only one, center on that, achived by setting endDate equal to startDate
+                const endDate = anomaly.end_data ? new Date(anomaly.end_data.date) : startDate
+                this.STORE._timelineInstance.centerToDate(new Date((startDate.getTime() +endDate.getTime())/2 ))
+            },
+            reformatDate(dateString){
+                const date = moment(dateString)
+                return date.format("lll")
             }
         },
         created() {
@@ -69,7 +74,9 @@
 </script>
 
 <style scoped lang="scss">
-
+    .date_span{
+        white-space: nowrap;
+    }
     .v-card__title {
         font-size: 1rem;
         line-height: 1rem;
