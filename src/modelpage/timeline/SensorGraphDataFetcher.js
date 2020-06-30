@@ -163,9 +163,17 @@ export default class SensorGraphDataFetcher{
             
             let result = []
             for(let hash=minHash-1; hash<maxHash+1; hash++){                
+<<<<<<< HEAD
                 let d = this.map.get(hash)                
                 if(d) result.push(...d) // d is undefined for data chunks > Date.now()
             }  
+=======
+                let d = this.map.get(hash)
+                if(d){
+                    result.push(...d)
+                }
+            }
+>>>>>>> 2f993699997282ee8bbdc4416ef39ad0e5d0ef0e
             return result
         })
     }
