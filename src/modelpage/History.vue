@@ -5,7 +5,7 @@
                 v-for="(anomaly, index) in anomalies" :key="index"
         >
             <v-card v-ripple :color="hover? 'grey lighten-4':'white'" :elevation="hover? 4: 2" class="my-1"
-                    :style="`border-left: 5px solid ${getSensorColor(anomaly.start_data.sensor_id)}!important`">
+                    :style="`border-left: 5px solid ${sensorColors.get(anomaly.start_data.sensor_id)}!important`">
                 <v-container class="pa-0">
                     <v-row align="center" justify="start" :no-gutters="true">
                         <v-col cols="10">
@@ -28,31 +28,24 @@
 </template>
 
 <script>
-    import {getSensorColor} from "../storage/SensorColors";
+    import Vue from "vue";
 
     export default {
-        props: ["modelID"],
+        props: ["model", "sensorColors"],
         data() {
             return {
-                model: null,
+                modelData: Vue.util.extend({}, this.model),
                 sensorsById: Map,
                 anomalies: [],
                 anomaliesLoaded: false,
                 endpoint: process.env.API_URL,
-                getSensorColor: getSensorColor
             };
         },
         methods: {
-            async getAnomalies(id) {
-                try {
-                    const response = await fetch(this.endpoint + "/models/" + id)
-                    this.model = await response.json()
-                } catch (error) {
-                    console.log(error)
-                }
+            async getAnomalies() {
                 this.sensorsById = new Map()
                 this.anomalies = []
-                await Promise.all(this.model.sensors.map(async (sensor) => {
+                await Promise.all(this.modelData.sensors.map(async (sensor) => {
                     this.sensorsById.set(sensor.id, sensor)
                     try {
                         const sensorAnomalies = await fetch(`${this.endpoint}/sensors/${sensor.id}/anomalies`)
@@ -66,13 +59,8 @@
             }
         },
         created() {
-            this.getAnomalies(this.modelID);
+            this.getAnomalies();
         },
-        watch: {
-            $route() {
-                this.getAnomalies(this.modelID);
-            }
-        }
     };
 </script>
 

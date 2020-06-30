@@ -10,9 +10,9 @@
     <main>
       <div id="sidepane">
         <h3 class="pb-1">Sensors</h3>
-        <information-pane v-if="model" class="pa-1" id="informationpane" :model="model" :STORE="STORE" :sensor-colors="sensorColors"/>
+        <information-pane  class="pa-1" id="informationpane" v-if="model" :model="model" :STORE="STORE" :sensor-colors="sensorColors"/>
         <h3 class="pb-1">Anomalies</h3>
-        <history class="pa-1" id="historypane" :modelID="id"/>
+        <history class="pa-1" id="historypane" v-if="model" :model="model" :sensor-colors="sensorColors"/>
       </div>
 
       <div id="mainpane">
