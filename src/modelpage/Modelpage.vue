@@ -12,7 +12,7 @@
         <h3 class="pb-1">Sensors</h3>
         <information-pane  class="pa-1" id="informationpane" v-if="model" :model="model" :STORE="STORE" :sensor-colors="sensorColors"/>
         <h3 class="pb-1">Anomalies</h3>
-        <history class="pa-1" id="historypane" v-if="model" :model="model" :sensor-colors="sensorColors"/>
+        <history class="pa-1" id="historypane" v-if="model" :model="model" :s-t-o-r-e="STORE" :sensor-colors="sensorColors"/>
       </div>
 
       <div id="mainpane">
@@ -38,7 +38,6 @@ import OptionPane from "./OptionPane";
 import Storage from "../storage/Storage";
 import History from "./History";
 import PopUp from "./PopUp";
-import * as d3 from 'd3'
 import {registerSensorColors} from "../storage/SensorColors";
 
 export default {

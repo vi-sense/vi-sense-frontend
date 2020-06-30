@@ -5,7 +5,7 @@
                 v-for="(anomaly, index) in anomalies" :key="index"
         >
             <v-card v-ripple :color="hover? 'grey lighten-4':'white'" :elevation="hover? 4: 2" class="my-1"
-                    :style="`border-left: 5px solid ${sensorColors.get(anomaly.start_data.sensor_id)}!important`">
+                    :style="`border-left: 5px solid ${sensorColors.get(anomaly.start_data.sensor_id)}!important`" v-on:click="centerTimeline(anomaly)">
                 <v-container class="pa-0">
                     <v-row align="center" justify="start" :no-gutters="true">
                         <v-col cols="10">
@@ -31,7 +31,7 @@
     import Vue from "vue";
 
     export default {
-        props: ["model", "sensorColors"],
+        props: ["model", "sensorColors", "STORE"],
         data() {
             return {
                 modelData: Vue.util.extend({}, this.model),
@@ -56,6 +56,11 @@
                 }))
                 this.anomalies.sort((b, a) => a.start_data.date.localeCompare(b.start_data.date))
                 this.anomaliesLoaded = true
+            },
+            centerTimeline(anomaly){
+                const date = new Date(anomaly.start_data.date)
+                this.STORE._timelineInstance.centerToDate(date)
+                this.STORE._timelineInstance.setTimepinTime(date)
             }
         },
         created() {
