@@ -286,6 +286,7 @@ async function addUIElements(modelID: number) {
 }
 
 export function turnArrow(sensorId, gradient) {
+  console.log(gradient)
   if(gradient === undefined) {
     sensorLabels[sensorId].arrow.alpha = 0
   } else{
@@ -303,10 +304,12 @@ export function updateLocalSensors(sensorId, upper_bound, lower_bound) {
 export function updateShader(sensorId, value?) {
   let sensor = savedSensors[sensorId]
   let mesh = myScene.getMeshByUniqueID(sensor.mesh_id);
-  (<InputBlock>(<GradientShader>mesh.material).getBlockByName("sourceMin")).value = sensor.lower_bound;
-  (<InputBlock>(<GradientShader>mesh.material).getBlockByName("sourceMax")).value = sensor.upper_bound;
 
-  if(value) {  
+  if (sensor.lower_bound != null && sensor.upper_bound != null) {
+    (<InputBlock>(<GradientShader>mesh.material).getBlockByName("sourceMin")).value = sensor.lower_bound;
+    (<InputBlock>(<GradientShader>mesh.material).getBlockByName("sourceMax")).value = sensor.upper_bound;
+  }
+  if (value) {  
     (<InputBlock>(<GradientShader>mesh.material).getBlockByName("Input Temperature")).value = value
   }
 }

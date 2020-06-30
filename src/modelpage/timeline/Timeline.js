@@ -293,8 +293,9 @@ const Timeline = (function(parentElement){
             const graph = graphs.get(key)
             if(!graph.isHidden){
                 turnArrow(key, graph.getGradient(timepinDate))
+                //console.log(graph.xScale(timepinDate))
                 //how do i get the current value?
-                //updateShader(key, value)
+                //updateShader(key, graph.xScale(timepinDate))
             }})
     }
 
