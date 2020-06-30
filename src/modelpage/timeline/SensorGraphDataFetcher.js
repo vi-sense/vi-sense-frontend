@@ -158,8 +158,10 @@ export default class SensorGraphDataFetcher{
             let result = []
             for(let hash=minHash-1; hash<maxHash+1; hash++){                
                 let d = this.map.get(hash)
-                result.push(...d)
-            }  
+                if(d){
+                    result.push(...d)
+                }
+            }
             return result
         })
     }
