@@ -47,7 +47,7 @@ export default {
   },
   data() {
     return {
-      IS_PRODUCTION: boolean = Boolean(process.env.PRODUCTION),
+      IS_PRODUCTION: Boolean(process.env.PRODUCTION),
       STORE: new Storage(),
       title: "",
     };
