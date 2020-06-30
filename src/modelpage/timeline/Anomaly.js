@@ -6,7 +6,7 @@ import * as d3 from 'd3'
 import { getSensorColor } from '../../storage/SensorColors';
 
 const ABOVE = "Above Upper Limit"
-const BELOW = "Below Upper Limit"
+const BELOW = "Below Lower Limit"
 const UPGRADIENT = "High Upward Gradient"
 const DOWNGRADIENT = "High Downward Gradient"
 
@@ -78,7 +78,7 @@ export default class Anomaly {
                 .attr("height", 100)               
             }           
         }
-        else console.log("Unknown anomaly type");
+        else console.log("Unknown anomaly type: " + data.type);
         
     }
     show(){
