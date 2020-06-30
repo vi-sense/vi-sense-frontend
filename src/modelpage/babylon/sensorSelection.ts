@@ -5,6 +5,7 @@ import { focusOnMesh } from './focusOnMesh';
 import { PulseShader, GradientShader } from './shaders';
 import SKEYS from "../../storage/StorageKeys";
 import {getSensorColor} from "../../storage/SensorColors";
+import { InputBlock } from 'babylonjs';
 
 const API_URL = process.env.API_URL;
 
@@ -42,7 +43,7 @@ export async function updateSelectedSensor(sensor_id: number, action: String) {
     mesh.outlineWidth = .05;
     mesh.outlineColor = BABYLON.Color3.Black();
     sensorLabels[sensor_id].rect.alpha = 1;
-    //sensorLabels[sensor_id].rect.isVisible = true;
+    sensorLabels[sensor_id].rect.isVisible = true;
     sensorLabels[sensor_id].arrow.alpha = 1;
     sensorLabels[sensor_id].circle.width = "70px";
     sensorLabels[sensor_id].circle.height = "70px";
@@ -51,7 +52,7 @@ export async function updateSelectedSensor(sensor_id: number, action: String) {
     mesh.state = "";
     highlight.removeMesh(mesh.subMeshes[0].getRenderingMesh());
     sensorLabels[sensor_id].rect.alpha = 0;
-    //sensorLabels[sensor_id].rect.isVisible = false;
+    sensorLabels[sensor_id].rect.isVisible = false;
     sensorLabels[sensor_id].arrow.alpha = 0;
     sensorLabels[sensor_id].circle.width = "30px";
     sensorLabels[sensor_id].circle.height = "30px";
@@ -186,9 +187,11 @@ async function addUIElements(modelID: number) {
     // await BABYLON.NodeMaterial.ParseFromSnippetAsync("4EQZYW", myScene).then(nodeMaterial => {
     //   mesh.material = nodeMaterial;
     // });
+    console.log(sensors[i].lower_bound, sensors[i].upper_bound, sensors[i].latest_data.value)
+    if(sensors[i].lower_bound != null && sensors[i].upper_bound != null && sensors[i].latest_data.value != null) {
+      mesh.material = new GradientShader(sensors[i].lower_bound, sensors[i].upper_bound, sensors[i].latest_data.value);
+    } else mesh.material = new GradientShader(0, 100, 50);
 
-    //mesh.material = new GradientShader(sensors[i].lower_bound, sensors[i].upper_bound, sensors[i].latest_data.value);
-    mesh.material = new GradientShader(0, 100, 20);
     //mesh.material = new PulseShader(20, 0.25, 0.75);
     mesh.material.backFaceCulling = true;
 
@@ -220,7 +223,7 @@ async function addUIElements(modelID: number) {
 
     let rect = new GUI.Rectangle();
     rect.alpha = 0;
-    //rect.isVisible = false;
+    rect.isVisible = false;
     rect.background = "white";
     rect.cornerRadius = 5;
     rect.isPointerBlocker = false;
@@ -288,6 +291,23 @@ export function turnArrow(sensorId, gradient) {
   } else{
     sensorLabels[sensorId].arrow.alpha = 1
     sensorLabels[sensorId].arrow.rotation = -Math.atan(gradient)
+  }
+}
+
+export function updateLocalSensors(sensorId, upper_bound, lower_bound) {
+  if (upper_bound) savedSensors[sensorId].upper_bound = upper_bound
+  if (lower_bound) savedSensors[sensorId].lower_bound = lower_bound
+  updateShader(sensorId)
+}
+
+export function updateShader(sensorId, value?) {
+  let sensor = savedSensors[sensorId]
+  let mesh = myScene.getMeshByUniqueID(sensor.mesh_id);
+  (<InputBlock>(<GradientShader>mesh.material).getBlockByName("sourceMin")).value = sensor.lower_bound;
+  (<InputBlock>(<GradientShader>mesh.material).getBlockByName("sourceMax")).value = sensor.upper_bound;
+
+  if(value) {  
+    (<InputBlock>(<GradientShader>mesh.material).getBlockByName("Input Temperature")).value = value
   }
 }
 

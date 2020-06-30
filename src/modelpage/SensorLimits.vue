@@ -33,6 +33,8 @@
 </template>
 
 <script>
+    import {updateLocalSensors} from './babylon/sensorSelection';
+
     export default {
         name: "SensorLimits",
         props: ["sensor"],
@@ -67,6 +69,8 @@
                     this.lowerBound = newSensorData.lower_bound
                     this.gradientBound = newSensorData.gradient_bound
 
+                    updateLocalSensors(this.sensor.id, this.upperBound, this.lowerBound)
+
                 } catch (error) {
                     console.log(error)
                 }
@@ -76,7 +80,7 @@
 </script>
 
 <style scoped lang="scss">
-    .v-text-field > > > label, .v-text-field > > > input {
+    .v-text-field >>> label, .v-text-field >>> input {
         font-size: 1rem !important;
     }
 </style>

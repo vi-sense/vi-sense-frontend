@@ -24,7 +24,7 @@
           </v-checkbox>
         </div>
         <div class="row">
-          <input class="slider" type="range" :disabled="!clipPlane_x" v-model="clipPlane_x_value" min=-100 max=100 v-on:input="handleClippingPlane(clipPlane_x, 'x', clipPlane_x_value, clipPlane_x_flipped)" />
+          <input class="slider" type="range" :disabled="!clipPlane_x" v-model="clipPlane_x_value" min=-150 max=150 v-on:input="handleClippingPlane(clipPlane_x, 'x', clipPlane_x_value, clipPlane_x_flipped)" />
           <v-tooltip bottom>
               <template #activator="{ on, attrs }">
                   <v-icon @click="handleClippingPlane(clipPlane_x, 'x', -clipPlane_x_value, !clipPlane_x_flipped)"
@@ -176,9 +176,13 @@ export default {
     display: flex;
     justify-content: space-between;
     margin: 0;
+    
     input[type=range] {
-    width: 75%;
-  }
+      width: 75%;
+    }
+    label {
+      font-size: small;
+    }
   }
 }
 
