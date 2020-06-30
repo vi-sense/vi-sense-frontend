@@ -8,10 +8,6 @@ import * as d3 from 'd3'
 import moment from 'moment';
 import { turnArrow } from "../babylon/sensorSelection"
 
-const SOLOTEST = false
-
-
-
 
 const Timeline = (function(parentElement){
 
@@ -285,7 +281,7 @@ const Timeline = (function(parentElement){
         Array.from(graphs.keys()).forEach(key => {
             const graph = graphs.get(key)
             if(!graph.isHidden){
-                if(!SOLOTEST)turnArrow(key, graph.getGradient(timepinDate))
+                turnArrow(key, graph.getGradient(timepinDate))
             }})
     }
 
@@ -439,6 +435,7 @@ const Timeline = (function(parentElement){
         },
         centerToDate(date){
             zoom.translateTo(svg, xScaleRef(date))
+            this.setTimepinTime(date)
         }
     }
 })

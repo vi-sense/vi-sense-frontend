@@ -60,7 +60,6 @@
             centerTimeline(anomaly){
                 const date = new Date(anomaly.start_data.date)
                 this.STORE._timelineInstance.centerToDate(date)
-                this.STORE._timelineInstance.setTimepinTime(date)
             }
         },
         created() {
