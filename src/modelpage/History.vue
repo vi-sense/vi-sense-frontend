@@ -82,8 +82,4 @@
     .v-card__subtitle {
         line-height: 1rem;
     }
-
-    .history {
-        overflow-y: scroll;
-    }
 </style>
