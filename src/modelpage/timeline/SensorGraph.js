@@ -3,12 +3,12 @@
  */
 
 import SensorGraphDataFetcher from "./SensorGraphDataFetcher.js"
+import Anomaly from "./Anomaly.js"
 
 import * as d3 from 'd3'
+import moment from 'moment';
 import { getSensorColor } from "../../storage/SensorColors";
-
-//const SENSOR_COLORS = d3.schemeCategory10 // position mapped to sensorId
-
+const API_URL = process.env.API_URL  
 
 export default class SensorGraph{
 
@@ -26,7 +26,7 @@ export default class SensorGraph{
         this.color = getSensorColor(sensorId)
         this.data = []
         this.dataFetcher = new SensorGraphDataFetcher(sensorId)
-
+        
         this.line = d3.line()
             .defined(d => !isNaN(d.value) && !isNaN(d.date))
 
@@ -38,19 +38,27 @@ export default class SensorGraph{
             .attr("stroke-linejoin", "round")
             .attr("stroke-linecap", "round")
 
+        this.anomalies = []
+        fetch(`${API_URL}/sensors/${sensorId}/anomalies?end_date=${moment.utc(new Date()).format("YYYY-MM-DD HH:mm:ss")}`).then(d => d.json().then(data => {
+            for(let d of data){
+                let a = new Anomaly(d, parentElement, this.xScale, this.yScale)
+                this.anomalies.push(a)
+            }
+        }))  
+
         this.redraw()
     }
 
-    
-    redraw(){        
+    redraw(){     
+        this.anomalies.forEach(a=>a.redraw())
+   
         this.dataFetcher.get(this.xScale.domain()).then(data => {
             if(data) {
-                this.data = data
+                this.data = data                
                 this.path.datum(this.data)
                 this.redraw()
             }
         })
-
         this.line
             .x(d => this.xScale(d.date))
             .y(d => this.yScale(d.value))
@@ -60,11 +68,13 @@ export default class SensorGraph{
     }
     show(){
         this.isHidden = false
-        this.path.attr("display", "unset");
+        this.path.attr("display", "unset")
+        this.anomalies.forEach(a=>a.show())
     }
     hide(){
         this.isHidden = true
         this.path.attr("display", "none");
+        this.anomalies.forEach(a=>a.hide())
     }
     getGradient(date){
         let index
