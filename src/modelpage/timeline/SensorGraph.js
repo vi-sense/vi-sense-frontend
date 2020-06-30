@@ -19,7 +19,7 @@ export default class SensorGraph{
      * @param {*} xScale 
      * @param {*} yScale 
      */
-    constructor(sensorId, parentElement, xScale, yScale) {
+    constructor(sensorId, parentElement, xScale, yScale, graphs) {
         this.xScale = xScale
         this.yScale = yScale
         this.sensorId = sensorId
@@ -46,7 +46,23 @@ export default class SensorGraph{
             }
         }))  
 
+        this._applyHover(graphs)
         this.redraw()
+    }
+
+    _applyHover(graphs){
+        this.path.on("mouseover", () => {
+            graphs.forEach(g => {
+                g.path.attr("stroke-opacity", g.sensorId == this.sensorId ? 1 : 0.4);            
+                g.anomalies.forEach(a => a.rect.attr("opacity", g.sensorId == this.sensorId ? 0.3 : 0.1));                            
+            })
+        });
+        this.path.on("mouseout", () => {
+            graphs.forEach(g => {
+                g.path.attr("stroke-opacity", 1);   
+                g.anomalies.forEach(a => a.rect.attr("opacity", 0.3));                            
+            })
+        })  
     }
 
     redraw(){     
@@ -115,29 +131,3 @@ export default class SensorGraph{
 
 
 
-
-// Timepin einrasten ergibt kein sinn weil daten immer zu unterschiedlichen zeiten generiert wurden, also eh immer interpoliert werden müsste für die andern grapehn
-/*
-timepin.call(d3.drag().on('drag', () => {
-    let mouse_x = d3.mouse(svg.node())[0]
-    let {date, value} = bisect(mouse_x);
-    placeTimepin(date, value)
-    //marker.attr("transform", `translate(0, ${y(value)})`)
-}));
-var bisect = function() {
-    const bisect = d3.bisector(d => d.date).left;
-    return mouse_x => {
-        const date = x.invert(mouse_x);
-        const index = bisect(data, date, 1);
-        const a = data[index-1];
-        const b = data[index];
-        return b != undefined && date-a.date > b.date-date ? b : a;
-        };
-}()
-const marker = timepin.append("circle")
-.attr("fill", "none")
-.attr("stroke", "blue")
-.attr("cx", 0)
-.attr("cy", 0)
-.attr("r", 2)
-*/

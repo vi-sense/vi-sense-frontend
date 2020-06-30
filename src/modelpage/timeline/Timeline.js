@@ -370,19 +370,8 @@ const Timeline = (function(parentElement){
         if(graphs.has(id)) {
             graphs.get(id).show()
         } else{
-            let graph = new SensorGraph(id, clipperXY, xScale, yScale)
-            graphs.set(id, graph)
-
-            graph.path.on("mouseover", (d, i) => {
-                graphs.forEach((graph) => {
-                    graph.path.attr("stroke-opacity", graph.sensorId == id ? "1" : "0.4");                    
-                })
-            });
-            graph.path.on("mouseout", (d, i) => {
-                graphs.forEach((graph) => {
-                    graph.path.attr("stroke-opacity", "1");                    
-                })
-            })      
+            let graph = new SensorGraph(id, clipperXY, xScale, yScale, graphs)
+            graphs.set(id, graph)    
         }
     }
 

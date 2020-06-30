@@ -25,10 +25,8 @@ export default class Anomaly {
         this.data = data 
 
         this.rect = parentElement.append("rect")
-        .style("fill", getSensorColor(this.data.start_data.sensor_id))
-        .style("opacity", 0.3)
-
-        console.log(data);
+        .attr("fill", getSensorColor(this.data.start_data.sensor_id))
+        .attr("opacity", 0.3)
         
         this.redraw()
     }
@@ -90,3 +88,4 @@ export default class Anomaly {
         this.rect.attr("display", "none");
     }
 }
+
