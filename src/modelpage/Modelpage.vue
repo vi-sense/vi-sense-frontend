@@ -10,7 +10,7 @@
     <main>
       <div id="sidepane">
         <h3 class="pb-1">Sensors</h3>
-        <information-pane class="pa-1" id="informationpane" :modelID="id" :STORE="STORE"/>
+        <information-pane v-if="model" class="pa-1" id="informationpane" :model="model" :STORE="STORE" :sensor-colors="sensorColors"/>
         <h3 class="pb-1">Anomalies</h3>
         <history class="pa-1" id="historypane" :modelID="id"/>
       </div>
@@ -38,6 +38,7 @@ import OptionPane from "./OptionPane";
 import Storage from "../storage/Storage";
 import History from "./History";
 import PopUp from "./PopUp";
+import * as d3 from 'd3'
 import {registerSensorColors} from "../storage/SensorColors";
 
 export default {
@@ -49,6 +50,8 @@ export default {
     return {
       STORE: new Storage(),
       title: "",
+      model: undefined,
+      sensorColors: Map
     };
   },
   created(){
@@ -56,8 +59,11 @@ export default {
       return "Do you really want to close?";
     };
     this.getModelData(this.id).then(res=>{
+      this.model = res
       this.title = res.name
-      registerSensorColors(res.sensors.map(sensor => sensor.id))
+      const ordinalScale = registerSensorColors(res.sensors.map(sensor => sensor.id))
+      this.sensorColors = new Map()
+      res.sensors.map(sensor => sensor.id).sort().forEach(sensorID => this.sensorColors.set(sensorID, ordinalScale(sensorID)))
     })
   },
   mounted() {
