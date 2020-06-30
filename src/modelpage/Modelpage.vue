@@ -47,6 +47,7 @@ export default {
   },
   data() {
     return {
+      IS_PRODUCTION: Boolean(process.env.PRODUCTION),
       STORE: new Storage(),
       title: "",
       model: undefined,
@@ -54,7 +55,7 @@ export default {
     };
   },
   created(){
-    window.onbeforeunload = function () {
+    if(this.IS_PRODUCTION) window.onbeforeunload = function () {
       return "Do you really want to close?";
     };
     this.getModelData(this.id).then(res=>{

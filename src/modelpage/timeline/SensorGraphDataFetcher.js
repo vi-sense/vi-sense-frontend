@@ -11,10 +11,8 @@
 import moment from 'moment';
 const API_URL = process.env.API_URL  
 
-// const API_URL = "https://visense.f4.htw-berlin.de:44344"
-
 const CHUCK_SIZE = 7*24*60*60*1000 // 1 week
-const RT_PAUSE = 2*60*1000 // 2 min pause between realtime calls
+const RT_PAUSE = 2*60*1000 // 2 min pause between realtime api fetch
 
 
 export default class SensorGraphDataFetcher{
@@ -59,26 +57,35 @@ export default class SensorGraphDataFetcher{
      * @param {Date} end 
      */
     _toStartEndApiURL(start, end){        
-        let s = API_URL + `/sensors/${this.sensorId}/data?density=${2}&start_date=${this._dateFormat(start)}&end_date=${this._dateFormat(end)}`        
+        let s = API_URL + `/sensors/${this.sensorId}/data?density=${1}&start_date=${this._dateFormat(start)}&end_date=${this._dateFormat(end)}`        
         return s
     }
 
+    /**
+     * 
+     * @param {Number} hash 
+     * @returns a promise if data chunk is not already fetched
+     */
     async _fetchHashChunk(hash) {
+        if(this.map.has(hash)) return
+
         let start = new Date(this._unhash(hash))
         let end = new Date(this._unhash(hash)+CHUCK_SIZE)  
 
-        if(end > Date.now()) 
-            end = new Date() // because our data is fake and already exists for time that did not passed yet we have to limit the fetching by Date.now()    
-
+        if(end > Date.now()) end = new Date() // because our data is fake and already exists for time that did not passed yet we have to limit the fetching by Date.now()    
         if(start > end) return
         
-        this.map.set(hash, null)
-
-        return this._apiCall(this._toStartEndApiURL(start, end)).then(data => {   
+        let promise = this._apiCall(this._toStartEndApiURL(start, end)).then(data => {   
             this.map.set(hash, data)
         })
+        this.map.set(hash, promise) 
+        return promise
     }
 
+    /**
+     * checking for latest data
+     * @param {Number} hash 
+     */
     async _fetchRealtime(hash) {
         let now = new Date()        
 
@@ -86,8 +93,8 @@ export default class SensorGraphDataFetcher{
         let latest = dataChunk[dataChunk.length-1].date
         let start = new Date()
         start.setTime(latest.getTime()+1000) // +1 second bc otherwise it would fetch the latest date aswell
-
-        return this._apiCall(this._toStartEndApiURL(start, now)).then(data => {     
+        
+        return this._apiCall(this._toStartEndApiURL(start, now)).then(data => {                 
             if(data.length != 0){
                 let updated = [...dataChunk, ...data]
                 this.map.set(hash, updated)
@@ -141,27 +148,24 @@ export default class SensorGraphDataFetcher{
         // Return option 2: return the data chunks based on the domain
         // load a data chunk from storage variable or fetch it from server 
         let promises = []        
-        for(let hash=minHash-4; hash<maxHash+4; hash++){
-            if(!this.map.has(hash)){
-                let p = this._fetchHashChunk(hash)
-                promises.push(p)                
-            }
+        for(let hash=minHash-2; hash<maxHash+2; hash++){
+            let p = this._fetchHashChunk(hash)
+            if(p) promises.push(p)                
         }
         
         // fixed https://github.com/vi-sense/vi-sense/issues/114
+        // TODO still too much get`s in the beginning
         let thisGet = Date.now()
         this._lastGet = thisGet
-        
+                
         return Promise.all(promises).then(()=>{
             if(this._lastGet != thisGet) return
-
+            
             let result = []
             for(let hash=minHash-1; hash<maxHash+1; hash++){                
-                let d = this.map.get(hash)
-                if(d){
-                    result.push(...d)
-                }
-            }
+                let d = this.map.get(hash)                
+                if(d) result.push(...d) // d is undefined for data chunks > Date.now()
+            }  
             return result
         })
     }

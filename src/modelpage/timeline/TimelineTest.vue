@@ -45,8 +45,6 @@ export default {
         timeline.showGraph(1) 
         timeline.showGraph(2) 
         timeline.showGraph(3) 
-
-        timeline.centerToDate(new Date(2020, 1, 2))
     }
 }
 

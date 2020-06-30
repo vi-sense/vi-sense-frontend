@@ -3,13 +3,11 @@
  */
 
 import SensorGraph from "./SensorGraph.js";
-import Anomalie from "./Anomalie.js";
 
 import * as d3 from 'd3'
 import moment from 'moment';
 import { turnArrow } from "../babylon/sensorSelection"
 
-const API_URL = process.env.API_URL  
 const SOLOTEST = false
 
 
@@ -18,7 +16,6 @@ const SOLOTEST = false
 const Timeline = (function(parentElement){
 
     const graphs = new Map()
-    const anomalies = []
 
     const width = parentElement.clientWidth // is on 100% width per default
     const height = parentElement.clientHeight
@@ -28,14 +25,11 @@ const Timeline = (function(parentElement){
     .attr("user-select", "none")
     parentElement.appendChild(svg.node())
 
-
-
     svg.append("clipPath").attr("id", "clipXY").append("rect").attr("y", margin.top).attr("x", margin.left).attr("height",height-margin.top-margin.bottom).attr("width",width-margin.left-margin.right)
     svg.append("clipPath").attr("id", "clipX").append("rect").attr("y", 0).attr("x", margin.left).attr("height",height).attr("width",width-margin.left-margin.right)
     const clipperXY = svg.append("g").attr("clip-path","url(#clipXY)")
     const clipperX = svg.append("g").attr("clip-path","url(#clipX)")
     
-
 
 
     /**
@@ -144,19 +138,13 @@ const Timeline = (function(parentElement){
         .translateExtent([[xScale(new Date(2019, 9, 1))], [xScale(_endTransform)]]) // pan range
         .on("zoom", () => {
 
-
             let t = d3.event.transform
-
-            let scale = t.rescaleX(xScaleRef)
-            xScale.domain(scale.domain());   
-
-
+            xScale.domain(t.rescaleX(xScaleRef).domain());   
 
             gx.call(xAxis); 
             gy.call(yGrid); 
             if(selection) brushGroup.call(brush.move, [xScale(selection[0]), xScale(selection[1])]);    
             graphs.forEach(g => g.redraw())    
-            anomalies.forEach(a => a.redraw())    
             redrawTimepin()    
         })
 
@@ -382,27 +370,8 @@ const Timeline = (function(parentElement){
         if(graphs.has(id)) {
             graphs.get(id).show()
         } else{
-            let graph = new SensorGraph(id, clipperXY, xScale, yScale)
-            graphs.set(id, graph)
-
-            graph.path.on("mouseover", (d, i) => {
-                graphs.forEach((graph) => {
-                    graph.path.attr("stroke-opacity", graph.sensorId == id ? "1" : "0.4");                    
-                })
-            });
-            graph.path.on("mouseout", (d, i) => {
-                graphs.forEach((graph) => {
-                    graph.path.attr("stroke-opacity", "1");                    
-                })
-            })
-
-            fetch(`${API_URL}/sensors/${id}/anomalies`).then(d => d.json().then(data => {
-                for(let d of data){
-                    // TODO nur wenn enddate vor date.now()
-                    let a = new Anomalie(d, clipperXY, xScale, yScale)
-                    anomalies.push(a)
-                }
-            }))         
+            let graph = new SensorGraph(id, clipperXY, xScale, yScale, graphs)
+            graphs.set(id, graph)    
         }
     }
 
@@ -464,7 +433,6 @@ const Timeline = (function(parentElement){
             yScale.domain([min, max]).nice()
             gy.call(yAxis)
             graphs.forEach(g => g.redraw())
-            anomalies.forEach(a => a.redraw())
         },
         getDomainY(){
             return yScale.domain()

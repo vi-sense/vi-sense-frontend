@@ -52,8 +52,9 @@ export default {
   },
   mounted(){      
     let chartWrapper = document.querySelector("#chartWrapper")
-    let timeline = new Timeline(chartWrapper)
-          
+    chartWrapper.innerHTML = "" // clear old svg (in dev)
+
+    let timeline = new Timeline(chartWrapper)      
     this.STORE._timelineInstance = timeline // easiets and lasiest way to pass timeline to options pane
 
     this.STORE.getSelectedSensors((sensorIds)=>{
