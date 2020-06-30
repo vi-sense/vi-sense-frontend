@@ -115,7 +115,8 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
         mesh.actionManager.registerAction(
           new BABYLON.ExecuteCodeAction(
             BABYLON.ActionManager.OnPickTrigger, async function (e) {
-              storage.updateInitState(id, 'mesh_picked')
+              if (mesh.metadata.sensor_id && mesh.metadata.sensor_id != null) storage.updateInitState(id, 'mesh_picked', savedSensors[mesh.metadata.sensor_id].name)
+              else storage.updateInitState(id, 'mesh_picked')
 
               storage.onInitStateChanged(async (id, state) => {
                 if(state === "confirmed") {
