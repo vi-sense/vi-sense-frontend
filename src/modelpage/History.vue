@@ -64,7 +64,7 @@
             },
             reformatDate(dateString){
                 const date = moment(dateString)
-                return date.format("lll")
+                return date.format("DD.MM.YY HH:mm")
             }
         },
         created() {
