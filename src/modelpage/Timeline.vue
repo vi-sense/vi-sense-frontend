@@ -3,11 +3,11 @@
     <div id="chartWrapper"></div>
     <div id="tools">
 
-      <img v-if="!playing" class="iconBtn" alt="play" v-on:click="togglePlayPause" src="src\assets\playIcon.png">
-      <img v-else class="iconBtn" alt="pause" v-on:click="togglePlayPause" src="src\assets\pauseIcon.png">
+      <img v-if="!playing" class="iconBtn" alt="play" v-on:click="togglePlayPause" src="../assets/playIcon.png">
+      <img v-else class="iconBtn" alt="pause" v-on:click="togglePlayPause" src="../assets/pauseIcon.png">
 
-      <img class="iconBtn" alt="move tool" v-on:click="setTool('pin')" src="src\assets\moveIcon.png">
-      <img class="iconBtn" alt="selection tool" v-on:click="setTool('brush')" src="src\assets\selectionIcon.png">
+      <img class="iconBtn" alt="move tool" v-on:click="setTool('pin')" src="../assets/moveIcon.png">
+      <img class="iconBtn" alt="selection tool" v-on:click="setTool('brush')" src="../assets/selectionIcon.png">
     </div>
   </div>
 </template>
