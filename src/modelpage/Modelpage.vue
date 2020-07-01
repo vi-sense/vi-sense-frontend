@@ -4,7 +4,9 @@
       <a id="logo" href="/"><img src="../assets/logo.svg" alt="visense logo"></a>
       <h2>{{ title }}</h2>
       <v-spacer></v-spacer>
-      <v-app-bar-nav-icon v-on:click="showOptionPane=!showOptionPane"></v-app-bar-nav-icon>
+      <v-btn icon v-on:click="showOptionPane=!showOptionPane">
+        <v-icon  large >mdi-cog</v-icon>
+      </v-btn>
     </v-app-bar>
 
     <main>
