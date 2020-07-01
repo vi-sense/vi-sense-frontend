@@ -2,10 +2,10 @@
     <div class="history" v-if="anomaliesLoaded">
         <v-hover
                 v-slot:default="{ hover }"
-                v-for="(anomaly, index) in anomalies" :key="index"
+                v-for="(anomaly, index) in filteredAnomalies" :key="index"
         >
             <v-card v-ripple :color="hover? 'grey lighten-4':'white'" :elevation="hover? 4: 2" class="my-1"
-                    :style="`border-left: 5px solid ${sensorColors.get(anomaly.start_data.sensor_id)}!important`" v-on:click="centerTimeline(anomaly)">
+                    :style="`border-left: 5px solid ${sensorColors.get(anomaly.start_data.sensor_id)}!important; opacity:${anomaly.selected?'1.0':'0.5'}`" v-on:click="centerTimeline(anomaly)">
                 <v-container class="pa-0">
                     <v-row align="center" justify="start" :no-gutters="true" >
                         <v-col cols="9">
@@ -30,7 +30,7 @@
     import moment from 'moment'
 
     export default {
-        props: ["model", "sensorColors", "STORE"],
+        props: ["model", "sensorColors", "selectedSensors", "STORE"],
         data() {
             return {
                 modelData: Vue.util.extend({}, this.model),
@@ -39,6 +39,12 @@
                 anomaliesLoaded: false,
                 endpoint: process.env.API_URL,
             };
+        },
+        computed:{
+            filteredAnomalies: function () {
+                this.anomalies.forEach(anomaly => anomaly.selected = this.selectedSensors.length === 0  || this.selectedSensors.includes(anomaly.start_data.sensor_id))
+                return this.anomalies.sort((a, b) => (a.selected === b.selected ? 0: a.selected ? -1: 1) || (b.start_data.date.localeCompare(a.start_data.date)));
+            }
         },
         methods: {
             async getAnomalies() {
@@ -53,7 +59,6 @@
                         console.log(error)
                     }
                 }))
-                this.anomalies.sort((b, a) => a.start_data.date.localeCompare(b.start_data.date))
                 this.anomaliesLoaded = true
             },
             centerTimeline(anomaly){
@@ -64,7 +69,7 @@
             },
             reformatDate(dateString){
                 const date = moment(dateString)
-                return date.format("lll")
+                return date.format("DD.MM.YY HH:mm")
             }
         },
         created() {

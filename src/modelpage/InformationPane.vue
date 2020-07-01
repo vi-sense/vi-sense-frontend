@@ -49,7 +49,7 @@
                                 <span v-else>Position Sensor</span>
                                 
                             </v-btn>
-                <sensor-limits :sensor="sensor"></sensor-limits>
+                <sensor-limits :sensor="sensor" v-on:sensor-limits-changed="$emit('sensor-limits-changed')"></sensor-limits>
                 </v-expansion-panel-content>
             </v-expansion-panel>
         </v-expansion-panels>
@@ -70,6 +70,11 @@
                 selectedSensors: [],
                 modelData: Vue.util.extend({}, this.model),
             };
+        },
+        watch:{
+          selectedSensors: function (newSelectedSensors, oldSelectedSensors) {
+                this.$emit("sensor-selection-changed", newSelectedSensors)
+          }
         },
         created() {
             this.STORE.onInitStateChanged( async (id, state) => {
