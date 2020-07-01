@@ -14,11 +14,5 @@ npm run build
 ```
 
 ## Run with docker compose 
-- clone the visense-backend repo
-- navigate to root of backend repo
-- the following command starts the webpack dev server with hot reload as well as postgres and the backend process
 
-``` bash
-# build and start the app in dev mode, using the source code on the machine
-FRONTEND_DIR=[path_to_frontend_repo] docker-compose up --build		
-```
+Please follow the instructions of the backend repo https://github.com/vi-sense/vi-sense to set up docker containers of the frontend and backend on your local development machine.
