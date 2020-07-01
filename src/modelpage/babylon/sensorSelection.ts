@@ -232,11 +232,11 @@ async function addUIElements(modelID: number) {
 
     let label = new GUI.TextBlock();
     label.width = "120px"
-    label.fontSizeInPixels = 14
+    label.fontSizeInPixels = 13
     label.paddingBottomInPixels = 3
     label.paddingTopInPixels = 3
-    label.paddingLeftInPixels = 3
-    label.paddingRightInPixels = 3
+    label.paddingLeftInPixels = 5
+    label.paddingRightInPixels = 5
     label.text = sensors[i].name;
     label.textWrapping = GUI.TextWrapping.WordWrap
     label.resizeToFit = true;
@@ -296,8 +296,8 @@ export function turnArrow(sensorId, gradient) {
 }
 
 export function updateLocalSensors(sensorId, upper_bound, lower_bound) {
-  if (upper_bound) savedSensors[sensorId].upper_bound = upper_bound
-  if (lower_bound) savedSensors[sensorId].lower_bound = lower_bound
+  savedSensors[sensorId].upper_bound = upper_bound
+  savedSensors[sensorId].lower_bound = lower_bound
   updateShader(sensorId)
 }
 
@@ -305,15 +305,17 @@ export function updateShader(sensorId, value?) {
   let sensor = savedSensors[sensorId]
   let mesh = myScene.getMeshByUniqueID(sensor.mesh_id);
 
-  
-  if (sensor.lower_bound != null && sensor.upper_bound != null) {
-    //console.log(sensor.lower_bound, sensor.upper_bound);
-    (<InputBlock>(<GradientShader>mesh.material).getBlockByName("sourceMin")).value = sensor.lower_bound;
-    (<InputBlock>(<GradientShader>mesh.material).getBlockByName("sourceMax")).value = sensor.upper_bound;
-    if (value) {
-      //console.log(value);
+  if (value) {
+    sensorLabels[sensorId].label.text = savedSensors[sensorId].name + "\n" + value.toFixed(2).toString() + savedSensors[sensorId].measurement_unit;
+    if (sensor.lower_bound != null && sensor.upper_bound != null) {
+      (<InputBlock>(<GradientShader>mesh.material).getBlockByName("sourceMin")).value = sensor.lower_bound;
+      (<InputBlock>(<GradientShader>mesh.material).getBlockByName("sourceMax")).value = sensor.upper_bound;
       (<InputBlock>(<GradientShader>mesh.material).getBlockByName("Input Temperature")).value = value;
-      sensorLabels[sensorId].label.text = savedSensors[sensorId].name + "\n" + value.toFixed(2).toString();
+    } else {
+      // one of the bounds isnt set, set material to default
+      (<InputBlock>(<GradientShader>mesh.material).getBlockByName("sourceMin")).value = 0;
+      (<InputBlock>(<GradientShader>mesh.material).getBlockByName("sourceMax")).value = 1;
+      (<InputBlock>(<GradientShader>mesh.material).getBlockByName("Input Temperature")).value = 0.5;
     }
   }
   

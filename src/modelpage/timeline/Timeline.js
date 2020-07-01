@@ -284,8 +284,9 @@ const Timeline = (function(parentElement){
         graphs.forEach(graph => {
             if(!graph.isHidden){
                 turnArrow(graph.sensorId, graph.getGradient(timepinDate))
-                updateShader(graph.sensorId, graph.getValue(timepinDate))
-            }})
+            }
+            updateShader(graph.sensorId, graph.getValue(timepinDate))
+        })
     }
 
 
