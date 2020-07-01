@@ -48,7 +48,7 @@
                                 <span v-if="sensor.mesh_id">Reposition Sensor</span>
                                 <span v-else>Position Sensor</span>
                             </v-btn>
-                <sensor-limits :sensor="sensor"></sensor-limits>
+                <sensor-limits :sensor="sensor" v-on:sensor-limits-changed="$emit('sensor-limits-changed')"></sensor-limits>
                 </v-expansion-panel-content>
             </v-expansion-panel>
         </v-expansion-panels>

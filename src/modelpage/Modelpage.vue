@@ -10,9 +10,9 @@
     <main>
       <div id="sidepane">
         <h3 class="pb-1">Sensors</h3>
-        <information-pane  class="pa-1" id="informationpane" v-if="model" :model="model" :STORE="STORE" :sensor-colors="sensorColors" v-on:sensor-selection-changed="propagateSensorSelection"/>
+        <information-pane  class="pa-1" id="informationpane" v-if="model" :model="model" :STORE="STORE" :sensor-colors="sensorColors" v-on:sensor-limits-changed="sensorLimitsChanged" v-on:sensor-selection-changed="propagateSensorSelection"/>
         <h3 class="pb-1">Anomalies</h3>
-        <history class="pa-1" id="historypane" v-if="model" :model="model" :s-t-o-r-e="STORE" :sensor-colors="sensorColors" :selected-sensors="this.selectedSensors"/>
+        <history class="pa-1" id="historypane" ref="historyRef" v-if="model" :model="model" :s-t-o-r-e="STORE" :sensor-colors="sensorColors" :selected-sensors="this.selectedSensors"/>
       </div>
 
       <div id="mainpane">
@@ -79,6 +79,9 @@ export default {
     },
     propagateSensorSelection(selectedSensors){
       this.selectedSensors=selectedSensors
+    },
+    sensorLimitsChanged(){
+      this.$refs.historyRef.getAnomalies();
     }
   }
 };
