@@ -99,9 +99,9 @@ export default class Storage{
         else throw new Error("Thats not a callback function")
     }
 
-    updateInitState(sensorId, state) {
+    updateInitState(sensorId: number, state: string, meshToBeOverwritten?) {
         for (let c of this.#sensorInitCallbacks) {
-            c(sensorId, state)
+            c(sensorId, state, meshToBeOverwritten)
         }
     }
 

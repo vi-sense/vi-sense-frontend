@@ -4,15 +4,15 @@
       <a id="logo" href="/"><img src="../assets/logo.svg" alt="visense logo"></a>
       <h2>{{ title }}</h2>
       <v-spacer></v-spacer>
-      <v-app-bar-nav-icon></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon v-on:click="showOptionPane=!showOptionPane"></v-app-bar-nav-icon>
     </v-app-bar>
 
     <main>
       <div id="sidepane">
         <h3 class="pb-1">Sensors</h3>
-        <information-pane class="pa-1" id="informationpane" :modelID="id" :STORE="STORE"/>
+        <information-pane  class="pa-1" id="informationpane" v-if="model" :model="model" :STORE="STORE" :sensor-colors="sensorColors" v-on:sensor-limits-changed="sensorLimitsChanged" v-on:sensor-selection-changed="propagateSensorSelection"/>
         <h3 class="pb-1">Anomalies</h3>
-        <history class="pa-1" id="historypane" :modelID="id"/>
+        <history class="pa-1" id="historypane" ref="historyRef" v-if="model" :model="model" :s-t-o-r-e="STORE" :sensor-colors="sensorColors" :selected-sensors="this.selectedSensors"/>
       </div>
 
       <div id="mainpane">
@@ -22,7 +22,7 @@
         <timeline id="timeline" :STORE="STORE" />
       </div>
 
-      <option-pane id="optionpane" :STORE="STORE"/>
+      <option-pane id="optionpane" v-show="showOptionPane" :STORE="STORE"/>
     </main>
 
     <pop-up :STORE="STORE"/>
@@ -49,15 +49,22 @@ export default {
     return {
       STORE: new Storage(),
       title: "",
+      model: undefined,
+      sensorColors: Map,
+      selectedSensors:[],
+      showOptionPane: false
     };
   },
   created(){
-    window.onbeforeunload = function () {
+    if(process.env.PRODUCTION && !process.env.API_URL.includes("localhost")) window.onbeforeunload = function () {
       return "Do you really want to close?";
     };
     this.getModelData(this.id).then(res=>{
+      this.model = res
       this.title = res.name
-      registerSensorColors(res.sensors.map(sensor => sensor.id))
+      const ordinalScale = registerSensorColors(res.sensors.map(sensor => sensor.id))
+      this.sensorColors = new Map()
+      res.sensors.map(sensor => sensor.id).sort().forEach(sensorID => this.sensorColors.set(sensorID, ordinalScale(sensorID)))
     })
   },
   mounted() {
@@ -71,6 +78,12 @@ export default {
             .catch(err => { throw err });
         return response;
     },
+    propagateSensorSelection(selectedSensors){
+      this.selectedSensors=selectedSensors
+    },
+    sensorLimitsChanged(){
+      this.$refs.historyRef.getAnomalies();
+    }
   }
 };
 </script>
@@ -147,6 +160,8 @@ main {
   #optionpane{
     min-width: 200px;
     width: 15%;
+    max-height: 65%;
+    overflow-y: auto;
     position: absolute;
     right: 1%;
     margin-top: 1%;

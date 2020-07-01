@@ -9,6 +9,7 @@ import Welcome from './startpage/Welcome.vue'
 import Model from './startpage/Model.vue'
 import Modelpage from './modelpage/Modelpage.vue'
 import History from './modelpage/History.vue'
+import TimelineTest from './modelpage/timeline/TimelineTest.vue'
 
 
 Vue.config.productionTip = false
@@ -19,6 +20,11 @@ let vuetify = new Vuetify({})
 Vue.use(Router)
 const router = new Router({
   routes: [
+    {
+      path: '/timeline_test',
+      name: 'timeline_test',
+      component: TimelineTest,
+    },
     {
       path: '/landingpage',
       name: 'landingpage',
@@ -66,6 +72,5 @@ const router = new Router({
 new Vue({
   vuetify,
   router,
-  el: '#app',
   render: h => h(App),
 }).$mount('#app')

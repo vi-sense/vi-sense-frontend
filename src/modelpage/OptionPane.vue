@@ -4,19 +4,10 @@
       <p>3D View Options</p>
 
       <div>
-        <v-subheader>Field of View</v-subheader>
-        <v-slider
-          v-model="fov"
-          class="align-center"
-          :max="fov_max"
-          :min="fov_min"
-          height=5
-          thumb-label
-          thumb-size="26"
-          color="rgba(82, 186, 162, 1)"
-          track-color="rgba(0, 0, 0, 0.3)"
-          v-on:change="onSliderChanged('fov', fov)"
-        ></v-slider>
+          <v-subheader>Field of View <v-spacer/>
+          <input v-model="fov" type="number" min=40 max=160 v-on:input="onSliderChanged('fov', fov)"></v-subheader>
+
+        <input class="slider" v-model="fov" type="range" min=40 max=160 v-on:input="onSliderChanged('fov', fov)" />
       </div>
 
       <div>
@@ -82,19 +73,18 @@ export default {
       }
     },
     mounted(){
-      this._timeline = this.STORE._timelineInstance // set from Timeline.vue
-      this.ydomain = [...this._timeline.getDomainY()]
+      this.ydomain = this.STORE._timelineInstance.getDomainY()
 
       let speed = document.querySelector("#speed")
-      speed.value = this._timeline.getSpeed()
-      speed.oninput = e => { this._timeline .setSpeed(e.target.value) }
+      speed.value = this.STORE._timelineInstance.getSpeed()
+      speed.oninput = e => { this.STORE._timelineInstance.setSpeed(e.target.value) }
     },
     methods: {
       onSliderChanged(key, value) {
         switch(key) {
           case 'fov': changeFOV(value); break;
           case 'clipping': changeCameraClipping(value); break;
-          case 'ydomain' :this._timeline.setDomainY(value[0], value[1]); break;
+          case 'ydomain' : this.STORE._timelineInstance.setDomainY(value[0], value[1]); break;
           default: break;
         }
       },
@@ -110,7 +100,28 @@ export default {
   padding: 1%;
 
   div {
-    padding: 5px 0;
+    padding: 5px 0
+  }
+
+  .slider {
+    width: 100%
+  }
+
+  input[type=number] {
+    width: 25%;
+  }
+
+  .row {
+    display: flex;
+    justify-content: space-between;
+    margin: 0;
+    
+    input[type=range] {
+      width: 75%;
+    }
+    label {
+      font-size: small;
+    }
   }
 }
 

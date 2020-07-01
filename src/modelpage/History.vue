@@ -1,52 +1,57 @@
 <template lang="html">
     <div class="history" v-if="anomaliesLoaded">
-        <v-card class="my-1" v-for="(anomaly, index) in anomalies" :key="index"  :style="`border-left: 5px solid ${getSensorColor(anomaly.start_data.sensor_id)}!important`">
-            <v-container class="pa-0">
-                <v-row align="center" justify="start" :no-gutters="true">
-                    <v-col cols="10">
-                        <v-card-title>
-                            {{`${sensorsById.get(anomaly.start_data.sensor_id).name}: ${anomaly.type}`}}
-                        </v-card-title>
-                        <v-card-subtitle v-if="anomaly.end_data">{{`${anomaly.start_data.date} -
-                            ${anomaly.end_data.date}`}}
-                        </v-card-subtitle>
-                        <v-card-subtitle v-else>{{`${anomaly.start_data.date}`}}</v-card-subtitle>
-                    </v-col>
-                    <v-col cols="2">
-                        <v-icon large color="amber accent-4">mdi-alert-circle</v-icon>
-                    </v-col>
-                </v-row>
-            </v-container>
-        </v-card>
+        <v-lazy min-height="80" v-for="(anomaly, index) in filteredAnomalies" :key="index">
+        <v-hover
+                v-slot:default="{ hover }"
+        >
+            <v-card v-ripple :color="hover? 'grey lighten-4':'white'" :elevation="hover? 4: 2" class="my-1"
+                    :style="`border-left: 5px solid ${sensorColors.get(anomaly.start_data.sensor_id)}!important; opacity:${anomaly.selected?'1.0':'0.5'}`" v-on:click="centerTimeline(anomaly)">
+                <v-container class="pa-0">
+                    <v-row align="center" justify="start" :no-gutters="true" >
+                        <v-col cols="9">
+                            <v-card-title class="pr-1">
+                                {{`${sensorsById.get(anomaly.start_data.sensor_id).name}: ${anomaly.type}`}}
+                            </v-card-title>
+                            <v-card-subtitle class="pr-1" ><span class="date_span">{{ reformatDate(anomaly.start_data.date)}} - </span> <span v-if="anomaly.end_data" class="date_span"> {{reformatDate(anomaly.end_data.date)}} </span>
+                            </v-card-subtitle>
+                        </v-col>
+                        <v-col cols="3" style="text-align: center">
+                            <v-icon  large color="amber accent-4">mdi-alert-circle-outline</v-icon>
+                        </v-col>
+                    </v-row>
+                </v-container>
+            </v-card>
+        </v-hover>
+        </v-lazy>
     </div>
 </template>
 
 <script>
-    import {getSensorColor} from "../storage/SensorColors";
+    import Vue from "vue";
+    import moment from 'moment'
 
     export default {
-        props: ["modelID"],
+        props: ["model", "sensorColors", "selectedSensors", "STORE"],
         data() {
             return {
-                model: null,
+                modelData: Vue.util.extend({}, this.model),
                 sensorsById: Map,
                 anomalies: [],
                 anomaliesLoaded: false,
                 endpoint: process.env.API_URL,
-                getSensorColor: getSensorColor
             };
         },
+        computed:{
+            filteredAnomalies: function () {
+                this.anomalies.forEach(anomaly => anomaly.selected = this.selectedSensors.length === 0  || this.selectedSensors.includes(anomaly.start_data.sensor_id))
+                return this.anomalies.sort((a, b) => (a.selected === b.selected ? 0: a.selected ? -1: 1) || (b.start_data.date.localeCompare(a.start_data.date)));
+            }
+        },
         methods: {
-            async getAnomalies(id) {
-                try {
-                    const response = await fetch(this.endpoint + "/models/" + id)
-                    this.model = await response.json()
-                } catch (error) {
-                    console.log(error)
-                }
+            async getAnomalies() {
                 this.sensorsById = new Map()
                 this.anomalies = []
-                await Promise.all(this.model.sensors.map(async (sensor) => {
+                await Promise.all(this.modelData.sensors.map(async (sensor) => {
                     this.sensorsById.set(sensor.id, sensor)
                     try {
                         const sensorAnomalies = await fetch(`${this.endpoint}/sensors/${sensor.id}/anomalies`)
@@ -55,23 +60,29 @@
                         console.log(error)
                     }
                 }))
-                this.anomalies.sort((b, a) => a.start_data.date.localeCompare(b.start_data.date))
                 this.anomaliesLoaded = true
+            },
+            centerTimeline(anomaly){
+                const startDate = new Date(anomaly.start_data.date)
+                //if there are two dates, center in between those. if there is only one, center on that, achived by setting endDate equal to startDate
+                const endDate = anomaly.end_data ? new Date(anomaly.end_data.date) : startDate
+                this.STORE._timelineInstance.centerToDate(new Date((startDate.getTime() +endDate.getTime())/2 ))
+            },
+            reformatDate(dateString){
+                const date = moment(dateString)
+                return date.format("DD.MM.YY HH:mm")
             }
         },
         created() {
-            this.getAnomalies(this.modelID);
+            this.getAnomalies();
         },
-        watch: {
-            $route() {
-                this.getAnomalies(this.modelID);
-            }
-        }
     };
 </script>
 
 <style scoped lang="scss">
-
+    .date_span{
+        white-space: nowrap;
+    }
     .v-card__title {
         font-size: 1rem;
         line-height: 1rem;
@@ -81,9 +92,5 @@
 
     .v-card__subtitle {
         line-height: 1rem;
-    }
-
-    .history {
-        overflow-y: scroll;
     }
 </style>

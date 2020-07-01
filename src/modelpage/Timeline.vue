@@ -2,9 +2,12 @@
   <div>
     <div id="chartWrapper"></div>
     <div id="tools">
-      <img class="iconBtn" id="btnPlay" alt="play/pause" src="src\assets\playIcon.png">
-      <img class="iconBtn" id="btnMove" alt="move tool" src="src\assets\moveIcon.png">
-      <img class="iconBtn" id="btnSelect" alt="selection tool" src="src\assets\selectionIcon.png">
+
+      <img v-if="!playing" class="iconBtn" alt="play" v-on:click="togglePlayPause" src="src\assets\playIcon.png">
+      <img v-else class="iconBtn" alt="pause" v-on:click="togglePlayPause" src="src\assets\pauseIcon.png">
+
+      <img class="iconBtn" alt="move tool" v-on:click="setTool('pin')" src="src\assets\moveIcon.png">
+      <img class="iconBtn" alt="selection tool" v-on:click="setTool('brush')" src="src\assets\selectionIcon.png">
     </div>
   </div>
 </template>
@@ -25,12 +28,12 @@
     vertical-align:top;
     box-sizing: border-box;
 
-    padding: 8px;
-    padding-top: 12px;
+    padding: 12px 10px 0 9px;
 
-    .iconBtn {
+    > * {
       width: 100%;
       cursor: pointer;
+      opacity: 0.55; // adapt material design greyisch icon design
     }
   }
 }
@@ -44,12 +47,20 @@ import moment from 'moment';
 export default {
   props: ["STORE"],
   data() {
-    return { }
+    return { 
+      playing: false
+    }
   },
   mounted(){      
     let chartWrapper = document.querySelector("#chartWrapper")
-    let timeline = new Timeline(chartWrapper)
-          
+    chartWrapper.innerHTML = "" // clear old svg (in dev)
+
+    let timeline = new Timeline(chartWrapper)    
+    this.timeline = timeline  
+
+    this.playing = timeline.isPlaying() 
+    this.timeline.setPlayPauseCallback(() => this.playing = timeline.isPlaying())
+
     this.STORE._timelineInstance = timeline // easiets and lasiest way to pass timeline to options pane
 
     this.STORE.getSelectedSensors((sensorIds)=>{
@@ -65,10 +76,15 @@ export default {
           timeline.hideGraph(sensorId)
       }
     })
-
-    document.querySelector("#btnPlay").onclick = e => { timeline.isPlaying() ? timeline.pause() : timeline.play() }
-    document.querySelector("#btnMove").onclick = e => { timeline.setTool("pin") }
-    document.querySelector("#btnSelect").onclick = e => { timeline.setTool("brush") }
-  }
+  },
+  methods:{
+    togglePlayPause(){
+      this.timeline.isPlaying() ? this.timeline.pause() : this.timeline.play(); 
+      this.playing = this.timeline.isPlaying() 
+    },
+    setTool(tool){
+      this.timeline.setTool(tool) // pin or brush
+    }
+  },
 };
 </script>

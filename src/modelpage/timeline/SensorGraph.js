@@ -2,35 +2,38 @@
  * @author Tom Wendland
  */
 
-import DataFetcher from "./DataFetcher.js"
+import SensorGraphDataFetcher from "./SensorGraphDataFetcher.js"
+import Anomaly from "./Anomaly.js"
 
 import * as d3 from 'd3'
-import {getSensorColor} from "../../storage/SensorColors";
+import moment from 'moment';
+import { getSensorColor } from "../../storage/SensorColors";
+const API_URL = process.env.API_URL  
 
-//const SENSOR_COLORS = d3.schemeCategory10 // position mapped to sensorId
 
+let sensorBisector = d3.bisector(d => d.date).left
 
 export default class SensorGraph{
 
     /**
      * 
      * @param {Number} sensorId 
-     * @param {*} svgParent 
+     * @param {*} parentElement 
      * @param {*} xScale 
      * @param {*} yScale 
      */
-    constructor(sensorId, svgParent, xScale, yScale) {
+    constructor(sensorId, parentElement, xScale, yScale, graphs) {
         this.xScale = xScale
         this.yScale = yScale
         this.sensorId = sensorId
         this.color = getSensorColor(sensorId)
         this.data = []
-        this.dataFetcher = new DataFetcher(sensorId)
-
+        this.dataFetcher = new SensorGraphDataFetcher(sensorId)
+        
         this.line = d3.line()
             .defined(d => !isNaN(d.value) && !isNaN(d.date))
 
-        this.path = svgParent.append("path")
+        this.path = parentElement.append("path")
             .datum(this.data)
             .attr("fill", "none")
             .attr("stroke", this.color)
@@ -38,19 +41,43 @@ export default class SensorGraph{
             .attr("stroke-linejoin", "round")
             .attr("stroke-linecap", "round")
 
+        this.anomalies = []
+        fetch(`${API_URL}/sensors/${sensorId}/anomalies?end_date=${moment.utc(new Date()).format("YYYY-MM-DD HH:mm:ss")}`).then(d => d.json().then(data => {
+            for(let d of data){
+                let a = new Anomaly(d, parentElement, this.xScale, this.yScale)
+                this.anomalies.push(a)
+            }
+        }))  
+
+        this._applyHover(graphs)
         this.redraw()
     }
 
-    
-    redraw(){        
+    _applyHover(graphs){
+        this.path.on("mouseover", () => {
+            graphs.forEach(g => {
+                g.path.attr("stroke-opacity", g.sensorId == this.sensorId ? 1 : 0.4);            
+                g.anomalies.forEach(a => a.rect.attr("opacity", g.sensorId == this.sensorId ? 0.3 : 0.1));                            
+            })
+        });
+        this.path.on("mouseout", () => {
+            graphs.forEach(g => {
+                g.path.attr("stroke-opacity", 1);   
+                g.anomalies.forEach(a => a.rect.attr("opacity", 0.3));                            
+            })
+        })  
+    }
+
+    redraw(){     
+        this.anomalies.forEach(a=>a.redraw())
+   
         this.dataFetcher.get(this.xScale.domain()).then(data => {
             if(data) {
-                this.data = data
+                this.data = data                
                 this.path.datum(this.data)
                 this.redraw()
             }
         })
-
         this.line
             .x(d => this.xScale(d.date))
             .y(d => this.yScale(d.value))
@@ -60,16 +87,22 @@ export default class SensorGraph{
     }
     show(){
         this.isHidden = false
-        this.path.attr("display", "unset");
+        this.path.attr("display", "unset")
+        this.anomalies.forEach(a=>a.show())
     }
     hide(){
         this.isHidden = true
         this.path.attr("display", "none");
+        this.anomalies.forEach(a=>a.hide())
     }
+    /**
+     * @author Roman 
+     */
     getGradient(date){
         let index
         if(!this.cachedGradientDates || date < this.cachedGradientDates.lower || date > this.cachedGradientDates.upper){
             index = d3.bisect(this.data.map(d=>d.date), date)
+            if(index <= 1) return undefined
             this.cachedGradientDates = {lower: this.data[index-1].date, upper: this.data[index-1].date, indexUpper: index}
         }else{
             index = this.cachedGradientDates.indexUpper
@@ -98,35 +131,20 @@ export default class SensorGraph{
         }
         return m
     }
+
+    getValue(date){
+        let index = sensorBisector(this.data, date)
+        
+        if(index==0 || index==this.data.length){
+            // timepin is positioned out of our data range
+        }else{
+            let d = this.data[index]
+            return d.value
+        }
+    }
 }
 
 
 
 
 
-
-// Timepin einrasten ergibt kein sinn weil daten immer zu unterschiedlichen zeiten generiert wurden, also eh immer interpoliert werden müsste für die andern grapehn
-/*
-timepin.call(d3.drag().on('drag', () => {
-    let mouse_x = d3.mouse(svg.node())[0]
-    let {date, value} = bisect(mouse_x);
-    placeTimepin(date, value)
-    //marker.attr("transform", `translate(0, ${y(value)})`)
-}));
-var bisect = function() {
-    const bisect = d3.bisector(d => d.date).left;
-    return mouse_x => {
-        const date = x.invert(mouse_x);
-        const index = bisect(data, date, 1);
-        const a = data[index-1];
-        const b = data[index];
-        return b != undefined && date-a.date > b.date-date ? b : a;
-        };
-}()
-const marker = timepin.append("circle")
-.attr("fill", "none")
-.attr("stroke", "blue")
-.attr("cx", 0)
-.attr("cy", 0)
-.attr("r", 2)
-*/
