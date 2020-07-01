@@ -72,6 +72,5 @@ const router = new Router({
 new Vue({
   vuetify,
   router,
-  el: '#app',
   render: h => h(App),
 }).$mount('#app')
