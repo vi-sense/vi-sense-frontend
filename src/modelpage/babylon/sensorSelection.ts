@@ -143,6 +143,7 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
                   mesh.metadata.sensor_id = id;
                   storage.updateInitState(id, 'updated');
                   storage.set(SKEYS.INIT_SENSOR, null);
+                  storage.removeCallbacks()
 
                   advancedTexture.dispose();
                   for (const prop of Object.getOwnPropertyNames(sensorLabels)) {
@@ -151,7 +152,6 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
                   for (const prop of Object.getOwnPropertyNames(savedSensors)) {
                     delete savedSensors[prop];
                   }
-                  storage.removeCallbacks();
                   addUIElements(modelID);
                 }
               })
@@ -305,6 +305,7 @@ export function updateShader(sensorId, value?) {
   let sensor = savedSensors[sensorId]
   let mesh = myScene.getMeshByUniqueID(sensor.mesh_id);
 
+  console.log(sensor.lower_bound, sensor.upper_bound)
   if (sensor.lower_bound != null && sensor.upper_bound != null) {
     (<InputBlock>(<GradientShader>mesh.material).getBlockByName("sourceMin")).value = sensor.lower_bound;
     (<InputBlock>(<GradientShader>mesh.material).getBlockByName("sourceMax")).value = sensor.upper_bound;

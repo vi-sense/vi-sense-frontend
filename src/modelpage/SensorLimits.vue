@@ -69,7 +69,7 @@
                     this.lowerBound = newSensorData.lower_bound
                     this.gradientBound = newSensorData.gradient_bound
 
-                    updateLocalSensors(this.sensor.id, this.upperBound, this.lowerBound)
+                    updateLocalSensors(this.sensor.id, newSensorData.upper_bound, newSensorData.lower_bound)
 
                 } catch (error) {
                     console.log(error)

@@ -45,7 +45,6 @@ export default class BabylonApp {
 
         loadModel(modelID, this.scene, (meshes) => {
             let helper = this.scene.createDefaultEnvironment();
-            console.log(helper.ground);
             let minV3 = new BABYLON.Vector3();
             let maxV3 = new BABYLON.Vector3();
             meshes.forEach(mesh=>{
