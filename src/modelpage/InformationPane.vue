@@ -71,6 +71,11 @@
                 modelData: Vue.util.extend({}, this.model),
             };
         },
+        watch:{
+          selectedSensors: function (newSelectedSensors, oldSelectedSensors) {
+                this.$emit("sensor-selection-changed", newSelectedSensors)
+          }
+        },
         created() {
             this.STORE.onInitStateChanged( async (id, state) => {
                     if(state === "updated") {
