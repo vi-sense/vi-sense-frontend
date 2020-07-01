@@ -84,8 +84,8 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
   highlight = new BABYLON.HighlightLayer("highlight", myScene);
   highlight.innerGlow = true
   highlight.outerGlow = false
-  highlight.blurHorizontalSize = 2
-  highlight.blurVerticalSize = 2
+  highlight.blurHorizontalSize = 1
+  highlight.blurVerticalSize = 1
 
   await addUIElements(modelID);
 
@@ -187,7 +187,8 @@ async function addUIElements(modelID: number) {
     // await BABYLON.NodeMaterial.ParseFromSnippetAsync("4EQZYW", myScene).then(nodeMaterial => {
     //   mesh.material = nodeMaterial;
     // });
-    console.log(sensors[i].lower_bound, sensors[i].upper_bound, sensors[i].latest_data.value)
+    
+    //console.log(sensors[i].lower_bound, sensors[i].upper_bound, sensors[i].latest_data.value)
     if(sensors[i].lower_bound != null && sensors[i].upper_bound != null && sensors[i].latest_data.value != null) {
       mesh.material = new GradientShader(sensors[i].lower_bound, sensors[i].upper_bound, sensors[i].latest_data.value);
     } else mesh.material = new GradientShader(0, 100, 50);
@@ -246,7 +247,7 @@ async function addUIElements(modelID: number) {
     stackPanel.addControl(rect);
     stackPanel.linkWithMesh(mesh);
 
-    sensorLabels[sensors[i].id] = { rect: rect, arrow: arrow, circle: circle, color: getSensorColor(sensors[i].id) };
+    sensorLabels[sensors[i].id] = { rect: rect, label: label, arrow: arrow, circle: circle, color: getSensorColor(sensors[i].id) };
     // REGISTER MESH ACTIONS
     // mesh.actionManager = new BABYLON.ActionManager(scene);
     // mesh.actionManager.registerAction(
@@ -286,7 +287,6 @@ async function addUIElements(modelID: number) {
 }
 
 export function turnArrow(sensorId, gradient) {
-  console.log(gradient)
   if(gradient === undefined) {
     sensorLabels[sensorId].arrow.alpha = 0
   } else{
@@ -305,14 +305,18 @@ export function updateShader(sensorId, value?) {
   let sensor = savedSensors[sensorId]
   let mesh = myScene.getMeshByUniqueID(sensor.mesh_id);
 
-  console.log(sensor.lower_bound, sensor.upper_bound)
+  
   if (sensor.lower_bound != null && sensor.upper_bound != null) {
+    //console.log(sensor.lower_bound, sensor.upper_bound);
     (<InputBlock>(<GradientShader>mesh.material).getBlockByName("sourceMin")).value = sensor.lower_bound;
     (<InputBlock>(<GradientShader>mesh.material).getBlockByName("sourceMax")).value = sensor.upper_bound;
+    if (value) {
+      //console.log(value);
+      (<InputBlock>(<GradientShader>mesh.material).getBlockByName("Input Temperature")).value = value;
+      sensorLabels[sensorId].label.text = savedSensors[sensorId].name + "\n" + value.toFixed(2).toString();
+    }
   }
-  if (value) {  
-    (<InputBlock>(<GradientShader>mesh.material).getBlockByName("Input Temperature")).value = value
-  }
+  
 }
 
 async function getModelData(id: number) {

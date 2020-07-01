@@ -283,11 +283,8 @@ const Timeline = (function(parentElement){
 
         graphs.forEach(graph => {
             if(!graph.isHidden){
-                turnArrow(key, graph.getGradient(timepinDate))
-                console.log(graph.xScale(timepinDate))
-                //how do i get the current value?
-                graph.getValue(timepinDate)
-                updateShader(key, graph.xScale(timepinDate))
+                turnArrow(graph.sensorId, graph.getGradient(timepinDate))
+                updateShader(graph.sensorId, graph.getValue(timepinDate))
             }})
     }
 
