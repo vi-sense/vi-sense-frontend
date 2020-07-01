@@ -5,6 +5,7 @@ import { focusOnMesh } from './focusOnMesh';
 import { PulseShader, GradientShader } from './shaders';
 import SKEYS from "../../storage/StorageKeys";
 import {getSensorColor} from "../../storage/SensorColors";
+import { InputBlock } from 'babylonjs';
 
 const API_URL = process.env.API_URL;
 
@@ -42,7 +43,7 @@ export async function updateSelectedSensor(sensor_id: number, action: String) {
     mesh.outlineWidth = .05;
     mesh.outlineColor = BABYLON.Color3.Black();
     sensorLabels[sensor_id].rect.alpha = 1;
-    //sensorLabels[sensor_id].rect.isVisible = true;
+    sensorLabels[sensor_id].rect.isVisible = true;
     sensorLabels[sensor_id].arrow.alpha = 1;
     sensorLabels[sensor_id].circle.width = "70px";
     sensorLabels[sensor_id].circle.height = "70px";
@@ -51,7 +52,7 @@ export async function updateSelectedSensor(sensor_id: number, action: String) {
     mesh.state = "";
     highlight.removeMesh(mesh.subMeshes[0].getRenderingMesh());
     sensorLabels[sensor_id].rect.alpha = 0;
-    //sensorLabels[sensor_id].rect.isVisible = false;
+    sensorLabels[sensor_id].rect.isVisible = false;
     sensorLabels[sensor_id].arrow.alpha = 0;
     sensorLabels[sensor_id].circle.width = "30px";
     sensorLabels[sensor_id].circle.height = "30px";
@@ -83,8 +84,8 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
   highlight = new BABYLON.HighlightLayer("highlight", myScene);
   highlight.innerGlow = true
   highlight.outerGlow = false
-  highlight.blurHorizontalSize = 2
-  highlight.blurVerticalSize = 2
+  highlight.blurHorizontalSize = 1
+  highlight.blurVerticalSize = 1
 
   await addUIElements(modelID);
 
@@ -142,6 +143,7 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
                   mesh.metadata.sensor_id = id;
                   storage.updateInitState(id, 'updated');
                   storage.set(SKEYS.INIT_SENSOR, null);
+                  storage.removeCallbacks()
 
                   advancedTexture.dispose();
                   for (const prop of Object.getOwnPropertyNames(sensorLabels)) {
@@ -150,7 +152,6 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
                   for (const prop of Object.getOwnPropertyNames(savedSensors)) {
                     delete savedSensors[prop];
                   }
-                  storage.removeCallbacks();
                   addUIElements(modelID);
                 }
               })
@@ -186,9 +187,12 @@ async function addUIElements(modelID: number) {
     // await BABYLON.NodeMaterial.ParseFromSnippetAsync("4EQZYW", myScene).then(nodeMaterial => {
     //   mesh.material = nodeMaterial;
     // });
+    
+    //console.log(sensors[i].lower_bound, sensors[i].upper_bound, sensors[i].latest_data.value)
+    if(sensors[i].lower_bound != null && sensors[i].upper_bound != null && sensors[i].latest_data.value != null) {
+      mesh.material = new GradientShader(sensors[i].lower_bound, sensors[i].upper_bound, sensors[i].latest_data.value);
+    } else mesh.material = new GradientShader(0, 100, 50);
 
-    //mesh.material = new GradientShader(sensors[i].lower_bound, sensors[i].upper_bound, sensors[i].latest_data.value);
-    mesh.material = new GradientShader(0, 100, 20);
     //mesh.material = new PulseShader(20, 0.25, 0.75);
     mesh.material.backFaceCulling = true;
 
@@ -220,7 +224,7 @@ async function addUIElements(modelID: number) {
 
     let rect = new GUI.Rectangle();
     rect.alpha = 0;
-    //rect.isVisible = false;
+    rect.isVisible = false;
     rect.background = "white";
     rect.cornerRadius = 5;
     rect.isPointerBlocker = false;
@@ -228,11 +232,11 @@ async function addUIElements(modelID: number) {
 
     let label = new GUI.TextBlock();
     label.width = "120px"
-    label.fontSizeInPixels = 14
+    label.fontSizeInPixels = 13
     label.paddingBottomInPixels = 3
     label.paddingTopInPixels = 3
-    label.paddingLeftInPixels = 3
-    label.paddingRightInPixels = 3
+    label.paddingLeftInPixels = 5
+    label.paddingRightInPixels = 5
     label.text = sensors[i].name;
     label.textWrapping = GUI.TextWrapping.WordWrap
     label.resizeToFit = true;
@@ -243,7 +247,7 @@ async function addUIElements(modelID: number) {
     stackPanel.addControl(rect);
     stackPanel.linkWithMesh(mesh);
 
-    sensorLabels[sensors[i].id] = { rect: rect, arrow: arrow, circle: circle, color: getSensorColor(sensors[i].id) };
+    sensorLabels[sensors[i].id] = { rect: rect, label: label, arrow: arrow, circle: circle, color: getSensorColor(sensors[i].id) };
     // REGISTER MESH ACTIONS
     // mesh.actionManager = new BABYLON.ActionManager(scene);
     // mesh.actionManager.registerAction(
@@ -289,6 +293,32 @@ export function turnArrow(sensorId, gradient) {
     sensorLabels[sensorId].arrow.alpha = 1
     sensorLabels[sensorId].arrow.rotation = -Math.atan(gradient)
   }
+}
+
+export function updateLocalSensors(sensorId, upper_bound, lower_bound) {
+  savedSensors[sensorId].upper_bound = upper_bound
+  savedSensors[sensorId].lower_bound = lower_bound
+  updateShader(sensorId)
+}
+
+export function updateShader(sensorId, value?) {
+  let sensor = savedSensors[sensorId]
+  let mesh = myScene.getMeshByUniqueID(sensor.mesh_id);
+
+  if (value) {
+    sensorLabels[sensorId].label.text = savedSensors[sensorId].name + "\n" + value.toFixed(2).toString() + savedSensors[sensorId].measurement_unit;
+    if (sensor.lower_bound != null && sensor.upper_bound != null) {
+      (<InputBlock>(<GradientShader>mesh.material).getBlockByName("sourceMin")).value = sensor.lower_bound;
+      (<InputBlock>(<GradientShader>mesh.material).getBlockByName("sourceMax")).value = sensor.upper_bound;
+      (<InputBlock>(<GradientShader>mesh.material).getBlockByName("Input Temperature")).value = value;
+    } else {
+      // one of the bounds isnt set, set material to default
+      (<InputBlock>(<GradientShader>mesh.material).getBlockByName("sourceMin")).value = 0;
+      (<InputBlock>(<GradientShader>mesh.material).getBlockByName("sourceMax")).value = 1;
+      (<InputBlock>(<GradientShader>mesh.material).getBlockByName("Input Temperature")).value = 0.5;
+    }
+  }
+  
 }
 
 async function getModelData(id: number) {

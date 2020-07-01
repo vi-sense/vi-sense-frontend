@@ -6,6 +6,7 @@ import 'babylonjs-loaders';
 import 'babylonjs-inspector';
 import { createFloorCamera, createArcCamera, createMinimapCamera } from './cameras';
 import setupSensorSelection from './sensorSelection';
+import { setupClippingPlanes } from "./clippingPlanes";
 import { loadModel } from './loadModel';
 import CustomLoadingScreen from './loadingScreen';
 import Storage from '../../storage/Storage';
@@ -40,8 +41,10 @@ export default class BabylonApp {
         light.groundColor = new BABYLON.Color3(0.1, 0.1, 0.1);
         light.intensity = 1.5;
 
+        setupClippingPlanes(this.scene);
+
         loadModel(modelID, this.scene, (meshes) => {
-            this.scene.createDefaultEnvironment();
+            let helper = this.scene.createDefaultEnvironment();
             let minV3 = new BABYLON.Vector3();
             let maxV3 = new BABYLON.Vector3();
             meshes.forEach(mesh=>{
@@ -69,8 +72,10 @@ export default class BabylonApp {
         /*
         this.scene.onPointerUp = function (evt, pickResult) {
             if (pickResult.hit) {
-                var normal = pickResult.getNormal(false, true)
-                //this.clipPlane = new BABYLON.Plane(normal.x, normal.y, normal.z, 1);
+                var normal = pickResult.getNormal(true, false)
+                let origin = new BABYLON.Vector3()
+                //this.clipPlane = new BABYLON.Plane(normal.x, normal.y, normal.z, origin.subtract(normal.clone()).length());
+
                 let pos = pickResult.pickedPoint;
                 var lines = [];
                 var line = [pos, pos.add(normal)];
@@ -79,8 +84,8 @@ export default class BabylonApp {
                 lineSystem.color = BABYLON.Color3.Red();
             };
         }
+        
         */
-
         this.engine.runRenderLoop(() => {
             this.scene.render();
         })

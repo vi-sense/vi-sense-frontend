@@ -4,19 +4,10 @@
       <p>3D View Options</p>
 
       <div>
-        <v-subheader>Field of View</v-subheader>
-        <v-slider
-          v-model="fov"
-          class="align-center"
-          :max="fov_max"
-          :min="fov_min"
-          height=5
-          thumb-label
-          thumb-size="26"
-          color="rgba(82, 186, 162, 1)"
-          track-color="rgba(0, 0, 0, 0.3)"
-          v-on:change="onSliderChanged('fov', fov)"
-        ></v-slider>
+          <v-subheader>Field of View <v-spacer/>
+          <input v-model="fov" type="number" min=40 max=160 v-on:input="onSliderChanged('fov', fov)"></v-subheader>
+
+        <input class="slider" v-model="fov" type="range" min=40 max=160 v-on:input="onSliderChanged('fov', fov)" />
       </div>
 
       <div>
@@ -109,7 +100,28 @@ export default {
   padding: 1%;
 
   div {
-    padding: 5px 0;
+    padding: 5px 0
+  }
+
+  .slider {
+    width: 100%
+  }
+
+  input[type=number] {
+    width: 25%;
+  }
+
+  .row {
+    display: flex;
+    justify-content: space-between;
+    margin: 0;
+    
+    input[type=range] {
+      width: 75%;
+    }
+    label {
+      font-size: small;
+    }
   }
 }
 

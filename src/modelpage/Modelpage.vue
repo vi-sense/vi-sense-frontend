@@ -160,6 +160,8 @@ main {
   #optionpane{
     min-width: 200px;
     width: 15%;
+    max-height: 65%;
+    overflow-y: auto;
     position: absolute;
     right: 1%;
     margin-top: 1%;

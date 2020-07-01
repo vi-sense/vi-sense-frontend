@@ -47,6 +47,7 @@
                                    >
                                 <span v-if="sensor.mesh_id">Reposition Sensor</span>
                                 <span v-else>Position Sensor</span>
+                                
                             </v-btn>
                 <sensor-limits :sensor="sensor" v-on:sensor-limits-changed="$emit('sensor-limits-changed')"></sensor-limits>
                 </v-expansion-panel-content>
@@ -60,11 +61,10 @@
     import axios from "axios";
     import SKEYS from "../storage/StorageKeys";
     import SensorLimits from "./SensorLimits";
-    import PopUp from "./PopUp";
     import Vue from 'vue'
     export default {
-        components: {SensorLimits, PopUp},
-        props: ["model", "STORE", "popUp", "sensorColors"],
+        components: {SensorLimits},
+        props: ["model", "STORE", "sensorColors"],
         data() {
             return {
                 selectedSensors: [],
@@ -105,14 +105,17 @@
                 this.STORE.set(SKEYS.CAMERA_DRIVE_SENSOR, id);
             },
             initSensor(id) {
+                this.STORE.removeCallbacks()
                 this.STORE.set(SKEYS.INIT_SENSOR, id);
-                this.STORE.onInitStateChanged(async (id, state) => {
-                    if(state === "updated") {
-                        const newSensorRes = await fetch(this.endpoint + "sensors/" + id)
-                        const newSensorData = await newSensorRes.json()
-                        this.modelData.sensors.find((sensor) => sensor.id === id).mesh_id = newSensorData.mesh_id
-                    }
-                })
+                if(id) {
+                    this.STORE.onInitStateChanged(async (id, state) => {
+                        if(state === "updated") {
+                            const newSensorRes = await fetch(this.endpoint + "sensors/" + id)
+                            const newSensorData = await newSensorRes.json()
+                            this.modelData.sensors.find((sensor) => sensor.id === id).mesh_id = newSensorData.mesh_id
+                        }
+                    })
+                }
             },
             loadSensorData(id) {
                 axios(process.env.API_URL + "/models/" + id)
