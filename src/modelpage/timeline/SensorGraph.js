@@ -10,6 +10,9 @@ import moment from 'moment';
 import { getSensorColor } from "../../storage/SensorColors";
 const API_URL = process.env.API_URL  
 
+
+let sensorBisector = d3.bisector(d => d.date).left
+
 export default class SensorGraph{
 
     /**
@@ -92,6 +95,9 @@ export default class SensorGraph{
         this.path.attr("display", "none");
         this.anomalies.forEach(a=>a.hide())
     }
+    /**
+     * @author Roman 
+     */
     getGradient(date){
         let index
         if(!this.cachedGradientDates || date < this.cachedGradientDates.lower || date > this.cachedGradientDates.upper){
@@ -124,6 +130,17 @@ export default class SensorGraph{
             m = (1.5-interpolationPosition)*m1 + (interpolationPosition -0.5)*m2
         }
         return m
+    }
+
+    getValue(date){
+        let index = sensorBisector(this.data, date)
+        
+        if(index==0 || index==this.data.length){
+            // timepin is positioned out of our data range
+        }else{
+            let d = this.data[index]
+            return d.value
+        }
     }
 }
 
