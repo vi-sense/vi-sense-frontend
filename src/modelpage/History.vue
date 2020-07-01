@@ -1,8 +1,8 @@
 <template lang="html">
     <div class="history" v-if="anomaliesLoaded">
+        <v-lazy min-height="80" v-for="(anomaly, index) in filteredAnomalies" :key="index">
         <v-hover
                 v-slot:default="{ hover }"
-                v-for="(anomaly, index) in filteredAnomalies" :key="index"
         >
             <v-card v-ripple :color="hover? 'grey lighten-4':'white'" :elevation="hover? 4: 2" class="my-1"
                     :style="`border-left: 5px solid ${sensorColors.get(anomaly.start_data.sensor_id)}!important; opacity:${anomaly.selected?'1.0':'0.5'}`" v-on:click="centerTimeline(anomaly)">
@@ -22,6 +22,7 @@
                 </v-container>
             </v-card>
         </v-hover>
+        </v-lazy>
     </div>
 </template>
 
