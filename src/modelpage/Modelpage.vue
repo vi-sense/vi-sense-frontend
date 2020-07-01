@@ -9,19 +9,23 @@
 
     <main>
       <div id="sidepane">
-        <InformationPane id="informationpane" :modeID="id" :STORE="STORE"/>
-        <History id="historypane" :modelId="id"/>
+        <h3 class="pb-1">Sensors</h3>
+        <information-pane class="pa-1" id="informationpane" :modelID="id" :STORE="STORE"/>
+        <h3 class="pb-1">Anomalies</h3>
+        <history class="pa-1" id="historypane" :modelID="id"/>
       </div>
 
       <div id="mainpane">
         <div id="canvaswrapper">
           <canvas id="babyloncanvas"></canvas>
         </div>
-        <Timeline id="timeline" :STORE="STORE" />
+        <timeline id="timeline" :STORE="STORE" />
       </div>
 
-      <OptionPane id="optionpane" :STORE="STORE"/>
+      <option-pane id="optionpane" :STORE="STORE"/>
     </main>
+
+    <pop-up :STORE="STORE"/>
   </div>
 </template>
 
@@ -32,19 +36,19 @@ import Timeline from "./Timeline";
 import InformationPane from "./InformationPane";
 import OptionPane from "./OptionPane";
 import Storage from "../storage/Storage";
-import axios from "axios";
 import History from "./History";
+import PopUp from "./PopUp";
+import {registerSensorColors} from "../storage/SensorColors";
 
 export default {
   props: ["id"],
   components: {
-    History,
-    Timeline, InformationPane, OptionPane
+    History, Timeline, InformationPane, OptionPane, PopUp
   },
   data() {
     return {
       STORE: new Storage(),
-      title: ""
+      title: "",
     };
   },
   created(){
@@ -53,7 +57,8 @@ export default {
     };
     this.getModelData(this.id).then(res=>{
       this.title = res.name
-    })     
+      registerSensorColors(res.sensors.map(sensor => sensor.id))
+    })
   },
   mounted() {
     var canvas = document.getElementById("babyloncanvas");
@@ -76,7 +81,7 @@ header {
   min-height: 7%;
   height: 7% !important;
   z-index: 3;
-  
+
   #logo {
     display: contents;
     img {
@@ -118,20 +123,26 @@ main {
       background-color: white;
     }
   }
-  #informationpane{
-    height:60%;
+  div::-webkit-scrollbar {
+    display: none;
   }
-  #historypane{
-    height:40%;
-    overflow-y: scroll;
-  }
+
   #sidepane {
     display: inline-block;
     min-width: 200px;
     width: 15%;
     height: 100%;
     background-color: white;
-  }
+    overflow-y: scroll;
+    h3 {
+        display: block;
+        color: black;
+        padding: 16px;
+        margin: 0;
+        text-decoration: none;
+      }
+    }
+
 
   #optionpane{
     min-width: 200px;

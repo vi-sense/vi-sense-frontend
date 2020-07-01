@@ -3,15 +3,13 @@ import * as GUI from "babylonjs-gui";
 import Storage from '../../storage/Storage';
 import { focusOnMesh } from './focusOnMesh';
 import { PulseShader, GradientShader } from './shaders';
-import { SENSOR_COLORS } from '../../storage/Settings';
+import SKEYS from "../../storage/StorageKeys";
+import {getSensorColor} from "../../storage/SensorColors";
 
 const API_URL = process.env.API_URL;
-const sensorColor = BABYLON.Color3.Purple();
-const selectedSensorColor = BABYLON.Color3.Teal();
 
 var SELECTABLES: BABYLON.AbstractMesh[];
 var advancedTexture: GUI.AdvancedDynamicTexture;
-var defaultMat: BABYLON.Material;
 
 var myScene: BABYLON.Scene;
 var storage: Storage;
@@ -33,42 +31,38 @@ var savedSensors = {};
   */
 export async function updateSelectedSensor(sensor_id: number, action: String) {
   let sensor = savedSensors[sensor_id];
+  if (!sensor) throw new Error("Did not find a sensor with id: " + sensor_id)
+  let mesh = myScene.getMeshByUniqueID(sensor.mesh_id);
+  if (!mesh) throw new Error("Did not find a mesh with id: " + sensor.mesh_id)
+
   if(action == "new") {
-    let mesh = myScene.getMeshByName(sensor.mesh_id);
     mesh.state = "selected";
     highlight.addMesh(mesh.subMeshes[0].getRenderingMesh(), BABYLON.Color3.Black());
     mesh = mesh.subMeshes[0].getRenderingMesh();
     mesh.outlineWidth = .05;
     mesh.outlineColor = BABYLON.Color3.Black();
-    //mesh.renderOutline = true;
-    let mat = mesh.material as BABYLON.PBRMaterial;
-    mat.albedoColor = selectedSensorColor;
     sensorLabels[sensor_id].rect.alpha = 1;
-    sensorLabels[sensor_id].rect.isVisible = true;
+    //sensorLabels[sensor_id].rect.isVisible = true;
     sensorLabels[sensor_id].arrow.alpha = 1;
     sensorLabels[sensor_id].circle.width = "70px";
     sensorLabels[sensor_id].circle.height = "70px";
-    // sensorLabels[sensor_id].label.children[0].text = sensor.name;
   }
   else if (action == "removed") {
-    let mesh = myScene.getMeshByName(sensor.mesh_id);
     mesh.state = "";
     highlight.removeMesh(mesh.subMeshes[0].getRenderingMesh());
-    //mesh.renderOutline = false;
-    let mat = mesh.material as BABYLON.PBRMaterial;
-    mat.albedoColor = sensorColor;
     sensorLabels[sensor_id].rect.alpha = 0;
-    sensorLabels[sensor_id].rect.isVisible = false;
+    //sensorLabels[sensor_id].rect.isVisible = false;
     sensorLabels[sensor_id].arrow.alpha = 0;
     sensorLabels[sensor_id].circle.width = "30px";
     sensorLabels[sensor_id].circle.height = "30px";
-    // sensorLabels[sensor_id].label.children[0].text = "";
   }
 }
 
 export async function moveToMesh(scene: BABYLON.Scene, sensor_id: number) {
   let sensor = savedSensors[sensor_id];
-  let mesh = scene.getMeshByName(sensor.mesh_id);
+  if (!sensor) throw new Error("Did not find a sensor with id: " + sensor_id)
+  let mesh = scene.getMeshByUniqueID(sensor.mesh_id);
+  if (!mesh) throw new Error("Did not find a mesh with id: " + sensor.mesh_id)
   let target = mesh.getBoundingInfo().boundingSphere.centerWorld;
   focusOnMesh(scene, target);
 }
@@ -85,10 +79,6 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
 
   SELECTABLES = myScene.getNodeByName("selectables").getChildMeshes();
 
-  SELECTABLES.forEach((mesh) => {
-    mesh.isPickable= true
-  })
-
   // setup of highlight layer
   highlight = new BABYLON.HighlightLayer("highlight", myScene);
   highlight.innerGlow = true
@@ -103,44 +93,66 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
   })
 
   // CALLBACK FOR CAMERA DRIVE
-  storage.registerOnUpdateCallback(2, (id) => {
+  storage.registerOnUpdateCallback(SKEYS.CAMERA_DRIVE_SENSOR, (id) => {
     if (id == null) myScene.stopAnimation(myScene.activeCamera);
     else moveToMesh(myScene, id);
   })
 
   // CALLBACK FOR SENSOR INIT
-  storage.registerOnUpdateCallback(3, (id) => {
+  storage.registerOnUpdateCallback(SKEYS.INIT_SENSOR, (id) => {
     if (id == null) {
       SELECTABLES.forEach((mesh) => {
+        mesh.isPickable = false
         highlight.removeMesh(mesh.subMeshes[0].getRenderingMesh());
-        mesh.material = defaultMat;
-        mesh.actionManager.actions.splice(0, 1)
+        mesh.actionManager.actions.splice(0, 1);
       })
     }
     else {
       SELECTABLES.forEach((mesh) => {
+        mesh.isPickable = true
         highlight.addMesh(mesh.subMeshes[0].getRenderingMesh(), BABYLON.Color3.White());
         mesh.actionManager = new BABYLON.ActionManager(myScene);
         mesh.actionManager.registerAction(
           new BABYLON.ExecuteCodeAction(
             BABYLON.ActionManager.OnPickTrigger, async function (e) {
-              mesh.material = new GradientShader(0, 100, 50);
-              if(mesh.metadata.sensor_id) {
-                console.log("was already set; removing sensor from this mesh");
-                updateSensorMeshID(mesh.metadata.sensor_id, null);
-              }
-              await updateSensorMeshID(id, mesh.name);
-              mesh.metadata.sensor_id = id;
-              storage.set(3, null);
+              storage.updateInitState(id, 'mesh_picked')
 
-              advancedTexture.dispose();
-              for (const prop of Object.getOwnPropertyNames(sensorLabels)) {
-                delete sensorLabels[prop];
-              }
-              for (const prop of Object.getOwnPropertyNames(savedSensors)) {
-                delete savedSensors[prop];
-              }
-              addUIElements(modelID);
+              storage.onInitStateChanged(async (id, state) => {
+                if(state === "confirmed") {
+                  let selectedSensors = storage.getSelectedSensors()
+                  selectedSensors.forEach((sensor) => {
+                    storage.unselectSensor(sensor)
+                  })
+
+                  if (savedSensors[id] && savedSensors[id].mesh_id != null) {
+                    // REPOSITION A SENSOR
+                    let prevMesh = myScene.getMeshByUniqueID(savedSensors[id].mesh_id)
+                    prevMesh.material = myScene.getMaterialByName("Mat");
+                    prevMesh.metadata.sensor_id = null;
+                  }
+                  
+                  if (mesh.metadata.sensor_id && mesh.metadata.sensor_id != null) {
+                    // OVERRIDE A MESH WITH ANOTHER SENSOR
+                    await updateSensorMeshID(mesh.metadata.sensor_id, null);
+                  }
+
+                  // SIMPLY INIT SENSOR
+                  await updateSensorMeshID(id, mesh.uniqueId);
+                  mesh.metadata.sensor_id = id;
+                  storage.updateInitState(id, 'updated');
+                  storage.set(SKEYS.INIT_SENSOR, null);
+
+                  advancedTexture.dispose();
+                  for (const prop of Object.getOwnPropertyNames(sensorLabels)) {
+                    delete sensorLabels[prop];
+                  }
+                  for (const prop of Object.getOwnPropertyNames(savedSensors)) {
+                    delete savedSensors[prop];
+                  }
+                  storage.removeCallbacks();
+                  addUIElements(modelID);
+                }
+              })
         }));
       })
     }
@@ -151,24 +163,20 @@ async function addUIElements(modelID: number) {
   // GET MODEL DATA
   let model = await getModelData(modelID);
   let sensors = model.sensors;
-
   advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
-
   for (let i = 0; i < sensors.length; i++) {
     if (sensors[i].mesh_id == null || sensors[i].mesh_id == "") continue;
     savedSensors[sensors[i].id] = sensors[i]
 
     let mesh: BABYLON.AbstractMesh;
-    if (model.id == 4) mesh = myScene.getMeshByUniqueID(parseInt(sensors[i].mesh_id));
-    else mesh = myScene.getMeshByName(sensors[i].mesh_id);
-
-    if(!mesh) continue;
-    mesh.metadata.sensor_id = sensors[i].id;
-
-    if (i == 1) {
-      defaultMat = mesh.material
-      defaultMat.freeze()
+    mesh = myScene.getMeshByUniqueID(sensors[i].mesh_id);
+    if(!mesh) {
+      console.log("Did not find a mesh with id: " + sensors[i].mesh_id);
+      continue;
     }
+
+    mesh.metadata.sensor_id = sensors[i].id;
+    
     //QPRJU9#12 - sine water flow
     //QPRJU9#16 - sine color change
     //JN2BSF#54 - turbulence fire
@@ -199,7 +207,7 @@ async function addUIElements(modelID: number) {
     circle.width = "30px";
     circle.height = "30px";
     circle.alpha = 1;
-    circle.background = SENSOR_COLORS[sensors[i].id];
+    circle.background = getSensorColor(sensors[i].id);
     circle.addControl(arrow)
     circle.isPointerBlocker = true;
     circle.hoverCursor = "pointer"
@@ -211,8 +219,9 @@ async function addUIElements(modelID: number) {
 
     let rect = new GUI.Rectangle();
     rect.alpha = 0;
-    rect.isVisible = false;
+    //rect.isVisible = false;
     rect.background = "white";
+    rect.cornerRadius = 5;
     rect.isPointerBlocker = false;
     stackPanel.addControl(rect);
 
@@ -233,8 +242,7 @@ async function addUIElements(modelID: number) {
     stackPanel.addControl(rect);
     stackPanel.linkWithMesh(mesh);
 
-    sensorLabels[sensors[i].id] = { rect: rect, arrow: arrow, circle: circle, color: SENSOR_COLORS[sensors[i].id] };
-
+    sensorLabels[sensors[i].id] = { rect: rect, arrow: arrow, circle: circle, color: getSensorColor(sensors[i].id) };
     // REGISTER MESH ACTIONS
     // mesh.actionManager = new BABYLON.ActionManager(scene);
     // mesh.actionManager.registerAction(
@@ -270,12 +278,13 @@ async function addUIElements(modelID: number) {
     //     )
     //   ));
   }
+  myScene.metadata.savedSensors = savedSensors;
 }
 
-export function turnArrow(sensorId, gradient){
-  if(gradient === undefined){
+export function turnArrow(sensorId, gradient) {
+  if(gradient === undefined) {
     sensorLabels[sensorId].arrow.alpha = 0
-  }else{
+  } else{
     sensorLabels[sensorId].arrow.alpha = 1
     sensorLabels[sensorId].arrow.rotation = -Math.atan(gradient)
   }
@@ -288,7 +297,7 @@ async function getModelData(id: number) {
   return response;
 }
 
-async function updateSensorMeshID(sensor_id: number, mesh_id: string) {
+async function updateSensorMeshID(sensor_id: number, mesh_id: number) {
   let update = {
     'mesh_id': mesh_id,
   }
@@ -300,7 +309,7 @@ async function updateSensorMeshID(sensor_id: number, mesh_id: string) {
     },
     body: JSON.stringify(update)
   })
-    .then(res => { return res.json() })
-    .catch(err => { throw new Error("Can not update sensors mesh id") });
+      .then(res => { return res.json() })
+      .catch(err => { throw new Error("Can not update sensors mesh id") });
   return response;
 }
