@@ -281,7 +281,7 @@ const Timeline = (function(parentElement){
 
         graphs.forEach(graph => {
             if(!graph.isHidden){
-                turnArrow(key, graph.getGradient(timepinDate))
+                turnArrow(graph.sensorId, graph.getGradient(timepinDate))
                 graph.getValue(timepinDate)
             }
         })
@@ -304,7 +304,8 @@ const Timeline = (function(parentElement){
 
     var speed = 1
     var playing = false
-    
+    var playPauseCallback
+
     function update() {
         requestAnimationFrame(update)
 
@@ -329,16 +330,13 @@ const Timeline = (function(parentElement){
     
             if(!selection && timepinDate > now){
                 playing = false
+                if(playPauseCallback) playPauseCallback()
                 timepinDate.setTime(now)
             }
             redrawTimepin()
         }
     }
     
-
-    svg.selectAll("text")
-    .attr("pointer-events", "none")
-
     setTool("pin")
     redrawTimepin() 
     requestAnimationFrame(update)
@@ -418,6 +416,7 @@ const Timeline = (function(parentElement){
         play(){ playing = true },
         pause(){ playing = false },
         isPlaying(){ return playing },
+        setPlayPauseCallback(callback){ playPauseCallback = callback },
 
         getSpeed(){ return speed },
         setSpeed(s){ speed = s },

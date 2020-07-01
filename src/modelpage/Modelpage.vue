@@ -4,7 +4,7 @@
       <a id="logo" href="/"><img src="../assets/logo.svg" alt="visense logo"></a>
       <h2>{{ title }}</h2>
       <v-spacer></v-spacer>
-      <v-app-bar-nav-icon></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon v-on:click="showOptionPane=!showOptionPane"></v-app-bar-nav-icon>
     </v-app-bar>
 
     <main>
@@ -22,7 +22,7 @@
         <timeline id="timeline" :STORE="STORE" />
       </div>
 
-      <option-pane id="optionpane" :STORE="STORE"/>
+      <option-pane id="optionpane" v-show="showOptionPane" :STORE="STORE"/>
     </main>
 
     <pop-up :STORE="STORE"/>
@@ -51,7 +51,8 @@ export default {
       title: "",
       model: undefined,
       sensorColors: Map,
-      selectedSensors:[]
+      selectedSensors:[],
+      showOptionPane: false
     };
   },
   created(){
