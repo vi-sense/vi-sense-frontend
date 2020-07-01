@@ -278,11 +278,13 @@ const Timeline = (function(parentElement){
     function redrawTimepin(){  
         timepin.select("text").text(() => moment(timepinDate).format("ddd DD.MM.YY,  HH:mm"))
         timepin.attr("transform", `translate(${xScale(timepinDate)}, 0)`)
-        Array.from(graphs.keys()).forEach(key => {
-            const graph = graphs.get(key)
+
+        graphs.forEach(graph => {
             if(!graph.isHidden){
                 turnArrow(key, graph.getGradient(timepinDate))
-            }})
+                graph.getValue(timepinDate)
+            }
+        })
     }
 
     
@@ -311,11 +313,6 @@ const Timeline = (function(parentElement){
         graphs.forEach(g => {
             g.dataFetcher.checkAndUpdateRealtimeData( () => g.redraw() )
         })
-
-        // TODO update timeline max zoom date in realtime
-        // idk why but its stuttering even if i only call this method once
-        // -> dont update timeline in realtime but allow to scroll some hours ontop
-        //zoom.translateExtent([[zoom.translateExtent[0]], [xScale(ttt)]]);
 
         endline.attr("transform", `translate(${xScale(now)}, 0)`)
 
