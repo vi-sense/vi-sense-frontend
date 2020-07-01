@@ -34,6 +34,7 @@
 
 <script>
     import {updateLocalSensors} from './babylon/sensorSelection';
+    import {eventBus} from "../main";
 
     export default {
         name: "SensorLimits",
@@ -68,7 +69,7 @@
                     this.upperBound = newSensorData.upper_bound
                     this.lowerBound = newSensorData.lower_bound
                     this.gradientBound = newSensorData.gradient_bound
-                    this.$emit('sensor-limits-changed')
+                    eventBus.$emit('sensor-limits-changed')
 
                     updateLocalSensors(this.sensor.id, newSensorData.upper_bound, newSensorData.lower_bound)
 

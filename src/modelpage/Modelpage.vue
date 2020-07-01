@@ -81,9 +81,6 @@ export default {
     propagateSensorSelection(selectedSensors){
       this.selectedSensors=selectedSensors
     },
-    sensorLimitsChanged(){
-      this.$refs.historyRef.getAnomalies();
-    }
   }
 };
 </script>

@@ -49,7 +49,7 @@
                                 <span v-else>Position Sensor</span>
                                 
                             </v-btn>
-                <sensor-limits :sensor="sensor" v-on:sensor-limits-changed="$emit('sensor-limits-changed')"></sensor-limits>
+                <sensor-limits :sensor="sensor"></sensor-limits>
                 </v-expansion-panel-content>
             </v-expansion-panel>
         </v-expansion-panels>

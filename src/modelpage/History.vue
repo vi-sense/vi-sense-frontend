@@ -29,6 +29,7 @@
 <script>
     import Vue from "vue";
     import moment from 'moment'
+    import {eventBus} from "../main";
 
     export default {
         props: ["model", "sensorColors", "selectedSensors", "STORE"],
@@ -74,6 +75,7 @@
             }
         },
         created() {
+            eventBus.$on('sensor-limits-changed', () => this.getAnomalies())
             this.getAnomalies();
         },
     };
