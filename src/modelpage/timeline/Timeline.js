@@ -450,6 +450,7 @@ const Timeline = (function(parentElement){
             yScale.range([height - margin.bottom, margin.top])
             xScale.range([margin.left, width-margin.right-1]) 
             xScaleRef.range([margin.left, width-margin.right-1]) 
+            zoom.extent([[margin.left], [width-margin.right]])
 
             gy.call(yAxis)
             gx.call(xAxis)

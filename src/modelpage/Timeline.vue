@@ -18,7 +18,7 @@
           <img v-on:click="showDatePicker=!showDatePicker" src="../assets/datepicker.png">
           <div id="calendarWrapper">
             <v-date-picker id="calendar" 
-                v-show="showDatePicker"
+              v-show="showDatePicker"
               :no-title=true
               min="2019-10-01"
               :max=maxdate
