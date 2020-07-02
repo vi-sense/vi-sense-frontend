@@ -103,7 +103,10 @@ const Timeline = (function(parentElement){
 
     const yAxis = g => g
         .attr("transform", `translate(${margin.left-2},0)`)
-        .call(d3.axisLeft(yScale))
+        .call(d3
+            .axisLeft(yScale)
+            .ticks(height/30)
+        )
         .call(yLabel)
         .call(g => g.selectAll(".ygrid").remove())
         .call(g => g.selectAll(".tick line").clone().attr("class", "ygrid"))
@@ -135,7 +138,6 @@ const Timeline = (function(parentElement){
         .scaleExtent([0.3, 20]) // zoom factor range, depends on preselected domain. first value ist zoom out
         .translateExtent([[xScale(new Date(2019, 9, 1))], [xScale(_endTransform)]]) // pan range
         .on("zoom", () => {
-
             let t = d3.event.transform
             xScale.domain(t.rescaleX(xScaleRef).domain());
 
@@ -449,16 +451,23 @@ const Timeline = (function(parentElement){
             svg.attr("viewBox", [0, 0, width, height])
             yScale.range([height - margin.bottom, margin.top])
             xScale.range([margin.left, width-margin.right-1]) 
-            xScaleRef.range([margin.left, width-margin.right-1]) 
-            zoom.extent([[margin.left], [width-margin.right]])
-
+            xScaleRef.range([margin.left, width-margin.right-1])
             gy.call(yAxis)
             gx.call(xAxis)
+
+            zoom.extent([[margin.left], [width-margin.right]])
+            brush.extent([[margin.left, margin.top], [width-margin.right, height-margin.bottom]])
+            brushGroup.call(brush)
+            endline.select("line").attr("y2", height-margin.bottom)
+            timepin.select("rect").attr("y", height-margin.top-6)
+            timepin.select("text").attr("y", height-margin.top+7)
+            timepin.select("line").attr("y2", height-margin.bottom+18)
+            svg.select("#clipXY").select("rect").attr("y", margin.top).attr("x", margin.left).attr("height",height-margin.top-margin.bottom).attr("width",width-margin.left-margin.right)
+            svg.select("#clipX").select("rect").attr("y", 0).attr("x", margin.left).attr("height",height).attr("width",width-margin.left-margin.right)
+
             graphs.forEach(g => g.redraw())
             if(selection) brushGroup.call(brush.move, [xScale(selection[0]), xScale(selection[1])]);
             redrawTimepin()
-            svg.select("#clipXY").select("rect").attr("y", margin.top).attr("x", margin.left).attr("height",height-margin.top-margin.bottom).attr("width",width-margin.left-margin.right)
-            svg.select("#clipX").select("rect").attr("y", 0).attr("x", margin.left).attr("height",height).attr("width",width-margin.left-margin.right)
         }
     }
 })

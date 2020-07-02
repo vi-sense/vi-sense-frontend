@@ -4,24 +4,26 @@
       <a id="logo" href="/"><img src="../assets/logo.svg" alt="visense logo"></a>
       <h2>{{ title }}</h2>
       <v-spacer></v-spacer>
-      <v-btn icon v-on:click="showOptionPane=!showOptionPane">
-        <v-icon  large >mdi-cog</v-icon>
-      </v-btn>
+      <v-btn icon v-on:click="showOptionPane=!showOptionPane"><v-icon>mdi-cog</v-icon></v-btn>
     </v-app-bar>
 
     <main>
       <div id="sidepane">
         <h3 class="pb-1">Sensors</h3>
-        <information-pane  class="pa-1" id="informationpane" v-if="model" :model="model" :STORE="STORE" :sensor-colors="sensorColors" v-on:sensor-limits-changed="sensorLimitsChanged" v-on:sensor-selection-changed="propagateSensorSelection"/>
+        <information-pane class="pa-1" id="informationpane" v-if="model" :model="model" :STORE="STORE" :sensor-colors="sensorColors" v-on:sensor-limits-changed="sensorLimitsChanged" v-on:sensor-selection-changed="propagateSensorSelection"/>
+        
         <h3 class="pb-1">Anomalies</h3>
-        <history class="pa-1" id="historypane" ref="historyRef" v-if="model" :model="model" :s-t-o-r-e="STORE" :sensor-colors="sensorColors" :selected-sensors="this.selectedSensors"/>
+        <history class="pa-1" id="historypane" ref="historyRef" v-if="model" :model="model" :STORE="STORE" :sensor-colors="sensorColors" :selected-sensors="this.selectedSensors"/>
       </div>
 
       <div id="mainpane">
-        <div id="canvaswrapper">
+        <div id="babylonwrapper">
           <canvas id="babyloncanvas"></canvas>
         </div>
-        <timeline id="timeline" :STORE="STORE" />
+        <div id="timelinewrapper">
+          <div id="BTdragger"></div>
+          <timeline id="timeline" :STORE="STORE" />
+        </div>
       </div>
 
       <option-pane id="optionpane" v-show="showOptionPane" :STORE="STORE"/>
@@ -30,65 +32,6 @@
     <pop-up :STORE="STORE"/>
   </div>
 </template>
-
-
-<script>
-import BabylonApp from "./babylon/BabylonApp";
-import Timeline from "./Timeline";
-import InformationPane from "./InformationPane";
-import OptionPane from "./OptionPane";
-import Storage from "../storage/Storage";
-import History from "./History";
-import PopUp from "./PopUp";
-import {registerSensorColors} from "../storage/SensorColors";
-
-export default {
-  props: ["id"],
-  components: {
-    History, Timeline, InformationPane, OptionPane, PopUp
-  },
-  data() {
-    return {
-      STORE: new Storage(),
-      title: "",
-      model: undefined,
-      sensorColors: Map,
-      selectedSensors:[],
-      showOptionPane: false
-    };
-  },
-  created(){
-    if(process.env.PRODUCTION && !process.env.API_URL.includes("localhost")) window.onbeforeunload = function () {
-      return "Do you really want to close?";
-    };
-    this.getModelData(this.id).then(res=>{
-      this.model = res
-      this.title = res.name
-      const ordinalScale = registerSensorColors(res.sensors.map(sensor => sensor.id))
-      this.sensorColors = new Map()
-      res.sensors.map(sensor => sensor.id).sort().forEach(sensorID => this.sensorColors.set(sensorID, ordinalScale(sensorID)))
-    })
-  },
-  mounted() {
-    var canvas = document.getElementById("babyloncanvas");
-    var app = new BabylonApp(canvas, this.id, this.STORE);
-  },
-  methods: {
-    async getModelData(id) {
-        let response = await fetch(process.env.API_URL + `/models/${id}`)
-            .then(res => { return res.json() })
-            .catch(err => { throw err });
-        return response;
-    },
-    propagateSensorSelection(selectedSensors){
-      this.selectedSensors=selectedSensors
-    },
-    sensorLimitsChanged(){
-      this.$refs.historyRef.getAnomalies();
-    }
-  }
-};
-</script>
 
 
 <style lang="scss">
@@ -121,10 +64,9 @@ main {
     height: 100%;
     width: 85%;
 
-    #canvaswrapper {
+    #babylonwrapper {
       width: 100%;
       height: 75%;
-
       canvas {
         width: 100%;
         height: 100%;
@@ -132,20 +74,37 @@ main {
       }
     }
 
-    #timeline {
+    #timelinewrapper{
       width: 100%;
       height: 25%;
-      background-color: white;
+      position: relative;
+      *{
+        user-select: none; 
+      }
+      #timeline {
+        width: 100%;
+        height: 100%;
+        background-color: white;
+      }
+      #BTdragger{
+        width: 10px;
+        height: 10px;
+        background-color: grey;
+        opacity: 0.1;
+        position: absolute;
+        left: 50%;
+        top: -5px;
+        cursor: ns-resize;
+        &:hover{opacity: 1}
+      }
     }
   }
-  div::-webkit-scrollbar {
-    display: none;
-  }
-
+    
   #sidepane {
     display: inline-block;
     min-width: 200px;
-    width: 15%;
+    max-width: 280px;
+    width: 16%;
     height: 100%;
     background-color: white;
     overflow-y: scroll;
@@ -155,9 +114,11 @@ main {
         padding: 16px;
         margin: 0;
         text-decoration: none;
-      }
     }
-
+    div::-webkit-scrollbar {
+      display: none;
+    }
+  }
 
   #optionpane{
     min-width: 200px;
@@ -172,3 +133,87 @@ main {
   }
 }
 </style>
+
+
+<script>
+import BabylonApp from "./babylon/BabylonApp";
+import Timeline from "./Timeline";
+import InformationPane from "./InformationPane";
+import OptionPane from "./OptionPane";
+import Storage from "../storage/Storage";
+import History from "./History";
+import PopUp from "./PopUp";
+import {registerSensorColors} from "../storage/SensorColors";
+
+export default {
+  props: ["id"],
+  components: {
+    History, Timeline, InformationPane, OptionPane, PopUp
+  },
+  data() {
+    return {
+      STORE: new Storage(),
+      title: "",
+      model: undefined,
+      sensorColors: Map,
+      selectedSensors:[],
+      showOptionPane: false
+    };
+  },
+  created(){
+    if(process.env.PRODUCTION && !process.env.API_URL.includes("localhost")) window.onbeforeunload = function () {
+      return "Do you really want to close?";
+    };
+    this.getModelData(this.id).then(res => {
+      this.model = res
+      this.title = res.name
+      const ordinalScale = registerSensorColors(res.sensors.map(sensor => sensor.id))
+      this.sensorColors = new Map()
+      res.sensors.map(sensor => sensor.id).sort().forEach(sensorID => this.sensorColors.set(sensorID, ordinalScale(sensorID)))
+    })
+  },
+  mounted() {
+    var canvas = document.getElementById("babyloncanvas");
+    var app = new BabylonApp(canvas, this.id, this.STORE);
+
+    let bW = document.querySelector("#babylonwrapper")
+    let tW = document.querySelector("#timelinewrapper")
+    let dragger = document.querySelector("#BTdragger")
+    let startY
+
+    dragger.onmousedown = e => {     
+      startY = e.pageY;
+    }
+    window.addEventListener("mouseup", e => {
+      startY = null
+    })
+    window.addEventListener("mousemove", e => {      
+      if(startY == null) return
+      let o = startY-e.pageY;
+      startY = e.pageY
+
+      if(bW.clientHeight-o<150 || tW.clientHeight+o<150) return
+
+      bW.style.height = bW.clientHeight-o + "px"
+      tW.style.height = tW.clientHeight+o + "px"
+      app.engine.resize();
+      this.STORE._timelineInstance.resize() 
+    })
+  },
+  methods: {
+    async getModelData(id) {
+        let response = await fetch(process.env.API_URL + `/models/${id}`)
+          .then(res => { return res.json() })
+          .catch(err => { throw err });
+        return response;
+    },
+    propagateSensorSelection(selectedSensors){
+      this.selectedSensors=selectedSensors
+    },
+    sensorLimitsChanged(){
+      this.$refs.historyRef.getAnomalies();
+    }
+  }
+};
+</script>
+

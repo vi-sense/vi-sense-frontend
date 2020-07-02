@@ -78,8 +78,6 @@
     }
   }
 }
-
-
 </style>
 
 
@@ -106,7 +104,7 @@ export default {
     this.playing = timeline.isPlaying() 
     this.timeline.setPlayPauseCallback(() => this.playing = timeline.isPlaying())
 
-    window.onresize = timeline.resize
+    window.addEventListener("resize", timeline.resize)
 
     this.STORE._timelineInstance = timeline // easiets and lasiest way to pass timeline to options pane
 
