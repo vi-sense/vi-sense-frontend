@@ -15,8 +15,8 @@ const Timeline = (function(parentElement){
 
     const graphs = new Map()
 
-    const width = parentElement.clientWidth // is on 100% width per default
-    const height = parentElement.clientHeight
+    var width = parentElement.clientWidth // is on 100% width per default
+    var height = parentElement.clientHeight
     const margin = ({top: 15, right: 0, bottom: 25, left: 30}) // used for labels, axis etc
 
     const svg = d3.create("svg").attr("viewBox", [0, 0, width, height])
@@ -439,9 +439,25 @@ const Timeline = (function(parentElement){
         centerToTimepin(){
             zoom.translateTo(svg, xScaleRef(timepinDate))
         },
-        
+
         refreshAnomalies(){
             graphs.forEach(g => g.fetchAnomalies())
+        },
+        resize(){
+            width = parentElement.clientWidth
+            height = parentElement.clientHeight
+            svg.attr("viewBox", [0, 0, width, height])
+            yScale.range([height - margin.bottom, margin.top])
+            xScale.range([margin.left, width-margin.right-1]) 
+            xScaleRef.range([margin.left, width-margin.right-1]) 
+
+            gy.call(yAxis)
+            gx.call(xAxis)
+            graphs.forEach(g => g.redraw())
+            if(selection) brushGroup.call(brush.move, [xScale(selection[0]), xScale(selection[1])]);
+            redrawTimepin()
+            svg.select("#clipXY").select("rect").attr("y", margin.top).attr("x", margin.left).attr("height",height-margin.top-margin.bottom).attr("width",width-margin.left-margin.right)
+            svg.select("#clipX").select("rect").attr("y", 0).attr("x", margin.left).attr("height",height).attr("width",width-margin.left-margin.right)
         }
     }
 })
