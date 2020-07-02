@@ -57,13 +57,13 @@ export default class SensorGraph{
         this.path.on("mouseover", () => {
             graphs.forEach(g => {
                 g.path.attr("stroke-opacity", g.sensorId == this.sensorId ? 1 : 0.4);            
-                g.anomalies.forEach(a => a.rect.attr("opacity", g.sensorId == this.sensorId ? 0.3 : 0.1));                            
+                g.anomalies.forEach(a => a.rect.attr("opacity", g.sensorId == this.sensorId ? 0.2 : 0.1));                            
             })
         });
         this.path.on("mouseout", () => {
             graphs.forEach(g => {
                 g.path.attr("stroke-opacity", 1);   
-                g.anomalies.forEach(a => a.rect.attr("opacity", 0.3));                            
+                g.anomalies.forEach(a => a.rect.attr("opacity", 0.2));                            
             })
         })  
     }
