@@ -3,22 +3,29 @@
     <div id="chartWrapper"></div>
     <div id="tools">
 
-      <img v-if="!playing" alt="play" v-on:click="togglePlayPause" src="../assets/playIcon.png">
-      <img v-else alt="pause" v-on:click="togglePlayPause" src="../assets/pauseIcon.png">
+      <div id="toolsTop">
+        <img v-if="!playing" alt="play" v-on:click="togglePlayPause" src="../assets/playIcon.png">
+        <img v-else alt="pause" v-on:click="togglePlayPause" src="../assets/pauseIcon.png">
 
-      <img alt="move tool" v-on:click="setTool('pin')" src="../assets/moveIcon.png">
-      <img alt="selection tool" v-on:click="setTool('brush')" src="../assets/selectionIcon.png">
+        <img alt="move tool" v-on:click="timeline.setTool('pin')" src="../assets/moveIcon.png">
+        <img alt="selection tool" v-on:click="timeline.setTool('brush')" src="../assets/selectIcon.png">
+      </div>
 
-      <div id="datePicker">
-        <img v-on:click="showDatePicker=!showDatePicker" src="../assets/datepicker.png">
-        <div id="dp" v-show="showDatePicker">
-          <v-date-picker id="dpv" 
-            :no-title=true
-            min="2019-10-01"
-            :max=maxdate
-            width="250px"
-            @click:date="pickDate"
-          ></v-date-picker>
+      <div id="toolsBottom">
+        <img alt="center to timepin" v-on:click="timeline.centerToTimepin()" src="../assets/pinIcon.png">
+
+        <div id="datePicker">
+          <img v-on:click="showDatePicker=!showDatePicker" src="../assets/datepicker.png">
+          <div id="calendarWrapper">
+            <v-date-picker id="calendar" 
+                v-show="showDatePicker"
+              :no-title=true
+              min="2019-10-01"
+              :max=maxdate
+              width="250px"
+              @click:date="pickDate"
+            ></v-date-picker>
+          </div>
         </div>
       </div>
 
@@ -30,46 +37,48 @@
 <style scoped lang="scss">
 #timeline > #chartWrapper{
   display: inline-block;
+  vertical-align:top;
   height: 100%;
   width: calc(100% - 45px);
-  vertical-align:top;
 }
 #tools{
   display: inline-block;
-  vertical-align:top;
+  vertical-align: top;
   box-sizing: border-box;
-  width: 22px;
+  width: 20px;
   height: 100%;
   margin-left: 10px;
-  padding: 12px 0;
-
   position: relative;
-  
+
   img {
     cursor: pointer;
     width: 100%;
     opacity: 0.55; // adapt/fake material design greyisch icon design
   }
-}
 
-
-#datePicker{
-  width: 100%;
-  position: absolute;
-  bottom: 2px;
-
-  >img{ 
-    width: 100%; 
+  #toolsTop{
+    margin-top: 12px;
   }
-  #dp{
+
+  #toolsBottom{
     position: absolute;
-    #dpv{
-      position: relative;
-      left: -260px; // datepicker-icon width
-      top: -290px;
+    bottom: 4px;
+    width: 100%;
+    vertical-align: bottom;
+
+    #datePicker{
+      #calendarWrapper{
+        position: absolute;
+        #calendar{
+          position: relative;
+          left: -260px; // datepicker-icon width
+          top: -290px;
+        }
+      }
     }
   }
 }
+
 
 </style>
 
@@ -117,9 +126,6 @@ export default {
     togglePlayPause(){
       this.timeline.isPlaying() ? this.timeline.pause() : this.timeline.play(); 
       this.playing = this.timeline.isPlaying() 
-    },
-    setTool(tool){
-      this.timeline.setTool(tool) // pin or brush
     },
     pickDate(date){
       this.timeline.centerToDate(new Date(date))

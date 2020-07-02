@@ -412,8 +412,6 @@ const Timeline = (function(parentElement){
     return {
         showGraph,
         hideGraph,
-        setTimepinTime,
-        setTool,
 
         play(){ playing = true },
         pause(){ playing = false },
@@ -431,10 +429,17 @@ const Timeline = (function(parentElement){
         getDomainY(){
             return yScale.domain()
         },
+
+        setTool,
+        setTimepinTime,
         centerToDate(date){
             zoom.translateTo(svg, xScaleRef(date))
             this.setTimepinTime(date)
         },
+        centerToTimepin(){
+            zoom.translateTo(svg, xScaleRef(timepinDate))
+        },
+        
         refreshAnomalies(){
             graphs.forEach(g => g.fetchAnomalies())
         }
