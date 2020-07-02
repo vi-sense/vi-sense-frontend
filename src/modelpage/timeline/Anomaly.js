@@ -9,7 +9,7 @@ const ABOVE = "Above Upper Limit"
 const BELOW = "Below Lower Limit"
 const UPGRADIENT = "High Upward Gradient"
 const DOWNGRADIENT = "High Downward Gradient"
-const MIN_WIDTH = 10 // minimal displayed width of a anomaly in pixel
+const MIN_WIDTH = 5 // minimal displayed width of a anomaly in pixel
 
 export default class Anomaly {
     
