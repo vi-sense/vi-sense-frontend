@@ -434,6 +434,9 @@ const Timeline = (function(parentElement){
         centerToDate(date){
             zoom.translateTo(svg, xScaleRef(date))
             this.setTimepinTime(date)
+        },
+        refreshAnomalies(){
+            graphs.forEach(g => g.fetchAnomalies())
         }
     }
 })

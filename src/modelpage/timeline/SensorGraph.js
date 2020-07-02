@@ -23,8 +23,9 @@ export default class SensorGraph{
      * @param {*} yScale 
      */
     constructor(sensorId, parentElement, xScale, yScale, graphs) {
-        this.xScale = xScale
-        this.yScale = yScale
+        this._parentElement = parentElement
+        this._xScale = xScale
+        this._yScale = yScale
         this.sensorId = sensorId
         this.color = getSensorColor(sensorId)
         this.data = []
@@ -42,15 +43,20 @@ export default class SensorGraph{
             .attr("stroke-linecap", "round")
 
         this.anomalies = []
-        fetch(`${API_URL}/sensors/${sensorId}/anomalies?end_date=${moment.utc(new Date()).format("YYYY-MM-DD HH:mm:ss")}`).then(d => d.json().then(data => {
+        this.fetchAnomalies()
+        //this._applyHover(graphs)
+        this.redraw()
+    }
+
+    fetchAnomalies(){
+        this._parentElement.selectAll("anomaly").remove()
+        this.anomalies = []
+        fetch(`${API_URL}/sensors/${this.sensorId}/anomalies?end_date=${moment.utc(new Date()).format("YYYY-MM-DD HH:mm:ss")}`).then(d => d.json().then(data => {
             for(let d of data){
-                let a = new Anomaly(d, parentElement, this.xScale, this.yScale)
+                let a = new Anomaly(d, this._parentElement, this._xScale, this._yScale)
                 this.anomalies.push(a)
             }
         }))  
-
-        this._applyHover(graphs)
-        this.redraw()
     }
 
     _applyHover(graphs){
@@ -71,7 +77,7 @@ export default class SensorGraph{
     redraw(){     
         this.anomalies.forEach(a=>a.redraw())
    
-        this.dataFetcher.get(this.xScale.domain()).then(data => {
+        this.dataFetcher.get(this._xScale.domain()).then(data => {
             if(data) {
                 this.data = data                
                 this.path.datum(this.data)
@@ -79,8 +85,8 @@ export default class SensorGraph{
             }
         })
         this.line
-            .x(d => this.xScale(d.date))
-            .y(d => this.yScale(d.value))
+            .x(d => this._xScale(d.date))
+            .y(d => this._yScale(d.value))
 
         this.path
             .attr("d", this.line);  
@@ -121,8 +127,8 @@ export default class SensorGraph{
             b = index
             c = index +1
         }
-        let m1 = -(this.yScale(this.data[b].value) - this.yScale(this.data[a].value))/(this.xScale(this.data[b].date) - this.xScale(this.data[a].date))
-        let m2 = -(this.yScale(this.data[c].value) - this.yScale(this.data[b].value))/(this.xScale(this.data[c].date) - this.xScale(this.data[b].date))
+        let m1 = -(this._yScale(this.data[b].value) - this._yScale(this.data[a].value))/(this._xScale(this.data[b].date) - this._xScale(this.data[a].date))
+        let m2 = -(this._yScale(this.data[c].value) - this._yScale(this.data[b].value))/(this._xScale(this.data[c].date) - this._xScale(this.data[b].date))
 
         if(interpolationPosition < 0.5){
             m = (0.5-interpolationPosition)*m1 + (0.5+interpolationPosition)*m2

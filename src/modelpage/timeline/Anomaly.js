@@ -21,11 +21,12 @@ export default class Anomaly {
      * @param {*} yScale 
      */
     constructor(data, parentElement, xScale, yScale){
-        this.xScale = xScale
-        this.yScale = yScale
+        this._xScale = xScale
+        this._yScale = yScale
         this.data = data 
 
         this.rect = parentElement.append("rect")
+        .attr("class", "anomaly")
         .attr("fill", getSensorColor(this.data.start_data.sensor_id))
         .attr("opacity", 0.2)
         
@@ -34,8 +35,8 @@ export default class Anomaly {
 
     redraw(){
         let startdate = new Date(this.data.start_data.date)
-        let left = this.xScale.domain()[0] 
-        let right = this.xScale.domain()[1] 
+        let left = this._xScale.domain()[0] 
+        let right = this._xScale.domain()[1] 
         
         let s
         let w
@@ -49,8 +50,8 @@ export default class Anomaly {
             } 
             this.show()
 
-            s = this.xScale(startdate)
-            w = this.xScale(enddate)-s
+            s = this._xScale(startdate)
+            w = this._xScale(enddate)-s
 
             if(w<MIN_WIDTH){
                 s = s+w/2 - MIN_WIDTH/2
@@ -64,7 +65,7 @@ export default class Anomaly {
             } 
             this.show()
 
-            s = this.xScale(startdate) - MIN_WIDTH/2
+            s = this._xScale(startdate) - MIN_WIDTH/2
             w = MIN_WIDTH         
         }
 
@@ -72,7 +73,7 @@ export default class Anomaly {
         .attr("x", s)
         .attr("width", w) 
         .attr("y", 0)              
-        .attr("height", 1000) 
+        .attr("height", this._yScale(this._yScale.domain()[0])) 
     }
     show(){
         this.rect.attr("display", "unset");
