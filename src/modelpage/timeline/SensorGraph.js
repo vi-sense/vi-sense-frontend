@@ -49,12 +49,12 @@ export default class SensorGraph{
     }
 
     fetchAnomalies(){
-        this._parentElement.selectAll("anomaly").remove()
+        this._parentElement.selectAll(".anomaly").remove()
         this.anomalies = []
         fetch(`${API_URL}/sensors/${this.sensorId}/anomalies?end_date=${moment.utc(new Date()).format("YYYY-MM-DD HH:mm:ss")}`).then(d => d.json().then(data => {
             for(let d of data){
                 let a = new Anomaly(d, this._parentElement, this._xScale, this._yScale)
-                this.anomalies.push(a)
+                this.anomalies.push(a)                
             }
         }))  
     }

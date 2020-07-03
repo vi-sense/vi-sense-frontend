@@ -442,8 +442,9 @@ const Timeline = (function(parentElement){
             zoom.translateTo(svg, xScaleRef(timepinDate))
         },
 
-        refreshAnomalies(){
+        refreshAnomalies(){            
             graphs.forEach(g => g.fetchAnomalies())
+            graphs.forEach(g => g.redraw())
         },
         resize(){
             width = parentElement.clientWidth
