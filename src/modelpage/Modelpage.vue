@@ -115,7 +115,8 @@ main {
         margin: 0;
         text-decoration: none;
     }
-    div::-webkit-scrollbar {
+
+    &::-webkit-scrollbar {
       display: none;
     }
   }
