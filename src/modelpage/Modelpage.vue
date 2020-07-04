@@ -8,28 +8,28 @@
         <v-icon  large >mdi-cog-outline</v-icon>
       </v-btn>
     </v-app-bar>
+      <main>
+        <loading-overlay></loading-overlay>
+        <div id="sidepane">
+          <h3 class="pb-1">Sensors</h3>
+          <information-pane class="pa-1" id="informationpane" v-if="model" :model="model" :STORE="STORE" :sensor-colors="sensorColors" v-on:sensor-selection-changed="propagateSensorSelection"/>
 
-    <main>
-      <div id="sidepane">
-        <h3 class="pb-1">Sensors</h3>
-        <information-pane class="pa-1" id="informationpane" v-if="model" :model="model" :STORE="STORE" :sensor-colors="sensorColors" v-on:sensor-selection-changed="propagateSensorSelection"/>
-        
-        <h3 class="pb-1">Anomalies</h3>
-        <history class="pa-1" id="historypane" ref="historyRef" v-if="model" :model="model" :STORE="STORE" :sensor-colors="sensorColors" :selected-sensors="this.selectedSensors"/>
-      </div>
-
-      <div id="mainpane">
-        <div id="babylonwrapper">
-          <canvas id="babyloncanvas"></canvas>
+          <h3 class="pb-1">Anomalies</h3>
+          <history class="pa-1" id="historypane" ref="historyRef" v-if="model" :model="model" :STORE="STORE" :sensor-colors="sensorColors" :selected-sensors="this.selectedSensors"/>
         </div>
-        <div id="timelinewrapper">
-          <div id="BTdragger"></div>
-          <timeline id="timeline" :STORE="STORE" />
-        </div>
-      </div>
 
-      <option-pane id="optionpane" v-show="showOptionPane" :STORE="STORE"/>
-    </main>
+        <div id="mainpane">
+          <div id="babylonwrapper">
+            <canvas id="babyloncanvas"></canvas>
+          </div>
+          <div id="timelinewrapper">
+            <div id="BTdragger"></div>
+            <timeline id="timeline" :STORE="STORE" />
+          </div>
+        </div>
+
+        <option-pane id="optionpane" v-show="showOptionPane" :STORE="STORE"/>
+      </main>
 
     <pop-up :STORE="STORE"/>
   </div>
@@ -45,10 +45,12 @@ import Storage from "../storage/Storage";
 import History from "./History";
 import PopUp from "./PopUp";
 import {registerSensorColors} from "../storage/SensorColors";
+import LoadingOverlay from "./LoadingOverlay";
 
 export default {
   props: ["id"],
   components: {
+    LoadingOverlay,
     History, Timeline, InformationPane, OptionPane, PopUp
   },
   data() {
@@ -58,7 +60,7 @@ export default {
       model: undefined,
       sensorColors: Map,
       selectedSensors:[],
-      showOptionPane: false
+      showOptionPane: false,
     };
   },
   created(){
@@ -71,6 +73,7 @@ export default {
       const ordinalScale = registerSensorColors(res.sensors.map(sensor => sensor.id))
       this.sensorColors = new Map()
       res.sensors.map(sensor => sensor.id).sort().forEach(sensorID => this.sensorColors.set(sensorID, ordinalScale(sensorID)))
+
     })
   },
   mounted() {
@@ -98,7 +101,7 @@ export default {
       bW.style.height = bW.clientHeight-o + "px"
       tW.style.height = tW.clientHeight+o + "px"
       app.engine.resize();
-      this.STORE._timelineInstance.resize() 
+      this.STORE._timelineInstance.resize()
     })
   },
   methods: {
@@ -116,10 +119,11 @@ export default {
 </script>
 
 <style lang="scss">
-  header {
+  .v-app-bar {
+    position: relative;
     min-height: 7%;
     height: 7% !important;
-    z-index: 3;
+    z-index: 6;
 
     #logo {
       display: contents;
@@ -128,7 +132,6 @@ export default {
       }
     }
     h2 {
-      margin: 0;
       margin: auto 10px !important;
     }
     .v-toolbar__content {

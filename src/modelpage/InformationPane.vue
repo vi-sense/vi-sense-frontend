@@ -62,9 +62,10 @@
     import SKEYS from "../storage/StorageKeys";
     import SensorLimits from "./SensorLimits";
     import Vue from 'vue'
+    import LoadingOverlay from "./LoadingOverlay";
 
     export default {
-        components: {SensorLimits},
+        components: {LoadingOverlay, SensorLimits},
         props: ["model", "STORE", "sensorColors"],
         data() {
             return {
