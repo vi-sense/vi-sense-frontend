@@ -5,7 +5,7 @@
       <h2>{{ title }}</h2>
       <v-spacer></v-spacer>
       <v-btn icon v-on:click="showOptionPane=!showOptionPane">
-        <v-icon  large >mdi-cog</v-icon>
+        <v-icon  large >mdi-cog-outline</v-icon>
       </v-btn>
     </v-app-bar>
 
