@@ -36,108 +36,6 @@
 </template>
 
 
-<style lang="scss">
-header {
-  min-height: 7%;
-  height: 7% !important;
-  z-index: 3;
-
-  #logo {
-    display: contents;
-    img {
-      height: 100%;
-    }
-  }
-  h2 {
-    margin: 0;
-    margin: auto 10px !important;
-  }
-  .v-toolbar__content {
-    height: 100% !important;
-  }
-}
-
-main {
-  height: 93%;
-  width: 100%;
-  display: flex;
-
-  #mainpane {
-    height: 100%;
-    width: 100%;
-
-    #babylonwrapper {
-      width: 100%;
-      height: 75%;
-      canvas {
-        width: 100%;
-        height: 100%;
-        outline: none;
-      }
-    }
-
-    #timelinewrapper{
-      width: 100%;
-      height: 25%;
-      position: relative;
-      *{
-        user-select: none; 
-      }
-      #timeline {
-        width: 100%;
-        height: 100%;
-        background-color: white;
-      }
-      #BTdragger{
-        width: 10px;
-        height: 10px;
-        background-color: grey;
-        opacity: 0.1;
-        position: absolute;
-        left: 50%;
-        top: -5px;
-        cursor: ns-resize;
-        &:hover{opacity: 1}
-      }
-    }
-  }
-    
-  #sidepane {
-    display: inline-block;
-    min-width: 200px;
-    max-width: 280px;
-    width: 16%;
-    height: 100%;
-    background-color: white;
-    overflow-y: scroll;
-    h3 {
-        display: block;
-        color: black;
-        padding: 16px;
-        margin: 0;
-        text-decoration: none;
-    }
-
-    &::-webkit-scrollbar {
-      display: none;
-    }
-  }
-
-  #optionpane{
-    min-width: 200px;
-    width: 15%;
-    max-height: 65%;
-    overflow-y: auto;
-    position: absolute;
-    right: 1%;
-    margin-top: 1%;
-    background-color: rgba(255, 255, 255, 0.9);
-    border-radius: 5px;
-  }
-}
-</style>
-
-
 <script>
 import BabylonApp from "./babylon/BabylonApp";
 import Timeline from "./Timeline";
@@ -220,3 +118,103 @@ export default {
 };
 </script>
 
+<style lang="scss">
+  header {
+    min-height: 7%;
+    height: 7% !important;
+    z-index: 3;
+
+    #logo {
+      display: contents;
+      img {
+        height: 100%;
+      }
+    }
+    h2 {
+      margin: 0;
+      margin: auto 10px !important;
+    }
+    .v-toolbar__content {
+      height: 100% !important;
+    }
+  }
+
+  main {
+    height: 93%;
+    width: 100%;
+    display: flex;
+
+    #mainpane {
+      height: 100%;
+      width: 100%;
+
+      #babylonwrapper {
+        width: 100%;
+        height: 75%;
+        canvas {
+          width: 100%;
+          height: 100%;
+          outline: none;
+        }
+      }
+
+      #timelinewrapper{
+        width: 100%;
+        height: 25%;
+        position: relative;
+        *{
+          user-select: none;
+        }
+        #timeline {
+          width: 100%;
+          height: 100%;
+          background-color: white;
+        }
+        #BTdragger{
+          width: 10px;
+          height: 10px;
+          background-color: grey;
+          opacity: 0.1;
+          position: absolute;
+          left: 50%;
+          top: -5px;
+          cursor: ns-resize;
+          &:hover{opacity: 1}
+        }
+      }
+    }
+
+    #sidepane {
+      display: inline-block;
+      min-width: 200px;
+      max-width: 280px;
+      width: 16%;
+      height: 100%;
+      background-color: white;
+      overflow-y: scroll;
+      h3 {
+        display: block;
+        color: black;
+        padding: 16px;
+        margin: 0;
+        text-decoration: none;
+      }
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
+    }
+
+    #optionpane{
+      min-width: 200px;
+      width: 15%;
+      max-height: 65%;
+      overflow-y: auto;
+      position: absolute;
+      right: 1%;
+      margin-top: 1%;
+      background-color: rgba(255, 255, 255, 0.9);
+      border-radius: 5px;
+    }
+  }
+</style>
