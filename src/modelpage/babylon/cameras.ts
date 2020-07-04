@@ -66,7 +66,7 @@ export function createArcCamera(canvas: HTMLCanvasElement, engine:BABYLON.Engine
     arcCamera.radius = 25
     arcCamera.lowerRadiusLimit = 5
     arcCamera.upperRadiusLimit = 150
-    arcCamera.wheelPrecision = 20
+    arcCamera.wheelPrecision = 100
 
     storage.onSensorSelectionChanged(() => {
         if(myScene.activeCamera == arcCamera) {
@@ -104,8 +104,9 @@ export function changeFOV(value: number) {
 }
 
 export function changeCameraClipping(value) {
-    myScene.activeCamera.minZ = value[0]
-    myScene.activeCamera.maxZ = value[1]
+    console.log(value)
+    console.log(myScene.activeCamera)
+    myScene.activeCamera.maxZ = value
 }
 
 export function switchCamera() {

@@ -59,8 +59,6 @@
                         headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify(update)
                     })
-                    console.log(JSON.stringify(update))
-
                     const newSensorData = await response.json()
 
                     this.upperBound = newSensorData.upper_bound
