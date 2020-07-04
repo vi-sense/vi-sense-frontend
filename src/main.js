@@ -22,6 +22,9 @@ let vuetify = new Vuetify({
   },
 })
 
+//empty vue component used as event bus
+export const eventBus = new Vue();
+
 Vue.use(Router)
 const router = new Router({
   routes: [

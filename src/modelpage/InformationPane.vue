@@ -49,7 +49,7 @@
                                 <span v-else>Position Sensor</span>
                                 
                             </v-btn>
-                <sensor-limits :sensor="sensor" :STORE=STORE v-on:sensor-limits-changed="$emit('sensor-limits-changed')"></sensor-limits>
+                    <sensor-limits :sensor="sensor" :STORE=STORE></sensor-limits>
                 </v-expansion-panel-content>
             </v-expansion-panel>
         </v-expansion-panels>
@@ -62,9 +62,10 @@
     import SKEYS from "../storage/StorageKeys";
     import SensorLimits from "./SensorLimits";
     import Vue from 'vue'
+    import LoadingOverlay from "./LoadingOverlay";
 
     export default {
-        components: {SensorLimits},
+        components: {LoadingOverlay, SensorLimits},
         props: ["model", "STORE", "sensorColors"],
         data() {
             return {

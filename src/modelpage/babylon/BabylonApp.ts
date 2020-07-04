@@ -8,8 +8,8 @@ import { createFloorCamera, createArcCamera, createMinimapCamera } from './camer
 import setupSensorSelection from './sensorSelection';
 import { setupClippingPlanes } from "./clippingPlanes";
 import { loadModel } from './loadModel';
-import CustomLoadingScreen from './loadingScreen';
 import Storage from '../../storage/Storage';
+import { eventBus } from "../../main.js";
 
 
 export const IS_PRODUCTION: boolean = Boolean(process.env.PRODUCTION)  // its value is set in webpack.config.js
@@ -23,10 +23,6 @@ export default class BabylonApp {
         this.engine = new BABYLON.Engine(canvas, true);
         this.scene = new BABYLON.Scene(this.engine);
         //this.scene.debugLayer.show();
-
-        var loadingScreen = new CustomLoadingScreen(canvas, "");
-        this.engine.loadingScreen = loadingScreen;
-        this.engine.displayLoadingUI();
 
         var camera = createFloorCamera(canvas, this.engine, this.scene)
         var arc = createArcCamera(canvas, this.engine, this.scene, STORE)
@@ -42,7 +38,7 @@ export default class BabylonApp {
         light.intensity = 1.5;
 
         setupClippingPlanes(this.scene);
-
+        try{
         loadModel(modelID, this.scene, (meshes) => {
             let helper = this.scene.createDefaultEnvironment();
             let minV3 = new BABYLON.Vector3();
@@ -65,9 +61,13 @@ export default class BabylonApp {
 
             //this.scene.clearColor = new BABYLON.Color4(0.5, 0.5, 0.5, 1);
             setupSensorSelection(this.scene, modelID, meshes, STORE).then(() => {
-                this.engine.hideLoadingUI();
+                eventBus.$emit("loading-finished")
             });
         }, !IS_PRODUCTION)
+        }catch (e) {
+            console.log(e)
+            eventBus.$emit("loading-failed")
+        }
 
         /*
         this.scene.onPointerUp = function (evt, pickResult) {
