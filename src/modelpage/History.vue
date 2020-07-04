@@ -75,7 +75,7 @@
             }
         },
         created() {
-            eventBus.$on('sensor-limits-changed', () => this.getAnomalies())
+            eventBus.$on('sensor-limits-changed', this.getAnomalies)
             this.getAnomalies();
         },
     };

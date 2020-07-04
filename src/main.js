@@ -10,12 +10,17 @@ import Model from './startpage/Model.vue'
 import Modelpage from './modelpage/Modelpage.vue'
 import History from './modelpage/History.vue'
 import TimelineTest from './modelpage/timeline/TimelineTest.vue'
+import '@mdi/font/css/materialdesignicons.css'
 
 
 Vue.config.productionTip = false
 
 Vue.use(Vuetify)
-let vuetify = new Vuetify({})
+let vuetify = new Vuetify({
+  icons: {
+    iconfont: 'mdi', // default - only for display purposes
+  },
+})
 
 //empty vue component used as event bus
 export const eventBus = new Vue();

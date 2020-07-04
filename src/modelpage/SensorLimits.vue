@@ -38,7 +38,7 @@
 
     export default {
         name: "SensorLimits",
-        props: ["sensor"],
+        props: ["sensor", "STORE"],
         data() {
             return {
                 upperBound: this.sensor.upper_bound,
@@ -57,11 +57,9 @@
                     let response = await fetch(process.env.API_URL + "/sensors/" + this.sensor.id, {
                         method: 'PATCH',
                         mode: 'cors',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(update)})
-
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(update)
+                    })
                     console.log(JSON.stringify(update))
 
                     const newSensorData = await response.json()
@@ -71,8 +69,9 @@
                     this.gradientBound = newSensorData.gradient_bound
                     eventBus.$emit('sensor-limits-changed')
 
+                    this.STORE._timelineInstance.refreshAnomalies()
+                    
                     updateLocalSensors(this.sensor.id, newSensorData.upper_bound, newSensorData.lower_bound)
-
                 } catch (error) {
                     console.log(error)
                 }
