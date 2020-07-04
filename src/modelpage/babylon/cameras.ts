@@ -104,8 +104,6 @@ export function changeFOV(value: number) {
 }
 
 export function changeCameraClipping(value) {
-    console.log(value)
-    console.log(myScene.activeCamera)
     myScene.activeCamera.maxZ = value
 }
 

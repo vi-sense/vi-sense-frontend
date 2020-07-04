@@ -96,7 +96,7 @@ export default {
 
 <style scoped lang="scss">
 #optionpane{
-  padding: 10px;
+  padding: 10px 12px;
 
   div {
     padding: 3px 0
