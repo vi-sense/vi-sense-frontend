@@ -2,44 +2,65 @@ import * as BABYLON from 'babylonjs'
 
 var myScene: BABYLON.Scene
 
+var xClip: BABYLON.Plane
+var yClip: BABYLON.Plane
+var zClip: BABYLON.Plane
+
+let skybox: BABYLON.Mesh
+let ground: BABYLON.Mesh
+
 export function setupClippingPlanes(scene: BABYLON.Scene) {
     myScene = scene;
+
+    skybox = myScene.getNodeByName("BackgroundSkybox") as BABYLON.Mesh
+    ground = myScene.getNodeByName("BackgroundPlane") as BABYLON.Mesh
+
     myScene.clipPlane = null;
     myScene.clipPlane2 = null;
     myScene.clipPlane3 = null;
+
+    // exclude ground and skybox from clipping
+    skybox.onBeforeRenderObservable.add(function () {
+        myScene.clipPlane = null;
+        myScene.clipPlane2 = null;
+        myScene.clipPlane3 = null;
+    });
+    ground.onBeforeRenderObservable.add(function () {
+        myScene.clipPlane = null;
+        myScene.clipPlane2 = null;
+        myScene.clipPlane3 = null;
+    });
+
+    skybox.onAfterRenderObservable.add(function () {
+        if (xClip != null) myScene.clipPlane = xClip
+        if (yClip != null) myScene.clipPlane2 = yClip
+        if (zClip != null) myScene.clipPlane3 = zClip
+    })
+    ground.onAfterRenderObservable.add(function () {
+        if (xClip != null) myScene.clipPlane = xClip
+        if (yClip != null) myScene.clipPlane2 = yClip
+        if (zClip != null) myScene.clipPlane3 = zClip
+    })
 }
 
-export function changeClippingPlane(enabled: boolean, axis: string, sliderValue: number, flipped: boolean) {
-    // exclude ground and skybox from clipping
-    let skybox: BABYLON.Mesh = myScene.getNodeByName("BackgroundSkybox") as BABYLON.Mesh
-    let ground: BABYLON.Mesh = myScene.getNodeByName("BackgroundPlane") as BABYLON.Mesh
+export function changeClippingPlane(axis: string, clippingPlane) {
+    let enabled: boolean = clippingPlane.enabled;
+    let offset: number = parseInt(myScene.metadata.modelCenter[axis.toString()])
+
+    let sliderValue: number = parseInt(clippingPlane.value);
+    let flipped: boolean = clippingPlane.flipped;
+    let value: number = flipped ? sliderValue + offset : sliderValue - offset;
+
     if(enabled) {
-        skybox.onBeforeBindObservable.add(function () {
-            disableClippingPlane(axis)
-        });
-        ground.onBeforeBindObservable.add(function () {
-            disableClippingPlane(axis)
-        });
-        skybox.onAfterRenderObservable.add(function () {
-            let normal;
-            flipped ? normal = -1 : normal = 1
-            switch (axis) {
-                case "x": myScene.clipPlane = new BABYLON.Plane(normal, 0, 0, sliderValue); break;
-                case "y": myScene.clipPlane2 = new BABYLON.Plane(0, normal, 0, sliderValue); break;
-                case "z": myScene.clipPlane3 = new BABYLON.Plane(0, 0, normal, sliderValue); break;
-                default: break;
-            }
-        })
-        ground.onAfterRenderObservable.add(function () {
-            let normal;
-            flipped ? normal = -1 : normal = 1
-            switch (axis) {
-                case "x": myScene.clipPlane = new BABYLON.Plane(normal, 0, 0, sliderValue); break;
-                case "y": myScene.clipPlane2 = new BABYLON.Plane(0, normal, 0, sliderValue); break;
-                case "z": myScene.clipPlane3 = new BABYLON.Plane(0, 0, normal, sliderValue); break;
-                default: break;
-            }
-        })
+        let normal = flipped ? -1 : 1
+
+        switch (axis) {
+            case "x": xClip = new BABYLON.Plane(normal, 0, 0, value); break;
+            case "y": yClip = new BABYLON.Plane(0, normal, 0, value); break;
+            case "z": zClip = new BABYLON.Plane(0, 0, normal, value); break;
+            default: break;
+        }
+
     } else {
         disableClippingPlane(axis)
     }
@@ -47,9 +68,9 @@ export function changeClippingPlane(enabled: boolean, axis: string, sliderValue:
 
 function disableClippingPlane(axis) {
     switch (axis) {
-        case "x": myScene.clipPlane = null; break;
-        case "y": myScene.clipPlane2 = null; break;
-        case "z": myScene.clipPlane3 = null; break;
+        case "x": xClip = null; break;
+        case "y": yClip = null; break;
+        case "z": zClip = null; break;
         default: break;
     }
 }

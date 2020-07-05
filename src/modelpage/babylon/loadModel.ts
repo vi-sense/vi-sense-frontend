@@ -37,12 +37,7 @@ export function loadModel(id: number, scene: BABYLON.Scene, callback: (meshes: B
     }
 }
 
-/**
- * @author Lennard Grimm
-  * Calculates the progress of downloading and importing models and updates the progressBar
-  * TODO: when importing with GLTFString the onprogress info is missing and no events are received
-  * maybe consider a different way of importing models
-  */
+
 function updateProgress(event, state?: String) {
   var percentComplete;
   if (event.lengthComputable) {

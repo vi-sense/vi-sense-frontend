@@ -11,7 +11,7 @@
       </div>
 
       <div>
-        <v-subheader>Camera Clipping<v-spacer/>
+        <v-subheader>Far Camera Clipping<v-spacer/>
         <input v-model="cameraClipping" type="number" min=10 max=1000 v-on:input="onSliderChanged('clipping', cameraClipping)"></v-subheader>
 
         <input class="slider" v-model="cameraClipping" type="range" min=10 max=1000 v-on:input="onSliderChanged('clipping', cameraClipping)" />
@@ -19,6 +19,86 @@
 
       <div>
         <v-btn color="rgba(82, 186, 162, 1)" dark block raised @click="onCameraSwitch()">Switch Camera</v-btn>
+      </div>
+    </div>
+
+    <hr>
+
+    <div>
+      <p>Clipping Planes</p>
+      <div class="start flex-row">
+        <v-checkbox 
+          class="pr-1 mt-0" 
+          hide-details 
+          dense 
+          color="rgba(82, 186, 162, 1)"
+          multiple
+          @change="handleClippingPlane(!clip_x.enabled, 'x', clip_x.value, clip_x.flipped)">
+        </v-checkbox>
+        <v-subheader>X Axis</v-subheader>
+      </div>
+      <div class="flex-row">
+        <input class="slider" type="range" :disabled="!clip_x.enabled" v-model="clip_x.value" :min="-plane_max" :max="plane_max" v-on:input="handleClippingPlane(clip_x.enabled, 'x', clip_x.value, clip_x.flipped)" />
+        <v-tooltip bottom>
+            <template #activator="{ on, attrs }">
+                <v-icon @click="handleClippingPlane(clip_x.enabled, 'x', -clip_x.value, !clip_x.flipped)"
+                        color="rgba(82, 186, 162, 1)"
+                        v-bind="attrs"
+                        v-on="on"
+                >mdi-flip-horizontal</v-icon>
+            </template>
+            <span>Flip Clipping Plane</span>
+        </v-tooltip>
+      </div>
+
+      <div class="start flex-row">
+        <v-checkbox 
+          class="pr-1 mt-0" 
+          hide-details 
+          dense 
+          color="rgba(82, 186, 162, 1)"
+          multiple
+          @change="handleClippingPlane(!clip_y.enabled, 'y', clip_y.value, clip_y.flipped)">
+        </v-checkbox>
+        <v-subheader>Y Axis</v-subheader>
+      </div>
+      <div class="flex-row">
+        <input class="slider" type="range" :disabled="!clip_y.enabled" v-model="clip_y.value" :min="-plane_max" :max="plane_max" v-on:input="handleClippingPlane(clip_y.enabled, 'y', clip_y.value, clip_y.flipped)" />
+        <v-tooltip bottom>
+            <template #activator="{ on, attrs }">
+                <v-icon @click="handleClippingPlane(clip_y.enabled, 'y', -clip_y.value, !clip_y.flipped)"
+                        color="rgba(82, 186, 162, 1)"
+                        v-bind="attrs"
+                        v-on="on"
+                >mdi-flip-horizontal</v-icon>
+            </template>
+            <span>Flip Clipping Plane</span>
+        </v-tooltip>
+      </div>
+
+    <div class="start flex-row">
+        <v-checkbox 
+          class="pr-1 mt-0" 
+          hide-details 
+          dense 
+          color="rgba(82, 186, 162, 1)"
+          multiple
+          @change="handleClippingPlane(!clip_z.enabled, 'z', clip_z.value, clip_z.flipped)">
+        </v-checkbox>
+        <v-subheader>Z Axis</v-subheader>
+      </div>
+      <div class="flex-row">
+        <input class="slider" type="range" :disabled="!clip_z.enabled" v-model="clip_z.value" :min="-plane_max" :max="plane_max" v-on:input="handleClippingPlane(clip_z.enabled, 'z', clip_z.value, clip_z.flipped)" />
+        <v-tooltip bottom>
+            <template #activator="{ on, attrs }">
+                <v-icon @click="handleClippingPlane(clip_z.enabled, 'z', -clip_z.value, !clip_z.flipped)"
+                        color="rgba(82, 186, 162, 1)"
+                        v-bind="attrs"
+                        v-on="on"
+                >mdi-flip-horizontal</v-icon>
+            </template>
+            <span>Flip Clipping Plane</span>
+        </v-tooltip>
       </div>
     </div>
 
@@ -57,6 +137,7 @@
 <script>
 import {CAMERA_FOV, CAMERA_CLIPPING} from '../storage/Settings'
 import {changeFOV, changeCameraClipping, switchCamera} from './babylon/cameras'
+import {changeClippingPlane} from './babylon/clippingPlanes'
 
 export default {
     props: ["STORE"],
@@ -68,12 +149,27 @@ export default {
         cameraClipping_min: CAMERA_CLIPPING.min,
         cameraClipping_max: CAMERA_CLIPPING.max,
         cameraClipping: 500,
+        plane_max: 100,
+        clip_x: {
+          enabled: false,
+          value: 0,
+          flipped: false
+        },
+        clip_y: {
+          enabled: false,
+          value: 0,
+          flipped: false
+        },
+        clip_z: {
+          enabled: false,
+          value: 0,
+          flipped: false
+        },
         ydomain: []
       }
     },
     mounted(){
       this.ydomain = this.STORE._timelineInstance.getDomainY()
-
       let speed = document.querySelector("#speed")
       speed.value = this.STORE._timelineInstance.getSpeed()
       speed.oninput = e => { this.STORE._timelineInstance.setSpeed(e.target.value) }
@@ -84,6 +180,32 @@ export default {
           case 'fov': changeFOV(value); break;
           case 'clipping': changeCameraClipping(parseInt(value)); break;
           case 'ydomain' : this.STORE._timelineInstance.setDomainY(value[0], value[1]); break;
+          default: break;
+        }
+      },
+      handleClippingPlane(enabled, axis, value, flipped) {
+        switch(axis) {
+          case 'x': {
+            if(enabled != this.clip_x.enabled) this.clip_x.enabled = !this.clip_x.enabled
+            if(flipped != this.clip_x.flipped) this.clip_x.flipped = !this.clip_x.flipped
+            this.clip_x.value = value;
+            changeClippingPlane(axis, this.clip_x)
+            break;
+          }
+          case 'y': {
+            if(enabled != this.clip_y.enabled) this.clip_y.enabled = !this.clip_y.enabled
+            if(flipped != this.clip_y.flipped) this.clip_y.flipped = !this.clip_y.flipped
+            this.clip_y.value = value;
+            changeClippingPlane(axis, this.clip_y)
+            break;
+          }
+          case 'z': {
+            if(enabled != this.clip_z.enabled) this.clip_z.enabled = !this.clip_z.enabled
+            if(flipped != this.clip_z.flipped) this.clip_z.flipped = !this.clip_z.flipped
+            this.clip_z.value = value;
+            changeClippingPlane(axis, this.clip_z)
+            break;
+          }
           default: break;
         }
       },
@@ -132,8 +254,11 @@ export default {
     animate: 0.2s;
     background: #52BAA2;
     border-radius: 10px;
-    border: 0px solid #000000;
   }
+  input[type=range]:disabled::-webkit-slider-runnable-track {
+    background: grey;
+  }
+
   input[type=range]::-webkit-slider-thumb {
     border: 1px solid #52BAA2;
     height: 10px;
@@ -144,6 +269,11 @@ export default {
     -webkit-appearance: none;
     margin-top: -6.5px;
   }
+  input[type=range]:disabled::-webkit-slider-thumb {
+    background: grey;
+    border: 1px solid grey;
+  }
+
   input[type=range]:focus::-webkit-slider-runnable-track {
     background: #52BAA2;
   }
@@ -154,8 +284,11 @@ export default {
     animate: 0.2s;
     background: #52BAA2;
     border-radius: 10px;
-    border: 0px solid #000000;
   }
+  input[type=range]:disabled::-moz-range-track {
+    background: grey;
+  }
+
   input[type=range]::-moz-range-thumb {
     border: 1px solid #52BAA2;
     height: 10px;
@@ -164,6 +297,11 @@ export default {
     background: #52BAA2;
     cursor: pointer;
   }
+  input[type=range]:disabled::-moz-range-thumb {
+    background: grey;
+    border: 1px solid grey;
+  }
+
   input[type=range]::-ms-track {
     width: 100%;
     height: 2px;
@@ -173,16 +311,23 @@ export default {
     border-color: transparent;
     color: transparent;
   }
+
   input[type=range]::-ms-fill-lower {
     background: #52BAA2;
-    border: 0px solid #000000;
     border-radius: 20px;
   }
+  input[type=range]:disabled::-ms-fill-lower{
+    background: grey;
+  }
+
   input[type=range]::-ms-fill-upper {
     background: #52BAA2;
-    border: 0px solid #000000;
     border-radius: 20px;
   }
+  input[type=range]:disabled::-ms-fill-upper {
+    background: grey;
+  }
+
   input[type=range]::-ms-thumb {
     margin-top: 1px;
     border: 1px solid #52BAA2;
@@ -192,6 +337,11 @@ export default {
     background: #52BAA2;
     cursor: pointer;
   }
+  input[type=range]:disabled::-ms-thumb {
+    background: grey;
+    border: 1px solid grey;
+  }
+
   input[type=range]:focus::-ms-fill-lower {
     background: #52BAA2;
   }
@@ -204,18 +354,20 @@ export default {
     width: 25%;
   }
 
-  .row {
+  .flex-row {
     display: flex;
     justify-content: space-between;
     margin: 0;
+    padding: 0;
     
     input[type=range] {
-      width: 75%;
-    }
-    label {
-      font-size: small;
+      width: 80%;
+      margin: 0;
     }
   }
+  .start {
+      justify-content: start;
+    }
 }
 
 

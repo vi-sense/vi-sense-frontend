@@ -38,10 +38,8 @@ export async function updateSelectedSensor(sensor_id: number, action: String) {
 
   if(action == "new") {
     mesh.state = "selected";
+    highlight.removeExcludedMesh(<BABYLON.Mesh>mesh)
     highlight.addMesh(mesh.subMeshes[0].getRenderingMesh(), BABYLON.Color3.Black());
-    mesh = mesh.subMeshes[0].getRenderingMesh();
-    mesh.outlineWidth = .05;
-    mesh.outlineColor = BABYLON.Color3.Black();
     sensorLabels[sensor_id].rect.alpha = 1;
     sensorLabels[sensor_id].rect.isVisible = true;
     sensorLabels[sensor_id].arrow.alpha = 1;
@@ -50,6 +48,7 @@ export async function updateSelectedSensor(sensor_id: number, action: String) {
   }
   else if (action == "removed") {
     mesh.state = "";
+    highlight.addExcludedMesh(<BABYLON.Mesh>mesh)
     highlight.removeMesh(mesh.subMeshes[0].getRenderingMesh());
     sensorLabels[sensor_id].rect.alpha = 0;
     sensorLabels[sensor_id].rect.isVisible = false;
@@ -86,9 +85,13 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
   highlight.outerGlow = false
   highlight.blurHorizontalSize = 1
   highlight.blurVerticalSize = 1
+  modelMeshes.forEach((mesh) => highlight.addExcludedMesh(mesh))
 
   await addUIElements(modelID);
 
+  scene.setRenderingAutoClearDepthStencil(2, false, false, false);
+
+  // CALLBACK FOR SENSOR SELECTION
   storage.onSensorSelectionChanged((id, action) => {
     updateSelectedSensor(id, action);
   })
@@ -102,6 +105,7 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
   // CALLBACK FOR SENSOR INIT
   storage.registerOnUpdateCallback(SKEYS.INIT_SENSOR, (id) => {
     if (id == null) {
+      modelMeshes.forEach((m) => highlight.addExcludedMesh(<BABYLON.Mesh>m))
       SELECTABLES.forEach((mesh) => {
         mesh.isPickable = false
         highlight.removeMesh(mesh.subMeshes[0].getRenderingMesh());
@@ -109,6 +113,7 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
       })
     }
     else {
+      modelMeshes.forEach((m) => highlight.removeExcludedMesh(<BABYLON.Mesh>m))
       SELECTABLES.forEach((mesh) => {
         mesh.isPickable = true
         highlight.addMesh(mesh.subMeshes[0].getRenderingMesh(), BABYLON.Color3.White());
@@ -122,9 +127,7 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
               storage.onInitStateChanged(async (id, state) => {
                 if(state === "confirmed") {
                   let selectedSensors = storage.getSelectedSensors()
-                  selectedSensors.forEach((sensor) => {
-                    storage.unselectSensor(sensor)
-                  })
+                  selectedSensors.forEach((sensor) => storage.unselectSensor(sensor))
 
                   if (savedSensors[id] && savedSensors[id].mesh_id != null) {
                     // REPOSITION A SENSOR
@@ -138,7 +141,7 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
                     await updateSensorMeshID(mesh.metadata.sensor_id, null);
                   }
 
-                  // SIMPLY INIT SENSOR
+                  // INIT SENSOR
                   await updateSensorMeshID(id, mesh.uniqueId);
                   mesh.metadata.sensor_id = id;
                   storage.updateInitState(id, 'updated');
@@ -162,7 +165,6 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
 }
 
 async function addUIElements(modelID: number) {
-  // GET MODEL DATA
   let model = await getModelData(modelID);
   let sensors = model.sensors;
   advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
@@ -170,14 +172,15 @@ async function addUIElements(modelID: number) {
     if (sensors[i].mesh_id == null || sensors[i].mesh_id == "") continue;
     savedSensors[sensors[i].id] = sensors[i]
 
-    let mesh: BABYLON.AbstractMesh;
-    mesh = myScene.getMeshByUniqueID(sensors[i].mesh_id);
+    let mesh: BABYLON.AbstractMesh = myScene.getMeshByUniqueID(sensors[i].mesh_id);
     if(!mesh) {
       console.log("Did not find a mesh with id: " + sensors[i].mesh_id);
       continue;
     }
-
     mesh.metadata.sensor_id = sensors[i].id;
+
+    //sensor meshes get a different rendering group so that the highlight layer will always be on top
+    mesh.renderingGroupId = 1;
     
     //QPRJU9#12 - sine water flow
     //QPRJU9#16 - sine color change
@@ -188,7 +191,6 @@ async function addUIElements(modelID: number) {
     //   mesh.material = nodeMaterial;
     // });
     
-    //console.log(sensors[i].lower_bound, sensors[i].upper_bound, sensors[i].latest_data.value)
     if(sensors[i].lower_bound != null && sensors[i].upper_bound != null && sensors[i].latest_data.value != null) {
       mesh.material = new GradientShader(sensors[i].lower_bound, sensors[i].upper_bound, sensors[i].latest_data.value);
     } else mesh.material = new GradientShader(0, 100, 50);

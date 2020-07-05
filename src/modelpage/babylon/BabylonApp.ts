@@ -37,34 +37,34 @@ export default class BabylonApp {
         light.groundColor = new BABYLON.Color3(0.1, 0.1, 0.1);
         light.intensity = 1.5;
 
-        setupClippingPlanes(this.scene);
-        try{
-        loadModel(modelID, this.scene, (meshes) => {
-            let helper = this.scene.createDefaultEnvironment();
-            let minV3 = new BABYLON.Vector3();
-            let maxV3 = new BABYLON.Vector3();
-            meshes.forEach(mesh=>{
-                mesh.isPickable=false
-                mesh.freezeWorldMatrix()
-                let v = mesh.getBoundingInfo().boundingSphere.centerWorld
-                if (v.x < minV3.x) minV3.x = v.x;
-                if (v.y < minV3.y) minV3.y = v.y;
-                if (v.z < minV3.z) minV3.z = v.z;
-                if (v.x > maxV3.x) maxV3.x = v.x;
-                if (v.y > maxV3.y) maxV3.y = v.y;
-                if (v.z > maxV3.z) maxV3.z = v.z;
-            })
-            let center = BABYLON.Vector3.Center(minV3, maxV3);
-            // save model center in scene attribute to be used whenever needed
-            this.scene.metadata = {modelCenter: center}
-            arc.setTarget(center)
+        try {
+            loadModel(modelID, this.scene, (meshes) => {
+                this.scene.createDefaultEnvironment();
+                let minV3 = new BABYLON.Vector3();
+                let maxV3 = new BABYLON.Vector3();
+                meshes.forEach(mesh=>{
+                    mesh.isPickable=false
+                    mesh.freezeWorldMatrix()
+                    mesh.renderingGroupId = 2;
+                    let v = mesh.getBoundingInfo().boundingSphere.centerWorld
+                    if (v.x < minV3.x) minV3.x = v.x;
+                    if (v.y < minV3.y) minV3.y = v.y;
+                    if (v.z < minV3.z) minV3.z = v.z;
+                    if (v.x > maxV3.x) maxV3.x = v.x;
+                    if (v.y > maxV3.y) maxV3.y = v.y;
+                    if (v.z > maxV3.z) maxV3.z = v.z;
+                })
+                let center = BABYLON.Vector3.Center(minV3, maxV3);
+                this.scene.metadata = {modelCenter: center}
+                arc.setTarget(center)
 
-            //this.scene.clearColor = new BABYLON.Color4(0.5, 0.5, 0.5, 1);
-            setupSensorSelection(this.scene, modelID, meshes, STORE).then(() => {
-                eventBus.$emit("loading-finished")
-            });
-        }, !IS_PRODUCTION)
-        }catch (e) {
+                setupClippingPlanes(this.scene);
+
+                setupSensorSelection(this.scene, modelID, meshes, STORE).then(() => {
+                    eventBus.$emit("loading-finished")
+                });
+            }, !IS_PRODUCTION)
+        } catch (e) {
             console.log(e)
             eventBus.$emit("loading-failed")
         }
