@@ -186,22 +186,22 @@ export default {
       handleClippingPlane(enabled, axis, value, flipped) {
         switch(axis) {
           case 'x': {
-            if(enabled != this.clip_x.enabled) this.clip_x.enabled = !this.clip_x.enabled
-            if(flipped != this.clip_x.flipped) this.clip_x.flipped = !this.clip_x.flipped
+            this.clip_x.enabled = enabled
+            this.clip_x.flipped = flipped
             this.clip_x.value = value;
             changeClippingPlane(axis, this.clip_x)
             break;
           }
           case 'y': {
-            if(enabled != this.clip_y.enabled) this.clip_y.enabled = !this.clip_y.enabled
-            if(flipped != this.clip_y.flipped) this.clip_y.flipped = !this.clip_y.flipped
+            this.clip_y.enabled = enabled
+            this.clip_y.flipped = flipped
             this.clip_y.value = value;
             changeClippingPlane(axis, this.clip_y)
             break;
           }
           case 'z': {
-            if(enabled != this.clip_z.enabled) this.clip_z.enabled = !this.clip_z.enabled
-            if(flipped != this.clip_z.flipped) this.clip_z.flipped = !this.clip_z.flipped
+            this.clip_z.enabled = enabled
+            this.clip_z.flipped = flipped
             this.clip_z.value = value;
             changeClippingPlane(axis, this.clip_z)
             break;
