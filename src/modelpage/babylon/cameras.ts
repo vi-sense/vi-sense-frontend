@@ -10,6 +10,8 @@ import Storage from '../../storage/Storage';
 var myScene: BABYLON.Scene;
 var myStorage: Storage;
 
+const EASE = new BABYLON.CubicEase();
+EASE.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEINOUT);
 /**
  * Prety simple and hacky FPS camera script locked to XZ-axis movement
  * Control building level respectively camera y position with Q and E keys
@@ -70,8 +72,14 @@ export function createArcCamera(canvas: HTMLCanvasElement, engine:BABYLON.Engine
 
     storage.onSensorSelectionChanged(() => {
         if(myScene.activeCamera == arcCamera) {
-            let target = getArcCameraTarget()
-            arcCamera.setTarget(target)
+            let arcCam = myScene.activeCamera as BABYLON.ArcRotateCamera;
+            let newTarget = getArcCameraTarget()
+            let targetAnimation = new BABYLON.Animation("anim1", "target", 30, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
+            targetAnimation.setKeys([{ frame: 0, value: arcCam.getTarget()}, { frame: 15, value: newTarget }]);
+            targetAnimation.setEasingFunction(EASE)
+            arcCam.animations = [] //clear animations
+            arcCam.animations.push(targetAnimation)
+            let targetAnimationRun = myScene.beginAnimation(arcCam, 0, 15, false);
         }
     })
 
@@ -108,8 +116,6 @@ export function changeCameraClipping(value) {
 }
 
 export async function switchCamera() {
-    let ease = new BABYLON.CubicEase();
-    ease.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEINOUT);
     if (myScene.activeCamera.name == "floorCam") {
         let floorCam = myScene.activeCamera as FloorCamera;
         let arcCam = myScene.getCameraByName("arcCam") as BABYLON.ArcRotateCamera;
@@ -121,7 +127,7 @@ export async function switchCamera() {
 
         let targetAnimation = new BABYLON.Animation("anim1", "lockedTarget", 30, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
         targetAnimation.setKeys([{ frame: 0, value: floorCam.getTarget()}, { frame: 30, value: newTarget }]);
-        targetAnimation.setEasingFunction(ease)
+        targetAnimation.setEasingFunction(EASE)
 
         floorCam.animations = [] //clear animations
         floorCam.animations.push(targetAnimation)
@@ -149,7 +155,7 @@ export async function switchCamera() {
         radiusKeys.push({ frame: 0, value: active.radius });
         radiusKeys.push({ frame: 30, value: 10 });
         animateRadius.setKeys(radiusKeys);
-        animateRadius.setEasingFunction(ease);
+        animateRadius.setEasingFunction(EASE);
         active.animations.push(animateRadius);
         let a = myScene.beginAnimation(active, 0, 30, false);
 
