@@ -113,9 +113,15 @@ export function switchCamera() {
     if (myScene.activeCamera.name == "floorCam") {
         let active = myScene.activeCamera as FloorCamera;
         let cam = myScene.getCameraByName("arcCam") as BABYLON.ArcRotateCamera;
+
+        active.detachControl(document.getElementById("babyloncanvas"))
+        cam.attachControl(document.getElementById("babyloncanvas"))
+
         let target = getArcCameraTarget()
-        
         cam.setTarget(target)
+        // cam.cameraRotation = new BABYLON.Vector2(0,0)
+        // cam.alpha = 0
+        // cam.beta = 0
         cam.fov = active.fov;
         cam.minZ = active.minZ;
         cam.maxZ = active.maxZ;
@@ -144,7 +150,7 @@ export function switchCamera() {
         let animateRadius = new BABYLON.Animation("anim3", "radius", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
         let radiusKeys = [];
         radiusKeys.push({ frame: 0, value: active.radius });
-        radiusKeys.push({ frame: 30, value: 5 });
+        radiusKeys.push({ frame: 30, value: 10 });
         animateRadius.setKeys(radiusKeys);
         animateRadius.setEasingFunction(ease);
         active.animations.push(animateRadius);
@@ -152,6 +158,11 @@ export function switchCamera() {
 
         a.onAnimationEnd = () => {
             let cam = myScene.getCameraByName("floorCam") as FloorCamera;
+
+            active.detachControl(document.getElementById("babyloncanvas"))
+            cam.attachControl(document.getElementById("babyloncanvas"))
+            cam.cameraRotation = new BABYLON.Vector2(0,0)
+
             cam.position = active.position.clone()
             cam.fixedY = cam.position.clone().y;
             cam.setTarget(getArcCameraTarget());
