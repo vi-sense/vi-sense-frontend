@@ -107,41 +107,36 @@ export function changeCameraClipping(value) {
     myScene.activeCamera.maxZ = value
 }
 
-export function switchCamera() {
+export async function switchCamera() {
     let ease = new BABYLON.CubicEase();
     ease.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEINOUT);
     if (myScene.activeCamera.name == "floorCam") {
-        let active = myScene.activeCamera as FloorCamera;
-        let cam = myScene.getCameraByName("arcCam") as BABYLON.ArcRotateCamera;
+        let floorCam = myScene.activeCamera as FloorCamera;
+        let arcCam = myScene.getCameraByName("arcCam") as BABYLON.ArcRotateCamera;
 
-        active.detachControl(document.getElementById("babyloncanvas"))
-        cam.attachControl(document.getElementById("babyloncanvas"))
+        floorCam.detachControl(document.getElementById("babyloncanvas"))
+        arcCam.attachControl(document.getElementById("babyloncanvas"))
 
-        let target = getArcCameraTarget()
-        cam.setTarget(target)
-        // cam.cameraRotation = new BABYLON.Vector2(0,0)
-        // cam.alpha = 0
-        // cam.beta = 0
-        cam.fov = active.fov;
-        cam.minZ = active.minZ;
-        cam.maxZ = active.maxZ;
-        myScene.activeCamera = cam;
-        /*
-        let animateTarget = new BABYLON.Animation("anim4", "lockedTarget", 30, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
-        let targetKeys = [];
-        targetKeys.push({ frame: 0, value: active.getTarget() });
-        targetKeys.push({ frame: 30, value: target });
-        animateTarget.setKeys(targetKeys);
-        animateTarget.setEasingFunction(ease);
-        active.animations.push(animateTarget);
+        let newTarget = getArcCameraTarget()
 
-        let a = myScene.beginAnimation(active, 0, 30, false);
-        a.onAnimationEnd = () => {
-            active.lockedTarget = undefined;
-            //cam.position = active.position.clone();
-            
-        };
-        */
+        let targetAnimation = new BABYLON.Animation("anim1", "lockedTarget", 30, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
+        targetAnimation.setKeys([{ frame: 0, value: floorCam.getTarget()}, { frame: 30, value: newTarget }]);
+        targetAnimation.setEasingFunction(ease)
+        floorCam.animations.push(targetAnimation)
+
+        let targetAnimationRun = myScene.beginAnimation(floorCam, 0, 30, false);
+
+        await targetAnimationRun.waitAsync()
+
+        floorCam.lockedTarget = null
+
+        arcCam.position = floorCam.position.clone()
+        arcCam.setTarget(newTarget)
+        arcCam.fov = floorCam.fov;
+        arcCam.minZ = floorCam.minZ;
+        arcCam.maxZ = floorCam.maxZ;
+        myScene.activeCamera = arcCam;
+
     }
     else if (myScene.activeCamera.name == "arcCam") {
         let active = myScene.activeCamera as BABYLON.ArcRotateCamera;
