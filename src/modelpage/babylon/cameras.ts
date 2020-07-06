@@ -122,13 +122,15 @@ export async function switchCamera() {
         let targetAnimation = new BABYLON.Animation("anim1", "lockedTarget", 30, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
         targetAnimation.setKeys([{ frame: 0, value: floorCam.getTarget()}, { frame: 30, value: newTarget }]);
         targetAnimation.setEasingFunction(ease)
+
+        floorCam.animations = [] //clear animations
         floorCam.animations.push(targetAnimation)
 
         let targetAnimationRun = myScene.beginAnimation(floorCam, 0, 30, false);
 
         await targetAnimationRun.waitAsync()
 
-        floorCam.lockedTarget = null
+        floorCam.lockedTarget = undefined
 
         arcCam.position = floorCam.position.clone()
         arcCam.setTarget(newTarget)
