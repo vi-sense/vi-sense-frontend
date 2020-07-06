@@ -10,6 +10,8 @@ import Model from './startpage/Model.vue'
 import Modelpage from './modelpage/Modelpage.vue'
 import History from './modelpage/History.vue'
 
+import 'leaflet/dist/leaflet.css';
+
 
 Vue.config.productionTip = false
 
