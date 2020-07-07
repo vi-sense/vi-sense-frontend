@@ -42,11 +42,25 @@ export default class BabylonApp {
                 this.scene.createDefaultEnvironment();
                 let minV3 = new BABYLON.Vector3();
                 let maxV3 = new BABYLON.Vector3();
+
+                let outerMax = new BABYLON.Vector3();
                 meshes.forEach(mesh=>{
                     mesh.isPickable=false
                     mesh.freezeWorldMatrix()
                     mesh.renderingGroupId = 2;
+                    
+                    let max = mesh.getBoundingInfo().boundingBox.maximum
+                    let min = mesh.getBoundingInfo().boundingBox.minimum
+                    //get outer most bounding vectors of a model
+                    if (Math.round(Math.abs(min.x)) > outerMax.x) outerMax.x = Math.round(Math.abs(min.x))
+                    if (Math.round(Math.abs(min.y)) > outerMax.y) outerMax.y = Math.round(Math.abs(min.y))
+                    if (Math.round(Math.abs(min.z)) > outerMax.z) outerMax.z = Math.round(Math.abs(min.z))
+                    if (Math.round(Math.abs(max.x)) > outerMax.x) outerMax.x = Math.round(Math.abs(max.x))
+                    if (Math.round(Math.abs(max.y)) > outerMax.y) outerMax.y = Math.round(Math.abs(max.y))
+                    if (Math.round(Math.abs(max.z)) > outerMax.z) outerMax.z = Math.round(Math.abs(max.z))
+
                     let v = mesh.getBoundingInfo().boundingSphere.centerWorld
+                    //average the center vector of a model
                     if (v.x < minV3.x) minV3.x = v.x;
                     if (v.y < minV3.y) minV3.y = v.y;
                     if (v.z < minV3.z) minV3.z = v.z;
@@ -54,9 +68,11 @@ export default class BabylonApp {
                     if (v.y > maxV3.y) maxV3.y = v.y;
                     if (v.z > maxV3.z) maxV3.z = v.z;
                 })
+                console.log(outerMax)
                 let center = BABYLON.Vector3.Center(minV3, maxV3);
-                this.scene.metadata = {modelCenter: center}
+                this.scene.metadata = { modelCenter: center }
                 arc.setTarget(center)
+                eventBus.$emit("bounding-box-defined", outerMax)
 
                 setupClippingPlanes(this.scene);
 

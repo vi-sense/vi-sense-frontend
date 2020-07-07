@@ -38,7 +38,7 @@
         <v-subheader>X Axis</v-subheader>
       </div>
       <div class="flex-row">
-        <input class="slider" type="range" :disabled="!clip_x.enabled" v-model="clip_x.value" :min="-plane_max" :max="plane_max" v-on:input="handleClippingPlane(clip_x.enabled, 'x', clip_x.value, clip_x.flipped)" />
+        <input class="slider" type="range" :disabled="!clip_x.enabled" v-model="clip_x.value" :min="clip_x.min" :max="clip_x.max" v-on:input="handleClippingPlane(clip_x.enabled, 'x', clip_x.value, clip_x.flipped)" />
         <v-tooltip bottom>
             <template #activator="{ on, attrs }">
                 <v-icon @click="handleClippingPlane(clip_x.enabled, 'x', -clip_x.value, !clip_x.flipped)"
@@ -63,7 +63,7 @@
         <v-subheader>Y Axis</v-subheader>
       </div>
       <div class="flex-row">
-        <input class="slider" type="range" :disabled="!clip_y.enabled" v-model="clip_y.value" :min="-plane_max" :max="plane_max" v-on:input="handleClippingPlane(clip_y.enabled, 'y', clip_y.value, clip_y.flipped)" />
+        <input class="slider" type="range" :disabled="!clip_y.enabled" v-model="clip_y.value" :min="clip_y.min" :max="clip_y.max" v-on:input="handleClippingPlane(clip_y.enabled, 'y', clip_y.value, clip_y.flipped)" />
         <v-tooltip bottom>
             <template #activator="{ on, attrs }">
                 <v-icon @click="handleClippingPlane(clip_y.enabled, 'y', -clip_y.value, !clip_y.flipped)"
@@ -88,7 +88,7 @@
         <v-subheader>Z Axis</v-subheader>
       </div>
       <div class="flex-row">
-        <input class="slider" type="range" :disabled="!clip_z.enabled" v-model="clip_z.value" :min="-plane_max" :max="plane_max" v-on:input="handleClippingPlane(clip_z.enabled, 'z', clip_z.value, clip_z.flipped)" />
+        <input class="slider" type="range" :disabled="!clip_z.enabled" v-model="clip_z.value" :min="clip_z.min" :max="clip_z.max" v-on:input="handleClippingPlane(clip_z.enabled, 'z', clip_z.value, clip_z.flipped)" />
         <v-tooltip bottom>
             <template #activator="{ on, attrs }">
                 <v-icon @click="handleClippingPlane(clip_z.enabled, 'z', -clip_z.value, !clip_z.flipped)"
@@ -108,7 +108,7 @@
       <p>Timeline Options</p>
 
       <div>
-        <v-subheader>Speed<v-spacer/>
+        <v-subheader>Playback Speed<v-spacer/>
           <input id="speed" type="number" min="1" max="50">
         </v-subheader>
       </div>
@@ -138,6 +138,7 @@
 import {CAMERA_FOV, CAMERA_CLIPPING} from '../storage/Settings'
 import {changeFOV, changeCameraClipping, switchCamera} from './babylon/cameras'
 import {changeClippingPlane} from './babylon/clippingPlanes'
+import {eventBus} from "../main";
 
 export default {
     props: ["STORE"],
@@ -149,18 +150,23 @@ export default {
         cameraClipping_min: CAMERA_CLIPPING.min,
         cameraClipping_max: CAMERA_CLIPPING.max,
         cameraClipping: 500,
-        plane_max: 100,
         clip_x: {
+          min: -100,
+          max: 100,
           enabled: false,
           value: 0,
           flipped: false
         },
         clip_y: {
+          min: -100,
+          max: 100,
           enabled: false,
           value: 0,
           flipped: false
         },
         clip_z: {
+          min: -100,
+          max: 100,
           enabled: false,
           value: 0,
           flipped: false
@@ -173,6 +179,14 @@ export default {
       let speed = document.querySelector("#speed")
       speed.value = this.STORE._timelineInstance.getSpeed()
       speed.oninput = e => { this.STORE._timelineInstance.setSpeed(e.target.value) }
+      eventBus.$on("bounding-box-defined", (outerMax) => {
+        this.clip_x.max = outerMax.x
+        this.clip_x.min = -outerMax.x
+        this.clip_y.max = outerMax.y
+        this.clip_y.min = -outerMax.y
+        this.clip_z.max = outerMax.z
+        this.clip_z.min = -outerMax.z
+      })
     },
     methods: {
       onSliderChanged(key, value) {

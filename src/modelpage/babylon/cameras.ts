@@ -187,16 +187,16 @@ function getArcCameraTarget() {
         return BABYLON.Vector3.Center(v1, v2);
     }
     if (sensor_ids.length > 2) {
-        let myX = 0;
-        let myY = 0;
-        let myZ = 0;
+        let sumX = 0;
+        let sumY = 0;
+        let sumZ = 0;
         for (let i = 0; i < sensor_ids.length; i++) {
             let mesh = myScene.getMeshByUniqueID(myScene.metadata.savedSensors[sensor_ids[i]].mesh_id)
             let v = mesh.getBoundingInfo().boundingSphere.centerWorld
-            myX += v.x
-            myY += v.y
-            myZ += v.z
+            sumX += v.x
+            sumY += v.y
+            sumZ += v.z
         }
-        return new BABYLON.Vector3(myX / sensor_ids.length, myY / sensor_ids.length, myZ / sensor_ids.length);
+        return new BABYLON.Vector3(sumX / sensor_ids.length, sumY / sensor_ids.length, sumZ / sensor_ids.length);
     }
 }
