@@ -27,7 +27,7 @@
                     <v-text-field dense type="number"
                                   label="Gradient Bound"
                                   v-model="gradientBound"
-                                  :rules="[value => parseFloat(value) >= 0 || 'Must be positive']"
+                                  :rules="[value => !!!value || parseFloat(value) >= 0 || 'Must be positive']"
                                   @input="revalidateForm"
                         >
                         <template #append>
@@ -65,18 +65,30 @@
                 valid: true,
                 upperBound: this.sensor.upper_bound ,
                 lowerBound: this.sensor.lower_bound,
-                gradientBound: this.sensor.gradient_bound * GRADIENTBOUND_CONVERSION
+                gradientBound: this.gradientHumanReadable(this.sensor.gradient_bound)
             }
         },
         methods:{
             revalidateForm(){
               this.$refs.form.validate()
             },
+            gradientHumanReadable(gradientBound){
+                if(gradientBound != null){
+                    return gradientBound * GRADIENTBOUND_CONVERSION
+                }
+                else return null
+            },
+            gradientBoundAPIScaled(gradientBoundHumanReadable){
+                if(gradientBoundHumanReadable != null){
+                    return gradientBoundHumanReadable / GRADIENTBOUND_CONVERSION
+                }
+                else return null
+            },
             async saveLimits(){
                     let update = {
                         upper_bound: parseFloat(this.upperBound),
                         lower_bound: parseFloat(this.lowerBound),
-                        gradient_bound: parseFloat(this.gradientBound) / GRADIENTBOUND_CONVERSION
+                        gradient_bound: this.gradientBoundAPIScaled(parseFloat(this.gradientBound))
                     }
                 try {
                     let response = await fetch(process.env.API_URL + "/sensors/" + this.sensor.id, {
@@ -89,7 +101,7 @@
 
                     this.upperBound = newSensorData.upper_bound
                     this.lowerBound = newSensorData.lower_bound
-                    this.gradientBound = newSensorData.gradient_bound * GRADIENTBOUND_CONVERSION
+                    this.gradientBound = this.gradientHumanReadable(newSensorData.gradient_bound)
                     eventBus.$emit('sensor-limits-changed')
 
                     this.STORE._timelineInstance.refreshAnomalies()
