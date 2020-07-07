@@ -35,9 +35,9 @@
               <div>Type: {{ model.type }}</div>
               <div>Floors: {{ model.floors }}</div>
               <div>
-                Last Anomalies:
+                Last Anomaly:
                 <div v-if="anomaliesLoaded">
-                  <div v-for="(anomaly, index) in anomalies" :key="index">{{anomaly.end_data.date}}</div>
+                  {{lastAnomalies.has(model.id) ? lastAnomalies.get(model.id).start_data.date : ""}}
                 </div>
               </div>
               {{ model.description }}
@@ -86,6 +86,7 @@ import {
   LTooltip,
   LIcon
 } from "vue2-leaflet";
+import moment from "moment";
 require("../../node_modules/leaflet/dist/leaflet.css");
 
 // FIX leaflet's default icon path problems with webpack
@@ -115,9 +116,7 @@ export default {
       showParagraph: false,
       showMap: true,
       models: [],
-      model: null,
-      sensorsById: Map,
-      anomalies: [],
+      lastAnomalies: Map,
       anomaliesLoaded: false,
       lat: null,
       long: null
@@ -125,35 +124,32 @@ export default {
   },
   created() {
     this.getAllModels();
-    this.getLatestData(1);
   },
   methods: {
-    async getLatestData(id) {
-      try {
-        const response = await fetch(this.endpoint + "models/" + id);
-        this.model = await response.json();
-      } catch (error) {
-        console.log(error);
-      }
-      this.sensorsById = new Map();
-      this.anomalies = [];
-      //console.log(JSON.stringify(this.model.sensors));
-      await Promise.all(
-        this.model.sensors.map(async sensor => {
-          this.sensorsById.set(sensor.id, sensor);
-          try {
-            const sensorAnomalies = await fetch(
-              `${this.endpoint}sensors/${sensor.id}/anomalies`
-            );
-            this.anomalies.push(...(await sensorAnomalies.json()));
-          } catch (error) {
-            console.log(error);
-          }
-        })
-      );
-      this.anomalies.sort((b, a) =>
-        a.start_data.date.localeCompare(b.start_data.date)
-      );
+    async getLatestData() {
+      this.lastAnomalies = new Map();
+      const current_date = moment().format("YYYY-MM-DD HH:mm:ss")
+      await Promise.all(this.models.map(async model => {
+        let modelAnomalies = []
+        await Promise.all(
+                model.sensors.map(async sensor => {
+                  try {
+                    const sensorAnomalies = await fetch(
+                            `${this.endpoint}sensors/${sensor.id}/anomalies?end_date=${current_date}`
+                    );
+                    modelAnomalies.push(...(await sensorAnomalies.json()));
+                  } catch (error) {
+                    console.log(error);
+                  }
+                })
+        );
+        if (modelAnomalies.length > 0) {
+          const latestAnomaly = modelAnomalies.sort((b, a) =>
+                  a.start_data.date.localeCompare(b.start_data.date)
+          )[0]
+          this.lastAnomalies.set(model.id, latestAnomaly)
+        }
+      }));
       this.anomaliesLoaded = true;
     },
     getLatlong(lat, long) {
@@ -171,11 +167,12 @@ export default {
     innerClick() {
       alert("Click!");
     },
-    getAllModels() {
+    async getAllModels() {
       axios
         .get(this.endpoint + "models")
         .then(response => {
           this.models = response.data;
+          this.getLatestData()
         })
         .catch(error => {
           console.log(error);
