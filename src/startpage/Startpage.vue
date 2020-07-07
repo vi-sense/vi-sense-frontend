@@ -35,8 +35,10 @@
               <div>Type: {{ model.type }}</div>
               <div>Floors: {{ model.floors }}</div>
               <div>
-                Last Anomalie:
-                <span v-html="getLatestData(model.id)"></span>
+                Last Anomalies:
+                <div v-if="anomaliesLoaded">
+                  <div v-for="(anomaly, index) in anomalies" :key="index">{{anomaly.end_data.date}}</div>
+                </div>
               </div>
               {{ model.description }}
             </v-card-text>
@@ -54,20 +56,13 @@
                 v-if="showMap"
                 :zoom="zoom"
                 :center="getLatlong(model.location.latitude, model.location.longitude)"
-                :options="mapOptions"
-                @update:center="centerUpdate"
-                @update:zoom="zoomUpdate"
               >
                 <l-tile-layer :url="url" :attribution="attribution" />
                 <l-marker :lat-lng="getLatlong(model.location.latitude, model.location.longitude)">
                   <l-popup>
                     <div @click="innerClick">
                       {{ model.location.address }}
-                      <p v-show="showParagraph">
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque
-                        sed pretium nisl, ut sagittis sapien. Sed vel sollicitudin nisi.
-                        Donec finibus semper metus id malesuada.
-                      </p>
+                      <p v-show="showParagraph">{{ model.description }}</p>
                     </div>
                   </l-popup>
                 </l-marker>
@@ -83,7 +78,23 @@
 <script>
 import axios from "axios";
 import { latLng } from "leaflet";
-import { LMap, LTileLayer, LMarker, LPopup, LTooltip } from "vue2-leaflet";
+import {
+  LMap,
+  LTileLayer,
+  LMarker,
+  LPopup,
+  LTooltip,
+  LIcon
+} from "vue2-leaflet";
+require("../../node_modules/leaflet/dist/leaflet.css");
+
+// FIX leaflet's default icon path problems with webpack
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png"),
+  iconUrl: require("leaflet/dist/images/marker-icon.png"),
+  shadowUrl: require("leaflet/dist/images/marker-shadow.png")
+});
 
 export default {
   components: {
@@ -91,24 +102,17 @@ export default {
     LTileLayer,
     LMarker,
     LPopup,
-    LTooltip
+    LTooltip,
+    LIcon
   },
   data() {
     return {
       endpoint: process.env.API_URL + "/",
       zoom: 12,
-      center: latLng(1.44, 2.55),
       url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
       attribution:
         '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-      withPopup: latLng(1.44, 2.55),
-      withTooltip: latLng(1.44, 2.55),
-      currentZoom: 11.5,
-      currentCenter: latLng(1.44, 2.55),
       showParagraph: false,
-      mapOptions: {
-        zoomSnap: 0.5
-      },
       showMap: true,
       models: [],
       model: null,
@@ -121,6 +125,7 @@ export default {
   },
   created() {
     this.getAllModels();
+    this.getLatestData(1);
   },
   methods: {
     async getLatestData(id) {
@@ -132,6 +137,7 @@ export default {
       }
       this.sensorsById = new Map();
       this.anomalies = [];
+      //console.log(JSON.stringify(this.model.sensors));
       await Promise.all(
         this.model.sensors.map(async sensor => {
           this.sensorsById.set(sensor.id, sensor);
@@ -149,17 +155,6 @@ export default {
         a.start_data.date.localeCompare(b.start_data.date)
       );
       this.anomaliesLoaded = true;
-      for (var anomaly in this.anomalies[id]) {
-        console.log("data is undefined" + anomaly);
-        if (anomaly == 'start_data'){
-        Promise.resolve(anomaly).then(function(anomaly) {
-          
-            console.log("inserting into IndexedDB", anomaly);
-          });
-           
-        }
-    
-      }
     },
     getLatlong(lat, long) {
       return latLng(lat, long);
