@@ -5,7 +5,7 @@
                 v-slot:default="{ hover }"
         >
             <v-card v-ripple :color="hover? 'grey lighten-4':'white'" :elevation="hover? 4: 2" class="my-1"
-                    :style="`border-left: 5px solid ${sensorColors.get(anomaly.start_data.sensor_id)}!important; opacity:${anomaly.selected?'1.0':'0.5'}`" v-on:click="centerTimeline(anomaly)">
+                    :style="`border-left: 5px solid ${sensorColors.get(anomaly.start_data.sensor_id)}!important; opacity:${anomaly.selected?'1.0':'0.5'}`" v-on:click="selectAnomaly(anomaly)">
                 <v-container class="pa-0">
                     <v-row align="center" justify="start" :no-gutters="true" >
                         <v-col cols="9">
@@ -64,7 +64,8 @@
                 }))
                 this.anomaliesLoaded = true
             },
-            centerTimeline(anomaly){
+            selectAnomaly(anomaly){
+                eventBus.$emit("sensor-selected", anomaly.start_data.sensor_id)
                 const startDate = new Date(anomaly.start_data.date)
                 //if there are two dates, center in between those. if there is only one, center on that, achived by setting endDate equal to startDate
                 const endDate = anomaly.end_data ? new Date(anomaly.end_data.date) : startDate
