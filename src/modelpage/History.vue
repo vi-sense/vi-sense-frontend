@@ -10,7 +10,7 @@
                     <v-row align="center" justify="start" :no-gutters="true" >
                         <v-col cols="9">
                             <v-card-title class="pr-1">
-                                {{`${sensorsById.get(anomaly.start_data.sensor_id).name}: ${anomaly.type}`}}
+                                <span>{{sensorsById.get(anomaly.start_data.sensor_id).name}}: </span> <span>{{anomaly.type}}</span>
                             </v-card-title>
                             <v-card-subtitle class="pr-1" ><span class="date_span">{{ reformatDate(anomaly.start_data.date)}}{{anomaly.end_data? " - ": ""}}</span> <span v-if="anomaly.end_data" class="date_span"> {{reformatDate(anomaly.end_data.date)}} </span>
                             </v-card-subtitle>
