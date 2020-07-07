@@ -49,6 +49,8 @@
     "babylonjs-inspector": "^4.1.0",
     "babylonjs-loaders": "^4.1.0",
     "d3": "^5.16.0",
-    "moment": "^2.26.0"
+    "leaflet": "^1.6.0",
+    "moment": "^2.26.0",
+    "vue2-leaflet": "^2.5.2"
   }
 }

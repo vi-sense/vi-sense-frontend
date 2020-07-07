@@ -12,6 +12,8 @@ import History from './modelpage/History.vue'
 import TimelineTest from './modelpage/timeline/TimelineTest.vue'
 import '@mdi/font/css/materialdesignicons.css'
 
+import 'leaflet/dist/leaflet.css';
+
 
 Vue.config.productionTip = false
 
