@@ -1,8 +1,8 @@
 <template>
     <div>
         <v-expansion-panels focusable accordion>
-            <v-expansion-panel :key="sensor.id" :style="`border-left: 5px solid ${sensorColor(sensor.id)}!important`"
-                               v-for="sensor in sensorData">
+            <v-expansion-panel :key="sensor.id" :style="`border-left: 5px solid ${sensorColors.get(sensor.id)}!important`"
+                               v-for="sensor in modelData.sensors">
                 <v-expansion-panel-header disable-icon-rotate>
                     <v-checkbox class="pr-1 mt-0" hide-details :disabled="sensor.mesh_id == null" dense :id="'sensorcheckbox' + sensor.id" :value="sensor.id" color="rgba(82, 186, 162, 1)"
                                 multiple v-model="selectedSensors" @change="updateSensorSelection(sensor.id)"
@@ -13,21 +13,20 @@
                     <v-tooltip bottom max-width="20rem">
                         <template #activator="{ on, attrs }">
                             <v-icon class="px-1"
-                                    small
                                     v-bind="attrs"
                                     v-on="on"
-                            >mdi-help-circle</v-icon>
+                            >mdi-help-circle-outline</v-icon>
                         </template>
                         <span>{{sensor.description}}</span>
                     </v-tooltip>
                     <v-tooltip v-if="sensor.mesh_id" bottom>
                         <template #activator="{ on, attrs }">
                             <v-icon @click.prevent="startCameraMove(sensor.id)"
-                                    color="rgba(82, 186, 162, 1)"
                                     v-bind="attrs"
                                     v-on="on"
-                            >mdi-arrow-right-circle</v-icon>
+                            >mdi-arrow-right-circle-outline</v-icon>
                         </template>
+<!--                                    color="rgba(82, 186, 162, 1)"-->
                         <span>Go To Sensor</span>
                     </v-tooltip>
                         <v-tooltip v-else bottom>
@@ -36,7 +35,7 @@
                                     color="amber accent-4"
                                     v-bind="attrs"
                                     v-on="on"
-                            >mdi-alert-circle</v-icon>
+                            >mdi-alert-circle-outline</v-icon>
                         </template>
                         <span>Please set sensor position</span>
                     </v-tooltip>
@@ -48,8 +47,9 @@
                                    >
                                 <span v-if="sensor.mesh_id">Reposition Sensor</span>
                                 <span v-else>Position Sensor</span>
+                                
                             </v-btn>
-                <sensor-limits :sensor="sensor"></sensor-limits>
+                    <sensor-limits :sensor="sensor" :STORE=STORE></sensor-limits>
                 </v-expansion-panel-content>
             </v-expansion-panel>
         </v-expansion-panels>
@@ -61,37 +61,34 @@
     import axios from "axios";
     import SKEYS from "../storage/StorageKeys";
     import SensorLimits from "./SensorLimits";
-    import PopUp from "./PopUp";
-    import {getSensorColor} from "../storage/SensorColors";
+    import Vue from 'vue'
+    import LoadingOverlay from "./LoadingOverlay";
 
     export default {
-        components: {SensorLimits, PopUp},
-        props: ["modelID", "STORE", "popUp"],
+        components: {LoadingOverlay, SensorLimits},
+        props: ["model", "STORE", "sensorColors"],
         data() {
             return {
-                model: [],
-                checkboxes: [],
-                sensorData: [],
                 selectedSensors: [],
-                sensorColor: getSensorColor,
-                endpoint: process.env.API_URL + "/",
-                temp_min: 10,
-                temp_max: 80,
-                temp: 50
+                modelData: Vue.util.extend({}, this.model),
             };
         },
+        watch:{
+          selectedSensors: function (newSelectedSensors, oldSelectedSensors) {
+                this.$emit("sensor-selection-changed", newSelectedSensors)
+          }
+        },
         created() {
-            this.loadSensorData(this.modelID);
-            this.STORE.onInitStateChanged(async (id, state) => {
+            this.STORE.onInitStateChanged( async (id, state) => {
                     if(state === "updated") {
-                        this.loadSensorData(this.modelID);
+                        this.loadSensorData(this.modelData.id);
                     }
                 })
 
             this.STORE.onSensorSelectionChanged((sensorId, action) => {
-                if (action === "new") {
+                if (action === "new" && !this.selectedSensors.includes(sensorId)) {
                     this.selectedSensors.push(sensorId)
-                } else {
+                } else if(action === "removed") {
                     this.selectedSensors = this.selectedSensors.filter(id => id !== sensorId)
                 }
             });
@@ -110,25 +107,22 @@
                 this.STORE.set(SKEYS.CAMERA_DRIVE_SENSOR, id);
             },
             initSensor(id) {
+                this.STORE.removeCallbacks()
                 this.STORE.set(SKEYS.INIT_SENSOR, id);
-                this.STORE.onInitStateChanged(async (id, state) => {
-                    if(state === "updated") {
-                        const newSensorRes = await fetch(this.endpoint + "sensors/" + id)
-                        const newSensorData = await newSensorRes.json()
-                        this.model.sensors.find((sensor) => sensor.id === id).mesh_id = newSensorData.mesh_id
-                    }
-                })
+                if(id) {
+                    this.STORE.onInitStateChanged(async (id, state) => {
+                        if(state === "updated") {
+                            const newSensorRes = await fetch(this.endpoint + "sensors/" + id)
+                            const newSensorData = await newSensorRes.json()
+                            this.modelData.sensors.find((sensor) => sensor.id === id).mesh_id = newSensorData.mesh_id
+                        }
+                    })
+                }
             },
             loadSensorData(id) {
-                axios(this.endpoint + "models/" + id)
+                axios(process.env.API_URL + "/models/" + id)
                     .then(response => {
-                        this.model = response.data;
-                        this.sensorData = this.model.sensors;
-                        this.$route.meta.title = this.model.name;
-                        // add a temporary variable
-                        this.$router.replace({query: {temp: Date.now()}});
-                        // remove the temporary variable query
-                        this.$router.replace({query: {temp: undefined}});
+                        this.modelData = response.data;
                     })
                     .catch(error => {
                         console.log(error);
@@ -151,8 +145,8 @@
         flex: unset;
     }
 
-    .v-expansion-panel-content > div {
-        padding: 10px 10px !important;
+    .v-expansion-panel-content >>> .v-expansion-panel-content__wrap {
+        padding: 10px !important;
     }
 
 

@@ -146,14 +146,8 @@ export class PulseShader extends BABYLON.NodeMaterial {
 
 
 export class GradientShader extends BABYLON.NodeMaterial {
-
-    public inputMin: number; 
-    public inputMax: number;
-    public currentValue: number;
-
     constructor(inputMin: number, inputMax: number, currentValue: number) {
         super("node");
-        //let nodeMaterial = new BABYLON.NodeMaterial("node");
 
         // InputBlock
         let position = new BABYLON.InputBlock("position");

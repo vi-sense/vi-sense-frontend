@@ -7,6 +7,7 @@
  * Improvements: read only properties, types, custom event classes with interface
  **/
 import SKEYS from './StorageKeys'
+import {eventBus} from "../main";
 
 export default class Storage{
 
@@ -17,6 +18,7 @@ export default class Storage{
         let enumCount = SKEYS.__LENGTH        
         this.#values = new Array(enumCount)
         this.#callbacks = [...Array(enumCount)].map(e => Array());
+        eventBus.$on("sensor-selected", (sensorID) => this.selectSensor(sensorID))
     }
 
     set(key: number, value: any){
@@ -99,9 +101,9 @@ export default class Storage{
         else throw new Error("Thats not a callback function")
     }
 
-    updateInitState(sensorId, state) {
+    updateInitState(sensorId: number, state: string, meshToBeOverwritten?) {
         for (let c of this.#sensorInitCallbacks) {
-            c(sensorId, state)
+            c(sensorId, state, meshToBeOverwritten)
         }
     }
 

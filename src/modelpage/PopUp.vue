@@ -2,12 +2,14 @@
   <v-row justify="center">
     <v-dialog
       v-model="dialog"
-      max-width="290"
+      max-width="300"
     >
       <v-card>
-        <v-card-title class="headline">Set Sensor Position</v-card-title>
+        <v-card-title class="headline" v-if="overwritten_sensor_name">Overwrite Sensor Position</v-card-title>
+        <v-card-title class="headline" v-else>Set Sensor Position</v-card-title>
 
-        <v-card-text>Are you sure you want to position the sensor {{ sensor_name }} on the selected mesh?</v-card-text>
+        <v-card-text v-if="overwritten_sensor_name">Are you sure you want to position the sensor <strong>{{ sensor_name }}</strong> on the selected mesh? This will overwrite the position of the sensor <strong>{{ overwritten_sensor_name }}</strong>.</v-card-text>
+        <v-card-text v-else>Are you sure you want to position the sensor <strong>{{ sensor_name }}</strong> on the selected mesh?</v-card-text>
 
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -45,10 +47,11 @@
             dialog: false,
             sensor_id: null,
             sensor_name: "",
+            overwritten_sensor_name: ""
         }
         },
         mounted() {
-            this.STORE.onInitStateChanged(async (id, state) => {
+            this.STORE.onInitStateChanged(async (id, state, meshToBeOverwritten) => {
                 if(this.sensor_id != id) {
                   this.sensor_id = id
                   const sensor = await fetch(this.endpoint + "sensors/" + id)
@@ -56,7 +59,8 @@
                   this.sensor_name = sensorData.name;
                 }
                 if(state === "mesh_picked") {
-                    this.dialog = true
+                  meshToBeOverwritten ? this.overwritten_sensor_name = meshToBeOverwritten : this.overwritten_sensor_name = ""
+                  this.dialog = true
                 }
             })
 

@@ -9,6 +9,8 @@ import Welcome from './startpage/Welcome.vue'
 import Model from './startpage/Model.vue'
 import Modelpage from './modelpage/Modelpage.vue'
 import History from './modelpage/History.vue'
+import TimelineTest from './modelpage/timeline/TimelineTest.vue'
+import '@mdi/font/css/materialdesignicons.css'
 
 import 'leaflet/dist/leaflet.css';
 
@@ -16,11 +18,23 @@ import 'leaflet/dist/leaflet.css';
 Vue.config.productionTip = false
 
 Vue.use(Vuetify)
-let vuetify = new Vuetify({})
+let vuetify = new Vuetify({
+  icons: {
+    iconfont: 'mdi', // default - only for display purposes
+  },
+})
+
+//empty vue component used as event bus
+export const eventBus = new Vue();
 
 Vue.use(Router)
 const router = new Router({
   routes: [
+    {
+      path: '/timeline_test',
+      name: 'timeline_test',
+      component: TimelineTest,
+    },
     {
       path: '/landingpage',
       name: 'landingpage',
@@ -68,6 +82,5 @@ const router = new Router({
 new Vue({
   vuetify,
   router,
-  el: '#app',
   render: h => h(App),
 }).$mount('#app')

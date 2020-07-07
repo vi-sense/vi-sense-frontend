@@ -13,6 +13,8 @@ export async function focusOnMesh(scene: BABYLON.Scene, target: BABYLON.Vector3)
         let cam = scene.getCameraByName("floorCam") as FloorCamera;
         cam.position = arcCam.position.clone()
         cam.setTarget(arcCam.getTarget());
+        arcCam.detachControl(document.getElementById("babyloncanvas"))
+        cam.attachControl(document.getElementById("babyloncanvas"))
         scene.activeCamera = cam;
     }
     let camera = scene.activeCamera as FloorCamera;
@@ -43,6 +45,7 @@ export async function focusOnMesh(scene: BABYLON.Scene, target: BABYLON.Vector3)
     animatePosition.setKeys(positionKeys);
     animatePosition.setEasingFunction(ease);
 
+    camera.animations = []; //clear animations
     camera.animations.push(animateTarget);
     camera.animations.push(animatePosition);
 

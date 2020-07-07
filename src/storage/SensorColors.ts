@@ -7,6 +7,7 @@ export function registerSensorColors(sensorIDs: []){
     ordinalScale = scaleOrdinal(schemeTableau10)
     ordinalScale.domain(sortedSensorIDs)
     ordinalScale.unknown("")
+    return ordinalScale
 }
 export function getSensorColor(sensorID) {
     if(ordinalScale){

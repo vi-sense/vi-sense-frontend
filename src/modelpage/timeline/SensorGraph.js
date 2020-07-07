@@ -3,12 +3,15 @@
  */
 
 import SensorGraphDataFetcher from "./SensorGraphDataFetcher.js"
+import Anomaly from "./Anomaly.js"
 
 import * as d3 from 'd3'
-import {getSensorColor} from "../../storage/SensorColors";
+import moment from 'moment';
+import { getSensorColor } from "../../storage/SensorColors";
+const API_URL = process.env.API_URL  
 
-//const SENSOR_COLORS = d3.schemeCategory10 // position mapped to sensorId
 
+let sensorBisector = d3.bisector(d => d.date).left
 
 export default class SensorGraph{
 
@@ -19,14 +22,15 @@ export default class SensorGraph{
      * @param {*} xScale 
      * @param {*} yScale 
      */
-    constructor(sensorId, parentElement, xScale, yScale) {
-        this.xScale = xScale
-        this.yScale = yScale
+    constructor(sensorId, parentElement, xScale, yScale, graphs) {
+        this._parentElement = parentElement
+        this._xScale = xScale
+        this._yScale = yScale
         this.sensorId = sensorId
         this.color = getSensorColor(sensorId)
         this.data = []
         this.dataFetcher = new SensorGraphDataFetcher(sensorId)
-
+        
         this.line = d3.line()
             .defined(d => !isNaN(d.value) && !isNaN(d.date))
 
@@ -38,38 +42,73 @@ export default class SensorGraph{
             .attr("stroke-linejoin", "round")
             .attr("stroke-linecap", "round")
 
+        this.anomalies = []
+        this.fetchAnomalies()
+        //this._applyHover(graphs)
         this.redraw()
     }
 
-    
-    redraw(){        
-        this.dataFetcher.get(this.xScale.domain()).then(data => {
+    fetchAnomalies(){
+        this._parentElement.selectAll(".anomaly").remove()
+        this.anomalies = []
+        fetch(`${API_URL}/sensors/${this.sensorId}/anomalies?end_date=${moment.utc(new Date()).format("YYYY-MM-DD HH:mm:ss")}`).then(d => d.json().then(data => {
+            for(let d of data){
+                let a = new Anomaly(d, this._parentElement, this._xScale, this._yScale)
+                this.anomalies.push(a)                
+            }
+        }))  
+    }
+
+    _applyHover(graphs){
+        this.path.on("mouseover", () => {
+            graphs.forEach(g => {
+                g.path.attr("stroke-opacity", g.sensorId == this.sensorId ? 1 : 0.4);            
+                g.anomalies.forEach(a => a.rect.attr("opacity", g.sensorId == this.sensorId ? 0.2 : 0.1));                            
+            })
+        });
+        this.path.on("mouseout", () => {
+            graphs.forEach(g => {
+                g.path.attr("stroke-opacity", 1);   
+                g.anomalies.forEach(a => a.rect.attr("opacity", 0.2));                            
+            })
+        })  
+    }
+
+    redraw(){     
+        this.anomalies.forEach(a=>a.redraw())
+   
+        this.dataFetcher.get(this._xScale.domain()).then(data => {
             if(data) {
-                this.data = data
+                this.data = data                
                 this.path.datum(this.data)
                 this.redraw()
             }
         })
-
         this.line
-            .x(d => this.xScale(d.date))
-            .y(d => this.yScale(d.value))
+            .x(d => this._xScale(d.date))
+            .y(d => this._yScale(d.value))
 
         this.path
             .attr("d", this.line);  
     }
     show(){
         this.isHidden = false
-        this.path.attr("display", "unset");
+        this.path.attr("display", "unset")
+        this.anomalies.forEach(a=>a.show())
     }
     hide(){
         this.isHidden = true
         this.path.attr("display", "none");
+        this.anomalies.forEach(a=>a.hide())
     }
+    /**
+     * @author Roman 
+     */
     getGradient(date){
         let index
         if(!this.cachedGradientDates || date < this.cachedGradientDates.lower || date > this.cachedGradientDates.upper){
             index = d3.bisect(this.data.map(d=>d.date), date)
+            if(index <= 1) return undefined
             this.cachedGradientDates = {lower: this.data[index-1].date, upper: this.data[index-1].date, indexUpper: index}
         }else{
             index = this.cachedGradientDates.indexUpper
@@ -88,8 +127,8 @@ export default class SensorGraph{
             b = index
             c = index +1
         }
-        let m1 = -(this.yScale(this.data[b].value) - this.yScale(this.data[a].value))/(this.xScale(this.data[b].date) - this.xScale(this.data[a].date))
-        let m2 = -(this.yScale(this.data[c].value) - this.yScale(this.data[b].value))/(this.xScale(this.data[c].date) - this.xScale(this.data[b].date))
+        let m1 = -(this._yScale(this.data[b].value) - this._yScale(this.data[a].value))/(this._xScale(this.data[b].date) - this._xScale(this.data[a].date))
+        let m2 = -(this._yScale(this.data[c].value) - this._yScale(this.data[b].value))/(this._xScale(this.data[c].date) - this._xScale(this.data[b].date))
 
         if(interpolationPosition < 0.5){
             m = (0.5-interpolationPosition)*m1 + (0.5+interpolationPosition)*m2
@@ -98,35 +137,20 @@ export default class SensorGraph{
         }
         return m
     }
+
+    getValue(date){
+        let index = sensorBisector(this.data, date)
+        
+        if(index==0 || index==this.data.length){
+            // timepin is positioned out of our data range
+        }else{
+            let d = this.data[index]
+            return d.value
+        }
+    }
 }
 
 
 
 
 
-
-// Timepin einrasten ergibt kein sinn weil daten immer zu unterschiedlichen zeiten generiert wurden, also eh immer interpoliert werden müsste für die andern grapehn
-/*
-timepin.call(d3.drag().on('drag', () => {
-    let mouse_x = d3.mouse(svg.node())[0]
-    let {date, value} = bisect(mouse_x);
-    placeTimepin(date, value)
-    //marker.attr("transform", `translate(0, ${y(value)})`)
-}));
-var bisect = function() {
-    const bisect = d3.bisector(d => d.date).left;
-    return mouse_x => {
-        const date = x.invert(mouse_x);
-        const index = bisect(data, date, 1);
-        const a = data[index-1];
-        const b = data[index];
-        return b != undefined && date-a.date > b.date-date ? b : a;
-        };
-}()
-const marker = timepin.append("circle")
-.attr("fill", "none")
-.attr("stroke", "blue")
-.attr("cx", 0)
-.attr("cy", 0)
-.attr("r", 2)
-*/
