@@ -49,7 +49,7 @@
                                 <span v-else>Position Sensor</span>
                                 
                             </v-btn>
-                    <sensor-limits :sensor="sensor" :STORE=STORE></sensor-limits>
+                    <sensor-limits v-if="sensor.mesh_id" :sensor="sensor" :STORE=STORE></sensor-limits>
                 </v-expansion-panel-content>
             </v-expansion-panel>
         </v-expansion-panels>
