@@ -267,7 +267,7 @@ export default {
     background: #52BAA2;
     cursor: pointer;
     -webkit-appearance: none;
-    margin-top: -6.5px;
+    margin-top: -4px;
   }
   input[type=range]:disabled::-webkit-slider-thumb {
     background: grey;
