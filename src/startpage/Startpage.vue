@@ -3,9 +3,30 @@
     <v-app-bar>
       <img id="logo" src="../assets/logo.svg" alt="vuejs logo" />
       <h2>Vi-Sense Start</h2>
-      <div class="account">Demo Account</div>
-      <div class="v-avatar primary" style="height: 26px; width: 26px; margin-left: 1%">
-        <span class="white--text">DA</span>
+      <div class="account-title">Demo Account</div>
+      <div class="account-logo">
+        <v-dialog v-model="dialog" persistent max-width="290">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              @click.stop="dialog = true"
+              icon
+              width="auto"
+              height="auto"
+              class="pa-1"
+              style="border: 2px solid #52baa2;"
+            >
+              <v-avatar size="20">DA</v-avatar>
+            </v-btn>
+          </template>
+          <v-card>
+            <v-card-title class="headline">This is a test account!</v-card-title>
+            <v-card-text>This is a showtime prototype of a project of the HTW Berlin in cooperation with Metr. Please keep this in mind</v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="green darken-1" text @click="dialog = false">Ok</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
       </div>
     </v-app-bar>
 
@@ -31,16 +52,20 @@
             <v-card-subtitle class="pb-0">{{ model.location.address }}</v-card-subtitle>
 
             <v-card-text class="text--primary">
-              <div>Current Weather: 30°C, Sunny</div>
+              <div>
+                Outdoor Temperature:
+                <span
+                  v-if="anomaliesLoaded"
+                >{{lastTemperatures.has(model.id) ? lastTemperatures.get(model.id).value : "" }} °C</span>
+              </div>
               <div>Type: {{ model.type }}</div>
               <div>Floors: {{ model.floors }}</div>
               <div>
                 Last Anomaly:
-                <div v-if="anomaliesLoaded">
-                  {{lastAnomalies.has(model.id) ? lastAnomalies.get(model.id).start_data.date : ""}}
-                </div>
+                <span
+                  v-if="anomaliesLoaded"
+                >{{lastAnomalies.has(model.id) ? lastAnomalies.get(model.id).start_data.date : "" | formatDate}}</span>
               </div>
-              {{ model.description }}
             </v-card-text>
 
             <v-card-actions>
@@ -98,6 +123,13 @@ L.Icon.Default.mergeOptions({
 });
 
 export default {
+  filters: {
+    formatDate: function(value) {
+      if (value) {
+        return moment(String(value)).format("DD.MM.YYYY HH:mm:ss");
+      }
+    }
+  },
   components: {
     LMap,
     LTileLayer,
@@ -117,9 +149,11 @@ export default {
       showMap: true,
       models: [],
       lastAnomalies: Map,
+      lastTemperatures: Map,
       anomaliesLoaded: false,
       lat: null,
-      long: null
+      long: null,
+      dialog: false
     };
   },
   created() {
@@ -128,28 +162,52 @@ export default {
   methods: {
     async getLatestData() {
       this.lastAnomalies = new Map();
-      const current_date = moment().format("YYYY-MM-DD HH:mm:ss")
-      await Promise.all(this.models.map(async model => {
-        let modelAnomalies = []
-        await Promise.all(
-                model.sensors.map(async sensor => {
-                  try {
-                    const sensorAnomalies = await fetch(
-                            `${this.endpoint}sensors/${sensor.id}/anomalies?end_date=${current_date}`
-                    );
-                    modelAnomalies.push(...(await sensorAnomalies.json()));
-                  } catch (error) {
-                    console.log(error);
-                  }
-                })
-        );
-        if (modelAnomalies.length > 0) {
-          const latestAnomaly = modelAnomalies.sort((b, a) =>
-                  a.start_data.date.localeCompare(b.start_data.date)
-          )[0]
-          this.lastAnomalies.set(model.id, latestAnomaly)
-        }
-      }));
+      this.lastTemperatures = new Map();
+      const current_date = moment().format("YYYY-MM-DD HH:mm:ss");
+      await Promise.all(
+        this.models.map(async model => {
+          let modelAnomalies = [];
+          await Promise.all(
+            model.sensors.map(async sensor => {
+              try {
+                const sensorAnomalies = await fetch(
+                  `${this.endpoint}sensors/${sensor.id}/anomalies?end_date=${current_date}`
+                );
+                modelAnomalies.push(...(await sensorAnomalies.json()));
+              } catch (error) {
+                console.log(error);
+              }
+            })
+          );
+          let modelSensors = [];
+          const latestValue = model.sensors.find(
+            sensor => sensor.name === "Outdoor Temperature"
+          );
+          //console.log(latestValue.id);
+          try {
+            const sensorValues = await fetch(
+              `${this.endpoint}sensors/${latestValue.id}/data?start_date=${current_date}`
+            );
+            modelSensors.push(...(await sensorValues.json()));
+            //console.log(JSON.stringify(modelSensors));
+          } catch (error) {
+            console.log(error);
+          }
+
+          if (modelSensors.length > 0) {
+            const latestTemperature = modelSensors[0];
+            this.lastTemperatures.set(model.id, latestTemperature);
+            console.log(this.lastTemperatures);
+          }
+          if (modelAnomalies.length > 0) {
+            const latestAnomaly = modelAnomalies.sort((b, a) =>
+              a.start_data.date.localeCompare(b.start_data.date)
+            )[0];
+            this.lastAnomalies.set(model.id, latestAnomaly);
+            //console.log(this.lastAnomalies);
+          }
+        })
+      );
       this.anomaliesLoaded = true;
     },
     getLatlong(lat, long) {
@@ -172,7 +230,7 @@ export default {
         .get(this.endpoint + "models")
         .then(response => {
           this.models = response.data;
-          this.getLatestData()
+          this.getLatestData();
         })
         .catch(error => {
           console.log(error);
@@ -183,9 +241,12 @@ export default {
 </script>
 
 <style lang="scss">
-.account {
-  float: right;
+.account-title {
   padding-left: 70%;
+}
+.account-logo {
+  left: 20%;
+  margin-left: 1%;
 }
 .wtf {
   background: #ffffffd1;
