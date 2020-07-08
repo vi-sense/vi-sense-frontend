@@ -42,7 +42,7 @@ export async function updateSelectedSensor(sensor_id: number, action: String) {
     highlight.addMesh(mesh.subMeshes[0].getRenderingMesh(), BABYLON.Color3.Black());
     sensorLabels[sensor_id].rect.alpha = 1;
     sensorLabels[sensor_id].rect.isVisible = true;
-    sensorLabels[sensor_id].arrow.alpha = 1;
+    sensorLabels[sensor_id].arrow.alpha = 0;
     sensorLabels[sensor_id].circle.width = "70px";
     sensorLabels[sensor_id].circle.height = "70px";
   }
@@ -320,7 +320,9 @@ export function updateShader(sensorId, value?) {
       (<InputBlock>(<GradientShader>mesh.material).getBlockByName("Input Temperature")).value = 0.5;
     }
   }
-  
+  else{
+    sensorLabels[sensorId].label.text = savedSensors[sensorId].name + "\n"
+  }
 }
 
 async function getModelData(id: number) {
