@@ -279,15 +279,19 @@ const Timeline = (function(parentElement){
         timepinDate.setTime(xScale.invert(mouse_x))
     }
 
-    function redrawTimepin(){
+    function redrawTimepin(_f){
         timepin.select("text").text(() => moment(timepinDate).format("ddd DD.MM.YY,  HH:mm"))
         timepin.attr("transform", `translate(${xScale(timepinDate)}, 0)`)
 
         graphs.forEach(graph => {
-            if(!graph.isHidden){
-                turnArrow(graph.sensorId, graph.getGradient(timepinDate))
-            }
-            updateShader(graph.sensorId, graph.getValue(timepinDate))
+            let v = graph.getValue(timepinDate)
+            let g = graph.getGradient(timepinDate)    
+            
+            // dirty fix for https://github.com/vi-sense/vi-sense/issues/139 : redrawing timepine once if value is not loaded yet
+            if(!_f && v == undefined) setTimeout(()=>redrawTimepin(true), 1000)
+            
+            if(!graph.isHidden) turnArrow(graph.sensorId, g)
+            updateShader(graph.sensorId, v)
         })
     }
 
@@ -368,6 +372,7 @@ const Timeline = (function(parentElement){
             let graph = new SensorGraph(id, clipperXY, xScale, yScale, graphs)
             graphs.set(id, graph)
         }
+        redrawTimepin() // to display latest sensor values
     }
 
     /**
