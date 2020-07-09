@@ -1,7 +1,7 @@
 <template>
     <div>
         <v-expansion-panels focusable accordion>
-            <v-expansion-panel :key="sensor.id" :style="`border-left: 5px solid ${sensorColors.get(sensor.id)}!important`"
+            <v-expansion-panel :key="sensor.id" :style="`border-radius: 0; border-left: 5px solid ${sensorColors.get(sensor.id)}!important`"
                                v-for="sensor in modelData.sensors">
                 <v-expansion-panel-header disable-icon-rotate>
                     <v-checkbox class="pr-1 mt-0" hide-details :disabled="sensor.mesh_id == null" dense :id="'sensorcheckbox' + sensor.id" :value="sensor.id" color="rgba(82, 186, 162, 1)"

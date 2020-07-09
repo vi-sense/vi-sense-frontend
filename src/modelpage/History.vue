@@ -5,7 +5,7 @@
                 v-slot:default="{ hover }"
         >
             <v-card v-ripple :color="hover? 'grey lighten-4':'white'" :elevation="hover? 4: 2" class="my-1"
-                    :style="`border-left: 5px solid ${sensorColors.get(anomaly.start_data.sensor_id)}!important; opacity:${anomaly.selected?'1.0':'0.5'}`" v-on:click="selectAnomaly(anomaly)">
+                    :style="`border-radius: 0; border-left: 5px solid ${sensorColors.get(anomaly.start_data.sensor_id)}!important; opacity:${anomaly.selected?'1.0':'0.5'}`" v-on:click="selectAnomaly(anomaly)">
                 <v-container class="pa-0">
                     <v-row align="center" justify="start" :no-gutters="true" >
                         <v-col cols="9">
@@ -84,17 +84,17 @@
 </script>
 
 <style scoped lang="scss">
-    .date_span{
-        white-space: nowrap;
-    }
-    .v-card__title {
-        font-size: 1rem;
-        line-height: 1rem;
-        word-break: normal;
-        margin-bottom: 10px;
-    }
+.date_span{
+    white-space: nowrap;
+}
+.v-card__title {
+    font-size: 1rem;
+    line-height: 1rem;
+    word-break: normal;
+    margin-bottom: 10px;
+}
 
-    .v-card__subtitle {
-        line-height: 1rem;
-    }
+.v-card__subtitle {
+    line-height: 1rem;
+}
 </style>

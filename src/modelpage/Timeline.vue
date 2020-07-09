@@ -69,6 +69,7 @@
     #datePicker{
       #calendarWrapper{
         position: absolute;
+        z-index: 5;
         #calendar{
           position: relative;
           left: -260px; // datepicker-icon width

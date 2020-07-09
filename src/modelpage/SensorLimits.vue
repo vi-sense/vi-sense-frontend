@@ -1,7 +1,7 @@
 <template>
     <div>
         <h4 class="pt-2">Sensor Limits</h4>
-                    <v-form ref="form" v-model="valid">
+        <v-form ref="form" v-model="valid">
         <v-container pa-0>
             <v-row dense>
                 <v-col cols="6">

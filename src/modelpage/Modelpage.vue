@@ -5,7 +5,7 @@
       <h2>{{ title }}</h2>
       <v-spacer></v-spacer>
       <v-btn icon v-on:click="showOptionPane=!showOptionPane">
-        <v-icon  large >mdi-cog-outline</v-icon>
+        <v-icon middle>mdi-cog</v-icon>
       </v-btn>
     </v-app-bar>
       <main>
@@ -190,6 +190,7 @@ export default {
       height: 100%;
       background-color: white;
       overflow-y: scroll;
+      padding-right: 2px;
       h3 {
         display: block;
         color: black;
@@ -204,15 +205,15 @@ export default {
     }
 
     #optionpane{
-      min-width: 200px;
+      min-width: 250px;
       width: 15%;
-      max-height: 65%;
+      max-height: 67%;
       overflow-y: auto;
       position: absolute;
-      right: 1%;
-      margin-top: 1%;
+      right: 0.5%;
+      margin-top: 0.5%;
       background-color: rgba(255, 255, 255, 0.9);
-      border-radius: 5px;
+      border-radius: 2px;
     }
   }
 </style>
