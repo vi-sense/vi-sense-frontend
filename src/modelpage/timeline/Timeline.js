@@ -247,16 +247,16 @@ const Timeline = (function(parentElement){
     .attr("r", 4)
 
     timepin.append("rect")
-    .attr("width", 140)
+    .attr("width", 135)
     .attr("height", 16)
     .style("fill", "white")
     .attr("y", height-margin.top-6)
-    .attr("x", -140/2)
+    .attr("x", -135/2)
     .attr("stroke", "black")
 
     timepin.append("text")
     .attr('text-anchor', 'middle')
-    .attr("y", height-margin.top+7)
+    .attr("y", height-margin.top+6)
     .style('font-size', 'smaller')
     .attr("font-family", "sans-serif")
 
