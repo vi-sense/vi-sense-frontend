@@ -47,9 +47,9 @@
           <v-tooltip bottom>
               <template #activator="{ on, attrs }">
                   <v-icon @click="handleClippingPlane(clip.enabled, clip.axis, -clip.value, !clip.flipped)"
-                          color="rgba(82, 186, 162, 1)"
-                          v-bind="attrs"
-                          v-on="on"
+                    color="rgba(82, 186, 162, 1)"
+                    v-bind="attrs"
+                    v-on="on"
                   >mdi-flip-horizontal</v-icon>
               </template>
               <span>Flip Clipping Plane</span>
@@ -227,7 +227,6 @@ export default {
   input[type=range]:disabled::-webkit-slider-runnable-track {
     background: grey;
   }
-
   input[type=range]::-webkit-slider-thumb {
     border: 1px solid #52BAA2;
     height: 10px;
@@ -257,7 +256,6 @@ export default {
   input[type=range]:disabled::-moz-range-track {
     background: grey;
   }
-
   input[type=range]::-moz-range-thumb {
     border: 1px solid #52BAA2;
     height: 10px;
@@ -270,7 +268,6 @@ export default {
     background: grey;
     border: 1px solid grey;
   }
-
   input[type=range]::-ms-track {
     width: 100%;
     height: 2px;
@@ -280,7 +277,6 @@ export default {
     border-color: transparent;
     color: transparent;
   }
-
   input[type=range]::-ms-fill-lower {
     background: #52BAA2;
     border-radius: 20px;
@@ -288,7 +284,6 @@ export default {
   input[type=range]:disabled::-ms-fill-lower{
     background: grey;
   }
-
   input[type=range]::-ms-fill-upper {
     background: #52BAA2;
     border-radius: 20px;
@@ -296,7 +291,6 @@ export default {
   input[type=range]:disabled::-ms-fill-upper {
     background: grey;
   }
-
   input[type=range]::-ms-thumb {
     margin-top: 1px;
     border: 1px solid #52BAA2;
@@ -310,7 +304,6 @@ export default {
     background: grey;
     border: 1px solid grey;
   }
-
   input[type=range]:focus::-ms-fill-lower {
     background: #52BAA2;
   }
@@ -318,13 +311,15 @@ export default {
     background: #52BAA2;
   }
 
-
   input[type=number] {
+    height: 20px;
     width: 45px;
     border: 1px solid lightgrey;
     border-radius: 2px;
-    margin: 0 4px;
+    margin: auto 4px;
     padding: 0 3px;
+    font-size: 12px;
+    color: black;
   }
 
   .flex-row {
@@ -332,15 +327,10 @@ export default {
     justify-content: space-between;
     margin: 0;
     padding: 0;
-    
-    input[type=range] {
-      width: 80%;
-      margin: 0;
-    }
   }
   .start {
       justify-content: start;
-    }
+  }
 }
 
 
