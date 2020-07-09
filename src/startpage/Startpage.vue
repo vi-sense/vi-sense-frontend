@@ -204,7 +204,7 @@ export default {
       axios
         .get(this.endpoint + "models")
         .then(response => {
-          this.models = response.data;
+          this.models = response.data.sort((a) => a.name.includes("echanical")? -1:1);
           this.getLatestData();
         })
         .catch(error => {
