@@ -171,13 +171,11 @@ export default {
           background-color: white;
         }
         #BTdragger{
-          width: 10px;
-          height: 10px;
-          background-color: grey;
-          opacity: 0.1;
+          width: 100%;
+          height: 4px;
           position: absolute;
-          left: 50%;
-          top: -5px;
+          top: -2px;
+          opacity: 0.1;
           cursor: ns-resize;
           &:hover{opacity: 1}
         }
