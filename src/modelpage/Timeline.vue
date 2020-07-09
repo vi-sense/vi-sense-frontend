@@ -75,7 +75,7 @@
       height: 120%;
       left: -10%;
       top: -10%;
-      background-color: rgba(82, 186, 162, 0.2);
+      background-color: rgba(200, 200, 200, 0.25);
     }
     img{ 
       width: 100%;
