@@ -39,9 +39,13 @@ export function loadModel(id: number, scene: BABYLON.Scene, callback: (meshes: B
 
 
 function updateProgress(event, state?: String) {
-  var percentComplete;
-  if (event.lengthComputable) {
-      percentComplete = event.loaded / event.total * 100;
-      eventBus.$emit("loading-progress", percentComplete)
-  }
+    let percentComplete;
+    if (event.lengthComputable) {
+        percentComplete = event.loaded / event.total * 100;
+    } else {
+        let dlCount = event.loaded / (1024 * 1024);
+        percentComplete = Math.floor(dlCount * 100.0) / 100.0;
+    }
+    eventBus.$emit("loading-progress", percentComplete)
+
 }
