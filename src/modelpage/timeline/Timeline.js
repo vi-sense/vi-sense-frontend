@@ -345,7 +345,8 @@ const Timeline = (function(parentElement){
         }
     }
 
-    setTool("pin")
+    var _tool = "pin"
+    setTool(_tool)
     redrawTimepin()
     requestAnimationFrame(update)
 
@@ -398,21 +399,24 @@ const Timeline = (function(parentElement){
 
      /**
      *
-     * @param {String} tool
+     * @param {String} tool 
      */
     function setTool(tool){
-        if(tool == "brush") {
+        _tool = tool
+        if(_tool == "brush") {
             brushGroup.on('mousedown.brush', _brushMouseDown)
             brushGroup.select(".handle--w").style('cursor', 'ew-resize')
             brushGroup.select(".handle--e").style('cursor', 'ew-resize')
             brushGroup.select(".selection").style('cursor', 'move')
             svg.select(".overlay").style('cursor', 'crosshair')
-        } else {
+        } else if(_tool == "pin"){
             brushGroup.on('mousedown.brush', () => {})
             brushGroup.select(".handle--w").style('cursor', 'unset')
             brushGroup.select(".handle--e").style('cursor', 'unset')
             brushGroup.select(".selection").style('cursor', 'unset')
             svg.select(".overlay").style('cursor', 'unset')
+        } else {
+            console.log("unknown tool selected");  
         }
     }
 
@@ -437,6 +441,9 @@ const Timeline = (function(parentElement){
             return yScale.domain()
         },
 
+        getTool(){
+            return _tool
+        },
         setTool,
         setTimepinTime,
         centerToDate(date){

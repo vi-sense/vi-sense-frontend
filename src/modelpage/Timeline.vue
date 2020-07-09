@@ -1,20 +1,23 @@
 <template>
   <div>
     <div id="chartWrapper"></div>
-    <div id="tools">
-
+    
+    <div id="toolBox">
       <div id="toolsTop">
-        <img v-if="!playing" alt="play" v-on:click="togglePlayPause" src="../assets/playIcon.png">
-        <img v-else alt="pause" v-on:click="togglePlayPause" src="../assets/pauseIcon.png">
-
-        <img alt="move tool" v-on:click="timeline.setTool('pin')" src="../assets/moveIcon.png">
-        <img alt="selection tool" v-on:click="timeline.setTool('brush')" src="../assets/selectIcon.png">
+        <div class="tool">
+          <img v-if="!playing" alt="play" v-on:click="togglePlayPause" src="../assets/playIcon.png">
+          <img v-else alt="pause" v-on:click="togglePlayPause" src="../assets/pauseIcon.png">
+        </div>
+        <hr>
+        <div class="tool" :class="{'selected': tool == 'pin'}"><img alt="move tool" v-on:click="tool='pin'" src="../assets/moveIcon.png"></div>
+        <div class="tool" :class="{'selected': tool == 'brush'}"><img alt="brush tool" v-on:click="tool='brush'" src="../assets/selectIcon.png"></div>
       </div>
+      <hr>
 
       <div id="toolsBottom">
-        <img alt="center to timepin" v-on:click="timeline.centerToTimepin()" src="../assets/pinIcon.png">
+        <div class="tool"><img alt="center to timepin" v-on:click="timeline.centerToTimepin()" src="../assets/pinIcon.png"></div>
 
-        <div id="datePicker">
+        <div class="tool" id="datePicker">
           <img v-on:click="showDatePicker=!showDatePicker" src="../assets/datepicker.png">
           <div id="calendarWrapper">
             <v-date-picker id="calendar" 
@@ -35,29 +38,59 @@
 
 
 <style scoped lang="scss">
+*{
+    line-height: initial;
+}
+
 #timeline > #chartWrapper{
   display: inline-block;
   vertical-align:top;
   height: 100%;
   width: calc(100% - 45px);
 }
-#tools{
+
+#timeline > #toolBox{
   display: inline-block;
   vertical-align: top;
   box-sizing: border-box;
-  width: 20px;
   height: 100%;
   margin-left: 10px;
   position: relative;
 
-  img {
+  #toolsTop .tool:first-of-type{
+      margin-bottom: 8px;;
+  }
+
+  .tool {
     cursor: pointer;
-    width: 100%;
-    opacity: 0.55; // adapt/fake material design greyisch icon design
+    width: 20px;
+    height: 20px;
+    margin: 4px 0;
+    position: relative;
+
+    &.selected:before{
+      position: absolute;
+      content: "";
+      width: 120%;
+      height: 120%;
+      left: -10%;
+      top: -10%;
+      background-color: rgba(82, 186, 162, 0.2);
+    }
+    img{ 
+      width: 100%;
+      opacity: 0.52; // adapt/fake material design greyisch icon design 
+    }
   }
 
   #toolsTop{
     margin-top: 12px;
+  }
+
+  hr{
+    box-sizing: border-box;
+    border: none;
+    border-top: 1.5px solid lightgrey;
   }
 
   #toolsBottom{
@@ -92,17 +125,19 @@ export default {
     return { 
       playing: false,
       maxdate: moment(new Date()).format("YYYY-MM-DD"),
-      showDatePicker: false
+      showDatePicker: false,
+      tool: ""
     }
   },
   mounted(){      
     let chartWrapper = document.querySelector("#chartWrapper")
-    chartWrapper.innerHTML = "" // clear old svg (in dev)
+    chartWrapper.innerHTML = "" // clear old svg (only necessary in dev)
 
     let timeline = new Timeline(chartWrapper)    
     this.timeline = timeline  
 
     this.playing = timeline.isPlaying() 
+    this.tool = timeline.getTool()
     this.timeline.setPlayPauseCallback(() => this.playing = timeline.isPlaying())
 
     window.addEventListener("resize", timeline.resize)
@@ -122,6 +157,11 @@ export default {
           timeline.hideGraph(sensorId)
       }
     })
+  },
+  watch:{
+    tool(){
+      if(this.tool) this.timeline.setTool(this.tool)      
+    }
   },
   methods:{
     togglePlayPause(){
