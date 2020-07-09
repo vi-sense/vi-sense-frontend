@@ -5,7 +5,7 @@
       <h2>{{ title }}</h2>
       <v-spacer></v-spacer>
       <v-btn icon v-on:click="showOptionPane=!showOptionPane">
-        <v-icon  large >mdi-cog-outline</v-icon>
+        <v-icon middle>mdi-cog</v-icon>
       </v-btn>
     </v-app-bar>
       <main>
@@ -85,13 +85,13 @@ export default {
     let dragger = document.querySelector("#BTdragger")
     let startY
 
-    dragger.onmousedown = e => {     
+    dragger.onmousedown = e => {
       startY = e.pageY;
     }
     window.addEventListener("mouseup", e => {
       startY = null
     })
-    window.addEventListener("mousemove", e => {      
+    window.addEventListener("mousemove", e => {
       if(startY == null) return
       let o = startY-e.pageY;
       startY = e.pageY
@@ -171,13 +171,11 @@ export default {
           background-color: white;
         }
         #BTdragger{
-          width: 10px;
-          height: 10px;
-          background-color: grey;
-          opacity: 0.1;
+          width: 100%;
+          height: 4px;
           position: absolute;
-          left: 50%;
-          top: -5px;
+          top: -2px;
+          opacity: 0.1;
           cursor: ns-resize;
           &:hover{opacity: 1}
         }
@@ -192,6 +190,8 @@ export default {
       height: 100%;
       background-color: white;
       overflow-y: scroll;
+      scrollbar-width: none;
+      padding-right: 2px;
       h3 {
         display: block;
         color: black;
@@ -206,15 +206,15 @@ export default {
     }
 
     #optionpane{
-      min-width: 200px;
+      min-width: 250px;
       width: 15%;
-      max-height: 65%;
+      max-height: 67%;
       overflow-y: auto;
       position: absolute;
-      right: 1%;
-      margin-top: 1%;
+      right: 0.5%;
+      margin-top: 0.5%;
       background-color: rgba(255, 255, 255, 0.9);
-      border-radius: 5px;
+      border-radius: 2px;
     }
   }
 </style>

@@ -1,7 +1,6 @@
 <template>
     <div>
         <v-expansion-panels focusable accordion>
-            <v-expansion-panel :key="sensor.id" :style="`border-left: 5px solid ${sensorColors.get(sensor.id)}!important`"
                                v-for="sensor in modelData.sensors">
                 <v-expansion-panel-header disable-icon-rotate>
                     <v-checkbox class="pr-1 mt-0" hide-details :disabled="sensor.mesh_id == null" dense :id="'sensorcheckbox' + sensor.id" :value="sensor.id" color="rgba(82, 186, 162, 1)"
@@ -137,6 +136,9 @@
     // do we really need the scoped attribute? overriding vuetify styles doesnt work with that
     // yes we do need it because its very confusing if every component sets globas css attributes. you can change vuetify styles with the >>> operator
 
+    .v-expansion-panel--active > .v-expansion-panel-header {
+        min-height: 48px;
+    }
     .v-expansion-panel-header {
         padding: 0 10px 0 10px;
     }

@@ -69,12 +69,12 @@
             </v-card-text>
 
             <v-card-actions>
-              <v-btn color="rgba(82, 186, 162, 1)" dark elevation="2" block>
                 <router-link
                   style="color: white"
                   :to="{name: 'modelview', params: {id: model.id}}"
-                >Open in Modelview</router-link>
-              </v-btn>
+                >
+                  <v-btn color="rgba(82, 186, 162, 1)" dark elevation="2" block>Open in Modelview</v-btn>
+                </router-link>
             </v-card-actions>
             <div class="foobar1">
               <l-map
@@ -287,6 +287,12 @@ header {
   }
 }
 
+.v-card__actions {
+  display: block;
+  a {
+    text-decoration: none;
+  }
+}
 h1,
 h2 {
   font-weight: normal;
