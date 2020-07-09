@@ -145,7 +145,7 @@ export default {
       }
     },
     methods: {
-      onSliderChanged(value) {
+      onSliderChanged(key, value) {
         switch(key) {
           case 'fov': changeFOV(value); break;
           case 'clipping': changeCameraClipping(parseInt(value)); break;
