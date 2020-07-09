@@ -5,8 +5,6 @@ import 'vuetify/dist/vuetify.min.css'
 import App from './App.vue'
 import Landingpage from './landingpage/Landingpage.vue'
 import Startpage from './startpage/Startpage.vue'
-import Welcome from './startpage/Welcome.vue'
-import Model from './startpage/Model.vue'
 import Modelpage from './modelpage/Modelpage.vue'
 import History from './modelpage/History.vue'
 import TimelineTest from './modelpage/timeline/TimelineTest.vue'
@@ -55,22 +53,6 @@ const router = new Router({
     {
       path: '/',
       component: Startpage,
-      children:[
-        {
-          path: '/',
-          name: 'welcome',
-          component: Welcome,
-          props: true,
-          meta: { title: '' },
-        },
-        {
-          path: '/model/:id',
-          name: 'model',
-          component: Model,
-          props: true,
-          meta: { title: '' },
-        }
-      ]
     },
     {
       path: '*',

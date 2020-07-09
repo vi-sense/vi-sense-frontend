@@ -31,13 +31,11 @@
     </v-app-bar>
 
     <main>
-      <div class="content">
-        <div class="title"></div>
+      <div class="centerContent">
         <div
           v-for="model in models"
           active-class="not-active"
-          class="link"
-          id="card"
+          class="modelCardWrapper"
           :key="model.id"
         >
           <v-card class="mx-auto" max-height="500" max-width="300">
@@ -46,7 +44,7 @@
               height="200px"
               :src="'https://visense.f4.htw-berlin.de:44344/' + model.image_url"
             >
-              <v-card-title class="wtf">{{ model.name }}</v-card-title>
+              <v-card-title class="modelTitle">{{ model.name }}</v-card-title>
             </v-img>
 
             <v-card-subtitle class="pb-0">{{ model.location.address }}</v-card-subtitle>
@@ -69,27 +67,18 @@
             </v-card-text>
 
             <v-card-actions>
-              <v-btn color="rgba(82, 186, 162, 1)" dark elevation="2" block>
-                <router-link
-                  style="color: white"
-                  :to="{name: 'modelview', params: {id: model.id}}"
-                >Open in Modelview</router-link>
-              </v-btn>
+                    <v-btn :href="`#/modelview/${model.id}`" color="rgba(82, 186, 162, 1)" dark elevation="2" block
+                        style="color: white">
+                        Open in Modelview
+                    </v-btn>
             </v-card-actions>
-            <div class="foobar1">
+            <div class="mapWrapper">
               <l-map
-                v-if="showMap"
                 :zoom="zoom"
                 :center="getLatlong(model.location.latitude, model.location.longitude)"
               >
                 <l-tile-layer :url="url" :attribution="attribution" />
                 <l-marker :lat-lng="getLatlong(model.location.latitude, model.location.longitude)">
-                  <l-popup>
-                    <div @click="innerClick">
-                      {{ model.location.address }}
-                      <p v-show="showParagraph">{{ model.description }}</p>
-                    </div>
-                  </l-popup>
                 </l-marker>
               </l-map>
             </div>
@@ -134,7 +123,6 @@ export default {
     LMap,
     LTileLayer,
     LMarker,
-    LPopup,
     LTooltip,
     LIcon
   },
@@ -145,8 +133,6 @@ export default {
       url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
       attribution:
         '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-      showParagraph: false,
-      showMap: true,
       models: [],
       lastAnomalies: Map,
       lastTemperatures: Map,
@@ -157,7 +143,7 @@ export default {
     };
   },
   created() {
-    this.getAllModels();
+    this.fetchModels();
   },
   methods: {
     async getLatestData() {
@@ -213,19 +199,8 @@ export default {
     getLatlong(lat, long) {
       return latLng(lat, long);
     },
-    zoomUpdate(zoom) {
-      this.currentZoom = zoom;
-    },
-    centerUpdate(center) {
-      this.currentCenter = center;
-    },
-    showLongText() {
-      this.showParagraph = !this.showParagraph;
-    },
-    innerClick() {
-      alert("Click!");
-    },
-    async getAllModels() {
+
+    async fetchModels() {
       axios
         .get(this.endpoint + "models")
         .then(response => {
@@ -248,7 +223,7 @@ export default {
   left: 20%;
   margin-left: 1%;
 }
-.wtf {
+.modelTitle {
   background: #ffffffd1;
 }
 .title {
@@ -257,13 +232,13 @@ export default {
   top: 8%;
   left: 1%;
 }
-#card {
-  margin: 2%;
-  grid-column: 2;
-}
-.foobar1 {
+
+.mapWrapper {
   width: 100%;
   height: 150px;
+}
+.vue2leaflet-map{
+    z-index: 1;
 }
 #mapid {
   height: 180px;
@@ -308,6 +283,7 @@ main {
   display: flex;
   height: 93%;
 }
+
 aside {
   flex: 1 0 20%;
   height: 100%;
@@ -317,17 +293,19 @@ aside {
   box-sizing: border-box;
   border-right: 1px solid #42b983;
 }
-.content {
+
+.centerContent {
   flex: 1 1 80%;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
 }
-.link {
-  display: block;
+.modelCardWrapper {
+    margin: 2% 2% 2% 10px;
+    grid-column: 2;
+    display: block;
   text-decoration: none;
-  margin-bottom: 10px;
   color: #2c3e50;
   &--home {
     text-transform: uppercase;
