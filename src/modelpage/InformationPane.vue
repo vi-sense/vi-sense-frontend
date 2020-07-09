@@ -27,7 +27,7 @@
                             >mdi-arrow-right-circle-outline</v-icon>
                         </template>
 <!--                                    color="rgba(82, 186, 162, 1)"-->
-                        <span>Go To Sensor</span>
+                        <span>Go to Sensor</span>
                     </v-tooltip>
                         <v-tooltip v-else bottom>
                         <template #activator="{ on, attrs }">
@@ -45,8 +45,8 @@
                             <v-btn @click.prevent="initSensor(sensor.id)" alt="Select sensor position" class="button"
                                    color="rgba(82, 186, 162, 1)" dark elevation="2" block
                                    >
-                                <span v-if="sensor.mesh_id">Reposition Sensor</span>
-                                <span v-else>Position Sensor</span>
+                                <span v-if="sensor.mesh_id">Reposition in 3D</span>
+                                <span v-else>Position in 3D</span>
                                 
                             </v-btn>
                     <sensor-limits v-if="sensor.mesh_id" :sensor="sensor" :STORE=STORE></sensor-limits>
