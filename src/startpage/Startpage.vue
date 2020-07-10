@@ -2,11 +2,11 @@
   <div>
     <v-app-bar>
       <img id="logo" src="../assets/logo.svg" alt="vuejs logo" />
-      <h2>Vi-Sense Start</h2>
+      <h2>Vi-Sense</h2>
       <div class="account-title">Demo Account</div>
       <div class="account-logo">
         <v-dialog v-model="dialog" persistent max-width="290">
-          <template v-slot:activator="{ on, attrs }">
+          <template v-slot:activator="{ }">
             <v-btn
               @click.stop="dialog = true"
               icon
@@ -20,7 +20,7 @@
           </template>
           <v-card>
             <v-card-title class="headline">This is a test account!</v-card-title>
-            <v-card-text>This is a showtime prototype of a project of the HTW Berlin in cooperation with Metr. Please keep this in mind</v-card-text>
+            <v-card-text>This is a showtime prototype of a project of the HTW Berlin in cooperation with Metr.</v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn color="green darken-1" text @click="dialog = false">Ok</v-btn>
@@ -54,14 +54,13 @@
                 Outdoor Temperature:
                 <span
                   v-if="anomaliesLoaded"
-                >{{lastTemperatures.has(model.id) ? lastTemperatures.get(model.id).value : "" }} °C</span>
+                >{{lastTemperatures.has(model.id) ? lastTemperatures.get(model.id).value : "" | formatNumber}} °C</span>
               </div>
               <div>Type: {{ model.type }}</div>
               <div>Floors: {{ model.floors }}</div>
-              <div>
+              <div v-if="anomaliesLoaded">
                 Last Anomaly:
-                <span
-                  v-if="anomaliesLoaded"
+                <span class="colorAnomalies"
                 >{{lastAnomalies.has(model.id) ? lastAnomalies.get(model.id).start_data.date : "" | formatDate}}</span>
               </div>
             </v-card-text>
@@ -116,6 +115,11 @@ export default {
     formatDate: function(value) {
       if (value) {
         return moment(String(value)).format("DD.MM.YYYY HH:mm:ss");
+      }
+    },
+    formatNumber: function(value) {
+      if (value) {
+        return Number((value).toFixed(1));
       }
     }
   },
@@ -232,7 +236,11 @@ export default {
   top: 8%;
   left: 1%;
 }
+.colorAnomalies{
 
+color:red;
+
+}
 .mapWrapper {
   width: 100%;
   height: 150px;
