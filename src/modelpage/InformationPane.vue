@@ -40,12 +40,18 @@
                     </template>
                 </v-expansion-panel-header>
                 <v-expansion-panel-content>
+                    <v-btn @click.prevent="initSensor(null)" alt="Cancel sensor positioning" class="button"
+                            color="rgb(186,82,106)" dark elevation="2" block 
+                            v-if="initSensorID == sensor.id"
+                            >
+                        <span>Cancel</span>
+                    </v-btn>
                     <v-btn @click.prevent="initSensor(sensor.id)" alt="Select sensor position" class="button"
                             color="rgba(82, 186, 162, 1)" dark elevation="2" block
+                            v-else
                             >
                         <span v-if="sensor.mesh_id">Reposition in 3D</span>
                         <span v-else>Position in 3D</span>
-
                     </v-btn>
                     <sensor-limits v-if="sensor.mesh_id" :sensor="sensor" :STORE=STORE></sensor-limits>
                 </v-expansion-panel-content>
@@ -69,6 +75,7 @@
             return {
                 selectedSensors: [],
                 modelData: Vue.util.extend({}, this.model),
+                initSensorID: null
             };
         },
         watch:{
@@ -80,6 +87,7 @@
             this.STORE.onInitStateChanged( async (id, state) => {
                 if(state === "updated") {
                     this.loadSensorData(this.modelData.id);
+                    this.initSensorID = null;
                 }
             })
 
@@ -107,10 +115,11 @@
             initSensor(id) {
                 this.STORE.removeCallbacks()
                 this.STORE.set(SKEYS.INIT_SENSOR, id);
+                this.initSensorID = id;
                 if(id) {
                     this.STORE.onInitStateChanged(async (id, state) => {
                         if(state === "updated") {
-                            const newSensorRes = await fetch(this.endpoint + "sensors/" + id)
+                            const newSensorRes = await fetch(process.env.API_URL + "/sensors/" + id)
                             const newSensorData = await newSensorRes.json()
                             this.modelData.sensors.find((sensor) => sensor.id === id).mesh_id = newSensorData.mesh_id
                         }
