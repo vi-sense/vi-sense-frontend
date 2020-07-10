@@ -199,21 +199,21 @@ export default {
             this.clippingPlanes[0].enabled = enabled
             this.clippingPlanes[0].flipped = flipped
             this.clippingPlanes[0].value = value;
-            changeClippingPlane(axis, this.clippingPlanes[0])
+            changeClippingPlane(this.clippingPlanes[0])
             break;
           }
           case 'Y': {
             this.clippingPlanes[1].enabled = enabled
             this.clippingPlanes[1].flipped = flipped
             this.clippingPlanes[1].value = value;
-            changeClippingPlane(axis, this.clippingPlanes[1])
+            changeClippingPlane(this.clippingPlanes[1])
             break;
           }
           case 'Z': {
             this.clippingPlanes[2].enabled = enabled
             this.clippingPlanes[2].flipped = flipped
             this.clippingPlanes[2].value = value;
-            changeClippingPlane(axis, this.clippingPlanes[2])
+            changeClippingPlane(this.clippingPlanes[2])
             break;
           }
           default: break;
