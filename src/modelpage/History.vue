@@ -96,8 +96,10 @@
     line-height: 1rem;
     word-break: normal;
     margin-bottom: 10px;
+    width:100%;
 }
 .v-card__subtitle {
     line-height: 1rem;
+    width:100%;
 }
 </style>
