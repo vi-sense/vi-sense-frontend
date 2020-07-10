@@ -12,18 +12,42 @@
         </div>
       </div>
       <div>
-        <v-subheader>Far Camera Clipping</v-subheader>
-        <div class="flex-row">
-          <input class="slider" v-model="cameraClipping" type="range" min=10 max=1000 v-on:input="onSliderChanged('clipping', cameraClipping)">
-          <input v-model="cameraClipping" type="number" min=10 max=1000 v-on:input="onSliderChanged('clipping', cameraClipping)">
-        </div>
-      </div>
-    </div>
+        <p>Active Camera</p>
 
-   <div>
-      <h4 class="pt-2">Camera</h4>
-      <div>
-        <v-btn color="rgba(82, 186, 162, 1)" dark block raised @click="onCameraSwitch()">Switch Camera</v-btn>
+        <v-subheader :class="{active: activeCamera == 'Rotation Camera'}">
+          <v-icon :class="{active: activeCamera == 'Rotation Camera'}">mdi-rotate-3d-variant</v-icon>
+          Rotation Camera
+          <v-spacer/>
+          <v-tooltip bottom>
+            <template #activator="{ on, attrs }">
+                <v-icon @click="onCameraSwitch()"
+                        v-bind="attrs"
+                        v-on="on"
+                        :disabled="activeCamera=='Rotation Camera'"
+                        class="action-icon"
+                >mdi-crop-free</v-icon>
+            </template>
+            <span>Switch Camera</span>
+          </v-tooltip>
+        </v-subheader>
+
+        <v-subheader :class="{active: activeCamera == 'Free Move Camera'}">
+          <v-icon :class="{active: activeCamera == 'Free Move Camera'}">mdi-account</v-icon>
+          Free Move Camera
+          <v-spacer/>
+          <v-tooltip bottom>
+            <template #activator="{ on, attrs }">
+                <v-icon @click="onCameraSwitch()"
+                        v-bind="attrs"
+                        v-on="on"
+                        :disabled="activeCamera=='Free Move Camera'"
+                        class="action-icon"
+                >mdi-crop-free</v-icon>
+            </template>
+            <span>Switch Camera</span>
+          </v-tooltip>
+        </v-subheader>
+
       </div>
    </div>
 
@@ -35,10 +59,10 @@
           <v-subheader>{{clip.axis}}-Axis</v-subheader>
         </div>
         <div class="flex-row">
-          <v-checkbox 
-            class="pr-1 mt-0" 
-            hide-details 
-            dense 
+          <v-checkbox
+            class="pr-1 mt-0"
+            hide-details
+            dense
             color="rgba(82, 186, 162, 1)"
             multiple
             @change="handleClippingPlane(!clip.enabled, clip.axis, clip.value, clip.flipped)">
@@ -50,6 +74,7 @@
                     color="rgba(82, 186, 162, 1)"
                     v-bind="attrs"
                     v-on="on"
+                    :disabled="!clip.enabled"
                   >mdi-flip-horizontal</v-icon>
               </template>
               <span>Flip Clipping Plane</span>
@@ -73,7 +98,7 @@
           max<input v-model="ydomain[1]" type="number" min="-20" max="100">
         </v-subheader>
       </div>
-    </div>  
+    </div>
 
   </div>
 </template>
@@ -91,9 +116,7 @@ export default {
         fov_min: CAMERA_FOV.min,
         fov_max: CAMERA_FOV.max,
         fov: 80,
-        cameraClipping_min: CAMERA_CLIPPING.min,
-        cameraClipping_max: CAMERA_CLIPPING.max,
-        cameraClipping: 500,
+        activeCamera: "Rotation Camera",
         clippingPlanes: [
           {
             axis: "X",
@@ -125,7 +148,7 @@ export default {
     },
     mounted(){
       this.ydomain = this.STORE._timelineInstance.getDomainY()
-      
+
       let speed = document.querySelector("#speed")
       speed.value = this.STORE._timelineInstance.getSpeed()
       speed.oninput = e => { this.STORE._timelineInstance.setSpeed(e.target.value) }
@@ -138,21 +161,24 @@ export default {
         this.clippingPlanes[2].max = outerMax.z
         this.clippingPlanes[2].min = -outerMax.z
       })
+      eventBus.$on("active-cam-change", (activeCam) => {
+        this.activeCamera = activeCam
+      })
     },
     watch: {
       ydomain(){
-        this.STORE._timelineInstance.setDomainY(this.ydomain[0], this.ydomain[1]);        
+        this.STORE._timelineInstance.setDomainY(this.ydomain[0], this.ydomain[1]);
       }
     },
     methods: {
-      onSliderChanged(key, value) {
+      onSliderChanged(value) {
         switch(key) {
           case 'fov': changeFOV(value); break;
           case 'clipping': changeCameraClipping(parseInt(value)); break;
           default: break;
         }
       },
-      handleClippingPlane(enabled, axis, value, flipped) {        
+      handleClippingPlane(enabled, axis, value, flipped) {
         switch(axis) {
           case 'X': {
             this.clippingPlanes[0].enabled = enabled
@@ -199,6 +225,13 @@ export default {
 
   .v-subheader {
     height: auto;
+    .v-icon:first-child {
+      padding-right: 10px;
+    }
+  }
+
+  .v-btn {
+    padding: 0;
   }
 
   hr {
@@ -212,6 +245,7 @@ export default {
     margin: 5px 0;
     width: 100%;
     outline: none !important;
+    padding-right: 5px;
   }
   input[type=range]:focus {
     outline: none;
@@ -325,11 +359,20 @@ export default {
   .flex-row {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     margin: 0;
     padding: 0;
+
+    input[type=range] {
+      width: 80%;
+      margin: 0;
+    }
   }
   .start {
       justify-content: start;
+    }
+  .active {
+    color: rgba(82, 186, 162, 1)
   }
 }
 

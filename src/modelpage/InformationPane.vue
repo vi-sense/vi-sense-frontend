@@ -47,7 +47,7 @@
                                    >
                                 <span v-if="sensor.mesh_id">Reposition in 3D</span>
                                 <span v-else>Position in 3D</span>
-                                
+
                             </v-btn>
                     <sensor-limits v-if="sensor.mesh_id" :sensor="sensor" :STORE=STORE></sensor-limits>
                 </v-expansion-panel-content>
@@ -137,6 +137,9 @@
     // do we really need the scoped attribute? overriding vuetify styles doesnt work with that
     // yes we do need it because its very confusing if every component sets globas css attributes. you can change vuetify styles with the >>> operator
 
+    .v-expansion-panel--active > .v-expansion-panel-header {
+        min-height: 48px;
+    }
     .v-expansion-panel-header {
         padding: 0 10px 0 10px;
     }

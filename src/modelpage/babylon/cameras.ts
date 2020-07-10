@@ -5,6 +5,7 @@
 import * as BABYLON from 'babylonjs';
 import FloorCamera from './FloorCamera';
 import Storage from '../../storage/Storage';
+import { eventBus } from "../../main.js";
 
 
 var myScene: BABYLON.Scene;
@@ -68,7 +69,7 @@ export function createArcCamera(canvas: HTMLCanvasElement, engine:BABYLON.Engine
     arcCamera.radius = 25
     arcCamera.lowerRadiusLimit = 5
     arcCamera.upperRadiusLimit = 150
-    arcCamera.wheelPrecision = 100
+    arcCamera.wheelPrecision = 50
 
     storage.onSensorSelectionChanged(() => {
         if(myScene.activeCamera == arcCamera) {
@@ -144,7 +145,7 @@ export async function switchCamera() {
         arcCam.minZ = floorCam.minZ;
         arcCam.maxZ = floorCam.maxZ;
         myScene.activeCamera = arcCam;
-
+        eventBus.$emit("active-cam-change", "Rotation Camera")
     }
     else if (myScene.activeCamera.name == "arcCam") {
         let active = myScene.activeCamera as BABYLON.ArcRotateCamera;
@@ -173,6 +174,7 @@ export async function switchCamera() {
             cam.minZ = active.minZ;
             cam.maxZ = active.maxZ;
             myScene.activeCamera = cam;
+            eventBus.$emit("active-cam-change", "Free Move Camera")
         };
     }
 }
