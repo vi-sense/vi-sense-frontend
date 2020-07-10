@@ -153,7 +153,11 @@
     .v-expansion-panel-header:before{
         background-color: transparent !important;
     }
+    
     .sensorElement:hover{
         background-color: #F5F5F5 // entspricht vuetify grey lighten-4;
+    }
+    div[aria-expanded="true"]{
+        background-color: #F5F5F5 !important; // entspricht vuetify grey lighten-4;
     }
 </style>
