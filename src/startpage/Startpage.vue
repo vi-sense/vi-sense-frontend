@@ -149,7 +149,7 @@ export default {
     async getLatestData() {
       this.lastAnomalies = new Map();
       this.lastTemperatures = new Map();
-      const current_date = moment().format("YYYY-MM-DD HH:mm:ss");
+      const current_date = moment.utc().format("YYYY-MM-DD HH:mm:ss");
       await Promise.all(
         this.models.map(async model => {
           let modelAnomalies = [];

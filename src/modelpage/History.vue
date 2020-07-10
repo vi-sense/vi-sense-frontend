@@ -58,7 +58,7 @@
                 this.anomalies = []
                 await Promise.all(this.modelData.sensors.map(async (sensor) => {
                     this.sensorsById.set(sensor.id, sensor)
-                    const current_date = moment().format("YYYY-MM-DD HH:mm:ss")
+                    const current_date = moment.utc().format("YYYY-MM-DD HH:mm:ss")
                     try {
                         const sensorAnomalies = await fetch(`${this.endpoint}/sensors/${sensor.id}/anomalies?end_date=${current_date}`)
                         this.anomalies.push(...await sensorAnomalies.json())
