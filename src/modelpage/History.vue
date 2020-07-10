@@ -18,7 +18,7 @@
                             <br>
                             <span style="font-weight: bold">Peak: </span>
                             <span>{{parseFloat(anomaly.peak_data.value).toFixed(2)}}</span>
-                            <span>{{modelData.sensors[anomaly.start_data.sensor_id].measurement_unit}}</span>
+                            <span>{{sensorsById.get(anomaly.start_data.sensor_id).modelDatament_unit}}</span>
                             <span v-if="anomaly.end_data">at {{reformatDate(anomaly.peak_data.date)}}</span>
 
                         </v-card-subtitle>
