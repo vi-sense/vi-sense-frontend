@@ -85,13 +85,13 @@ export default {
     let dragger = document.querySelector("#BTdragger")
     let startY
 
-    dragger.onmousedown = e => {     
+    dragger.onmousedown = e => {
       startY = e.pageY;
     }
     window.addEventListener("mouseup", e => {
       startY = null
     })
-    window.addEventListener("mousemove", e => {      
+    window.addEventListener("mousemove", e => {
       if(startY == null) return
       let o = startY-e.pageY;
       startY = e.pageY
@@ -190,6 +190,7 @@ export default {
       height: 100%;
       background-color: white;
       overflow-y: scroll;
+      scrollbar-width: none;
       padding-right: 2px;
       h3 {
         display: block;

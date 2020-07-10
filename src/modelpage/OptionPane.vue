@@ -13,25 +13,52 @@
       </div>
     </div>
 
-   <div>
-      <h4 class="pt-2">Camera</h4>
-      <div>
-        <v-btn color="rgba(82, 186, 162, 1)" dark block raised @click="onCameraSwitch()">Switch Camera</v-btn>
-      </div>
-   </div>
+    <div>
+      <h4 class="pt-2">Cameras</h4>
+      <v-subheader :class="{active: activeCamera == 'Rotation Camera'}">
+        <v-icon :class="{active: activeCamera == 'Rotation Camera'}">mdi-rotate-3d-variant</v-icon>
+        Rotation Camera
+        <v-spacer/>
+        <v-tooltip bottom>
+          <template #activator="{ on, attrs }">
+              <v-icon @click="onCameraSwitch()"
+                      v-bind="attrs"
+                      v-on="on"
+                      :disabled="activeCamera=='Rotation Camera'"
+                      class="action-icon"
+              >mdi-crop-free</v-icon>
+          </template>
+          <span>Switch Camera</span>
+        </v-tooltip>
+      </v-subheader>
+
+      <v-subheader :class="{active: activeCamera == 'Free Move Camera'}">
+        <v-icon :class="{active: activeCamera == 'Free Move Camera'}">mdi-account</v-icon>
+        Free Move Camera
+        <v-spacer/>
+        <v-tooltip bottom>
+          <template #activator="{ on, attrs }">
+              <v-icon @click="onCameraSwitch()"
+                      v-bind="attrs"
+                      v-on="on"
+                      :disabled="activeCamera=='Free Move Camera'"
+                      class="action-icon"
+              >mdi-crop-free</v-icon>
+          </template>
+          <span>Switch Camera</span>
+        </v-tooltip>
+      </v-subheader>
+    </div>
 
     <div>
       <h4 class="pt-2">Clipping planes</h4>
-
       <div v-for="clip of clippingPlanes" :key="clip.axis">
-        <div class="start flex-row">
-          <v-subheader>{{clip.axis}}-Axis</v-subheader>
-        </div>
+        <v-subheader>{{clip.axis}}-Axis</v-subheader>
         <div class="flex-row">
-          <v-checkbox 
-            class="pr-1 mt-0" 
-            hide-details 
-            dense 
+          <v-checkbox
+            class="pr-1 mt-0"
+            hide-details
+            dense
             color="rgba(82, 186, 162, 1)"
             multiple
             @change="handleClippingPlane(!clip.enabled, clip.axis, clip.value, clip.flipped)">
@@ -43,6 +70,7 @@
                     color="rgba(82, 186, 162, 1)"
                     v-bind="attrs"
                     v-on="on"
+                    :disabled="!clip.enabled"
                   >mdi-flip-horizontal</v-icon>
               </template>
               <span>Flip Clipping Plane</span>
@@ -65,8 +93,8 @@
           max<input v-model="ydomain[1]" type="number" min="-20" max="100">
         </v-subheader>
       </div>
-    </div>  
-
+    </div>
+  
   </div>
 </template>
 
@@ -79,6 +107,7 @@ export default {
     props: ["STORE"],
     data () {
       return {
+        activeCamera: "Rotation Camera",
         fov: {
           min: 40,
           max: 160,
@@ -130,6 +159,9 @@ export default {
         this.clippingPlanes[2].max = outerMax.z
         this.clippingPlanes[2].min = -outerMax.z
       })
+      eventBus.$on("active-cam-change", (activeCam) => {
+        this.activeCamera = activeCam
+      })
     },
     watch: {
       fov:{ 
@@ -158,7 +190,7 @@ export default {
       onCameraSwitch(){
         switchCamera()
       },
-      handleClippingPlane(enabled, axis, value, flipped) {        
+      handleClippingPlane(enabled, axis, value, flipped) {
         switch(axis) {
           case 'X': {
             this.clippingPlanes[0].enabled = enabled
@@ -202,6 +234,13 @@ export default {
 
   .v-subheader {
     height: auto;
+    .v-icon:first-child {
+      padding-right: 10px;
+    }
+  }
+
+  .v-btn {
+    padding: 0;
   }
 
   hr {
@@ -215,6 +254,7 @@ export default {
     margin: 5px 0;
     width: 100%;
     outline: none !important;
+    padding-right: 5px;
   }
   input[type=range]:focus {
     outline: none;
@@ -328,11 +368,20 @@ export default {
   .flex-row {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     margin: 0;
     padding: 0;
+
+    input[type=range] {
+      width: 80%;
+      margin: 0;
+    }
   }
   .start {
       justify-content: start;
+    }
+  .active {
+    color: rgba(82, 186, 162, 1)
   }
 }
 
