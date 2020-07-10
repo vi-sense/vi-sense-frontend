@@ -184,7 +184,7 @@ export default {
 
     #sidepane {
       display: inline-block;
-      min-width: 200px;
+      min-width: 230px;
       max-width: 280px;
       width: 16%;
       height: 100%;
