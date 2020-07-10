@@ -19,7 +19,6 @@
                             <span style="font-weight: bold">Peak: </span>
                             <span>{{parseFloat(anomaly.peak_data.value).toFixed(2)}}</span>
                             <span>{{modelData.sensors[anomaly.start_data.sensor_id].measurement_unit}}</span>
-                            <br>
                             <span v-if="anomaly.end_data">at {{reformatDate(anomaly.peak_data.date)}}</span>
 
                         </v-card-subtitle>
@@ -59,7 +58,7 @@
                 this.anomalies = []
                 await Promise.all(this.modelData.sensors.map(async (sensor) => {
                     this.sensorsById.set(sensor.id, sensor)
-                    const current_date = moment().format("YYYY-MM-DD HH:mm:ss")
+                    const current_date = moment.utc().format("YYYY-MM-DD HH:mm:ss")
                     try {
                         const sensorAnomalies = await fetch(`${this.endpoint}/sensors/${sensor.id}/anomalies?end_date=${current_date}`)
                         this.anomalies.push(...await sensorAnomalies.json())
@@ -97,8 +96,10 @@
     line-height: 1rem;
     word-break: normal;
     margin-bottom: 10px;
+    width:100%;
 }
 .v-card__subtitle {
     line-height: 1rem;
+    width:100%;
 }
 </style>

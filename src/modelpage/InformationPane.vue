@@ -130,6 +130,7 @@
                 axios(process.env.API_URL + "/models/" + id)
                     .then(response => {
                         this.modelData = response.data;
+                        this.modelData.sensors.sort((a,b) => a.name.localeCompare(b.name))
                     })
                     .catch(error => {
                         console.log(error);
