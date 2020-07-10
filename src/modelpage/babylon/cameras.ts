@@ -118,6 +118,7 @@ export function changeCameraClipping(value) {
 
 export async function switchCamera() {
     if (myScene.activeCamera.name == "floorCam") {
+        eventBus.$emit("active-cam-change", "Rotation Camera")
         let floorCam = myScene.activeCamera as FloorCamera;
         let arcCam = myScene.getCameraByName("arcCam") as BABYLON.ArcRotateCamera;
 
@@ -145,9 +146,9 @@ export async function switchCamera() {
         arcCam.minZ = floorCam.minZ;
         arcCam.maxZ = floorCam.maxZ;
         myScene.activeCamera = arcCam;
-        eventBus.$emit("active-cam-change", "Rotation Camera")
     }
     else if (myScene.activeCamera.name == "arcCam") {
+        eventBus.$emit("active-cam-change", "Free Move Camera")
         let active = myScene.activeCamera as BABYLON.ArcRotateCamera;
         active.lowerRadiusLimit = 3
 
@@ -174,7 +175,6 @@ export async function switchCamera() {
             cam.minZ = active.minZ;
             cam.maxZ = active.maxZ;
             myScene.activeCamera = cam;
-            eventBus.$emit("active-cam-change", "Free Move Camera")
         };
     }
 }
