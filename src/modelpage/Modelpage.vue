@@ -8,28 +8,29 @@
         <v-icon middle>mdi-cog</v-icon>
       </v-btn>
     </v-app-bar>
-      <main>
-        <loading-overlay></loading-overlay>
-        <div id="sidepane">
-          <h3 class="pb-1">Sensors</h3>
-          <information-pane class="pa-1" id="informationpane" v-if="model" :model="model" :STORE="STORE" :sensor-colors="sensorColors" v-on:sensor-selection-changed="propagateSensorSelection"/>
+    
+    <main>
+      <loading-overlay></loading-overlay>
+      <div id="sidepane">
+        <h3 class="pb-1">Sensors</h3>
+        <information-pane class="pa-1" id="informationpane" v-if="model" :model="model" :STORE="STORE" :sensor-colors="sensorColors" v-on:sensor-selection-changed="propagateSensorSelection"/>
 
-          <h3 class="pb-1">Anomalies</h3>
-          <history class="pa-1" id="historypane" ref="historyRef" v-if="model" :model="model" :STORE="STORE" :sensor-colors="sensorColors" :selected-sensors="this.selectedSensors"/>
+        <h3 class="pb-1">Anomalies</h3>
+        <history class="pa-1" id="historypane" ref="historyRef" v-if="model" :model="model" :STORE="STORE" :sensor-colors="sensorColors" :selected-sensors="this.selectedSensors"/>
+      </div>
+
+      <div id="mainpane">
+        <div id="babylonwrapper">
+          <canvas id="babyloncanvas"></canvas>
         </div>
-
-        <div id="mainpane">
-          <div id="babylonwrapper">
-            <canvas id="babyloncanvas"></canvas>
-          </div>
-          <div id="timelinewrapper">
-            <div id="BTdragger"></div>
-            <timeline id="timeline" :STORE="STORE" />
-          </div>
+        <div id="timelinewrapper">
+          <div id="BTdragger"></div>
+          <timeline id="timeline" :STORE="STORE" />
         </div>
+      </div>
 
-        <option-pane id="optionpane" v-show="showOptionPane" :STORE="STORE"/>
-      </main>
+      <option-pane id="optionpane" v-show="showOptionPane" :STORE="STORE"/>
+    </main>
 
     <pop-up :STORE="STORE"/>
   </div>

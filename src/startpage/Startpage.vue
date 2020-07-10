@@ -32,32 +32,24 @@
 
     <main>
       <div class="centerContent">
-        <div
-          v-for="model in models"
-          active-class="not-active"
-          class="modelCardWrapper"
-          :key="model.id"
-        >
-          <v-card class="mx-auto" max-height="500" max-width="300">
-            <v-img
-              class="black--text align-end"
-              height="200px"
-              :src="'https://visense.f4.htw-berlin.de:44344/' + model.image_url"
-            >
+        <div v-for="model in models" active-class="not-active" class="modelCardWrapper buildingCard" :key="model.id">
+          <v-card class="buildingCard mx-auto" max-height="500" max-width="300" width="100%" :elevation="model.name==optimizedModelTitel ? 20 : 1">
+            <div v-if="model.name==optimizedModelTitel" class="optiBadge"><span>Optimized for showtime</span></div>  
+
+            <v-img class="black--text align-end" height="200px" :src="'https://visense.f4.htw-berlin.de:44344/' + model.image_url" style="border-radius: 1;">
               <v-card-title class="modelTitle">{{ model.name }}</v-card-title>
             </v-img>
 
-            <v-card-subtitle class="pb-0">{{ model.location.address }}</v-card-subtitle>
-
             <v-card-text class="text--primary">
+              <div>{{model.location.address}}</div>
+              <div>Type: {{ model.type }}</div>
+              <div>Floors: {{ model.floors }}</div>
               <div>
                 Outdoor Temperature:
                 <span
                   v-if="anomaliesLoaded"
                 >{{lastTemperatures.has(model.id) ? lastTemperatures.get(model.id).value : "" | formatNumber}} °C</span>
               </div>
-              <div>Type: {{ model.type }}</div>
-              <div>Floors: {{ model.floors }}</div>
               <div v-if="anomaliesLoaded">
                 Last Anomaly:
                 <span class="colorAnomalies"
@@ -66,10 +58,10 @@
             </v-card-text>
 
             <v-card-actions>
-                    <v-btn :href="`#/modelview/${model.id}`" color="rgba(82, 186, 162, 1)" dark elevation="2" block
-                        style="color: white">
-                        Open in Modelview
-                    </v-btn>
+              <v-btn :href="`#/modelview/${model.id}`" color="rgba(82, 186, 162, 1)" dark elevation="2" block
+                  style="color: white">
+                  Open in 3D
+              </v-btn>
             </v-card-actions>
             <div class="mapWrapper">
               <l-map
@@ -91,14 +83,7 @@
 <script>
 import axios from "axios";
 import { latLng } from "leaflet";
-import {
-  LMap,
-  LTileLayer,
-  LMarker,
-  LPopup,
-  LTooltip,
-  LIcon
-} from "vue2-leaflet";
+import { LMap, LTileLayer, LMarker, LPopup, LTooltip, LIcon } from "vue2-leaflet";
 import moment from "moment";
 require("../../node_modules/leaflet/dist/leaflet.css");
 
@@ -111,18 +96,6 @@ L.Icon.Default.mergeOptions({
 });
 
 export default {
-  filters: {
-    formatDate: function(value) {
-      if (value) {
-        return moment(String(value)).format("DD.MM.YYYY HH:mm:ss");
-      }
-    },
-    formatNumber: function(value) {
-      if (value) {
-        return Number((value).toFixed(1));
-      }
-    }
-  },
   components: {
     LMap,
     LTileLayer,
@@ -143,11 +116,24 @@ export default {
       anomaliesLoaded: false,
       lat: null,
       long: null,
-      dialog: false
+      dialog: false,
+      optimizedModelTitel: "Mechanical Room, Cape Town"
     };
   },
   created() {
     this.fetchModels();
+  },
+  filters: {
+    formatDate: function(value) {
+      if (value) {
+        return moment(String(value)).format("DD.MM.YYYY HH:mm:ss");
+      }
+    },
+    formatNumber: function(value) {
+      if (value) {
+        return Number((value).toFixed(1));
+      }
+    }
   },
   methods: {
     async getLatestData() {
@@ -229,6 +215,9 @@ export default {
 }
 .modelTitle {
   background: #ffffffd1;
+  font-weight: normal;
+  padding-top: 4px;
+    padding-bottom: 10px;
 }
 .title {
   grid-column: 1;
@@ -310,9 +299,9 @@ aside {
   width: 100%;
 }
 .modelCardWrapper {
-    margin: 2% 2% 2% 10px;
-    grid-column: 2;
-    display: block;
+  margin: 2% 2% 2% 10px;
+  grid-column: 2;
+  display: block;
   text-decoration: none;
   color: #2c3e50;
   &--home {
@@ -321,6 +310,38 @@ aside {
   }
   &.is-active {
     color: #42b983;
+  }
+}
+
+.buildingCard{
+  position: relative;
+}
+.optiBadge{
+  z-index: 5;
+  position: absolute;
+  right: -10px;
+  top: -10px;
+  width: 70px;
+  height: 70px;
+  border-radius: 50px !important;
+  border: 1px solid white;
+  background-color: rgba(82, 186, 162, 1);
+  text-align: center;
+  line-height: 0.9 !important;
+
+  // vertical center
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+
+  span{
+    display: inline-block;
+    color: white;
+    font-size: 1em;
+    text-align: center;
+    margin: auto;
+    vertical-align: middle;
+    //transform: rotate(10deg)
   }
 }
 </style>
