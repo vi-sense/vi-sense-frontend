@@ -1,23 +1,28 @@
 <template lang="html">
     <div class="history" v-if="anomaliesLoaded">
         <v-lazy min-height="80" v-for="(anomaly, index) in filteredAnomalies" :key="index">
-        <v-hover
-                v-slot:default="{ hover }"
-        >
-            <v-card v-ripple :color="hover? 'grey lighten-4':'white'" :elevation="hover? 4: 2" class="my-1"
+        <v-hover v-slot:default="{ hover }">
+            <v-card v-ripple :color="hover? 'grey lighten-4':'white'" class="my-1"
                     :style="`border-radius: 0; border-left: 5px solid ${sensorColors.get(anomaly.start_data.sensor_id)}!important; opacity:${anomaly.selected?'1.0':'0.5'}`" v-on:click="selectAnomaly(anomaly)">
                 <v-container class="pa-0">
                     <v-row align="center" justify="start" :no-gutters="true" >
-                        <v-col cols="9">
-                            <v-card-title class="pr-1">
-                                <span>{{sensorsById.get(anomaly.start_data.sensor_id).name}}: </span> <span>{{anomaly.type}}</span>
-                            </v-card-title>
-                            <v-card-subtitle class="pr-1" ><span class="date_span">{{ reformatDate(anomaly.start_data.date)}}{{anomaly.end_data? " - ": ""}}</span> <span v-if="anomaly.end_data" class="date_span"> {{reformatDate(anomaly.end_data.date)}} </span>
-                            </v-card-subtitle>
-                        </v-col>
-                        <v-col cols="3" style="text-align: center">
-                            <v-icon  large color="amber accent-4">mdi-alert-circle-outline</v-icon>
-                        </v-col>
+                        <v-card-title class="pr-1">
+                            <!--span>{{sensorsById.get(anomaly.start_data.sensor_id).name}}:</span><br--> 
+                            <span>{{anomaly.type}}</span>
+                        </v-card-title>
+                        <v-card-subtitle class="pr-1">
+                            <span class="date_span">{{ reformatDate(anomaly.start_data.date)}}{{anomaly.end_data? " - ": ""}}</span> 
+                            <br v-if="anomaly.end_data" >
+                            <span v-if="anomaly.end_data" class="date_span"> {{reformatDate(anomaly.end_data.date)}} </span>
+                            <br>
+                            <br>
+                            <span style="font-weight: bold">Peak: </span>
+                            <span>{{parseFloat(anomaly.peak_data.value).toFixed(2)}}</span>
+                            <span>{{modelData.sensors[anomaly.start_data.sensor_id].measurement_unit}}</span>
+                            <br>
+                            <span v-if="anomaly.end_data">at {{reformatDate(anomaly.peak_data.date)}}</span>
+
+                        </v-card-subtitle>
                     </v-row>
                 </v-container>
             </v-card>
@@ -93,7 +98,6 @@
     word-break: normal;
     margin-bottom: 10px;
 }
-
 .v-card__subtitle {
     line-height: 1rem;
 }
