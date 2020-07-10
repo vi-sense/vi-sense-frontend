@@ -12,7 +12,7 @@
         </div>
       </div>
       <div>
-        <p>Active Camera</p>
+        <h4 class="pt-2">Cameras</h4>
 
         <v-subheader :class="{active: activeCamera == 'Rotation Camera'}">
           <v-icon :class="{active: activeCamera == 'Rotation Camera'}">mdi-rotate-3d-variant</v-icon>
@@ -171,7 +171,7 @@ export default {
       }
     },
     methods: {
-      onSliderChanged(value) {
+      onSliderChanged(key, value) {
         switch(key) {
           case 'fov': changeFOV(value); break;
           case 'clipping': changeCameraClipping(parseInt(value)); break;
