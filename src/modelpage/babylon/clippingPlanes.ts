@@ -46,7 +46,7 @@ export function setupClippingPlanes(scene: BABYLON.Scene) {
 export function changeClippingPlane(clippingPlane) {
     let axis = clippingPlane.axis.toLowerCase();
     let enabled: boolean = clippingPlane.enabled;
-    let offset: number = parseInt(myScene.metadata.modelCenter[axis.toString()])
+    let offset: number = parseInt(myScene.metadata.modelCenter[axis])
 
     let sliderValue: number = parseInt(clippingPlane.value);
     let flipped: boolean = clippingPlane.flipped;
