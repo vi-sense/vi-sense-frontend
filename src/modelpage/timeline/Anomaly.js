@@ -81,5 +81,8 @@ export default class Anomaly {
     hide(){
         this.rect.attr("display", "none");
     }
+    remove(){
+        this.rect.remove()
+    }
 }
 
