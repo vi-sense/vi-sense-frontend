@@ -7,15 +7,8 @@
       <div>
         <v-subheader>Field of View</v-subheader>
         <div class="flex-row">
-          <input class="slider" v-model="fov" type="range" min=40 max=160 v-on:input="onSliderChanged('fov', fov)">
-          <input v-model="fov" type="number" min=40 max=160 v-on:input="onSliderChanged('fov', fov)">
-        </div>
-      </div>
-      <div>
-        <v-subheader>Far Camera Clipping</v-subheader>
-        <div class="flex-row">
-          <input class="slider" v-model="cameraClipping" type="range" min=10 max=1000 v-on:input="onSliderChanged('clipping', cameraClipping)">
-          <input v-model="cameraClipping" type="number" min=10 max=1000 v-on:input="onSliderChanged('clipping', cameraClipping)">
+          <input v-model="fov.value" type="range" class="slider" :min="fov.min" :max="fov.max">
+          <input v-model="fov.value" type="number" :min="fov.min" :max="fov.max">
         </div>
       </div>
     </div>
@@ -58,12 +51,11 @@
       </div>
     </div>
 
-
     <div>
       <h4 class="pt-2">Timeline</h4>
       <div>
         <v-subheader>Playback Speed<v-spacer/>
-          <input id="speed" type="number" min="1" max="50">
+          <input v-model="speed.value" type="number">
         </v-subheader>
       </div>
       <div>
@@ -79,7 +71,6 @@
 </template>
 
 <script>
-import {CAMERA_FOV, CAMERA_CLIPPING} from '../storage/Settings'
 import {changeFOV, changeCameraClipping, switchCamera} from './babylon/cameras'
 import {changeClippingPlane} from './babylon/clippingPlanes'
 import {eventBus} from "../main";
@@ -88,47 +79,48 @@ export default {
     props: ["STORE"],
     data () {
       return {
-        fov_min: CAMERA_FOV.min,
-        fov_max: CAMERA_FOV.max,
-        fov: 80,
-        cameraClipping_min: CAMERA_CLIPPING.min,
-        cameraClipping_max: CAMERA_CLIPPING.max,
-        cameraClipping: 500,
+        fov: {
+          min: 40,
+          max: 160,
+          value: 80
+        },
         clippingPlanes: [
           {
             axis: "X",
             min: -100,
             max: 100,
-            enabled: false,
             value: 0,
+            enabled: false,
             flipped: false
           },
           {
             axis: "Y",
             min: -100,
             max: 100,
-            enabled: false,
             value: 0,
+            enabled: false,
             flipped: false
           },
           {
             axis: "Z",
             min: -100,
             max: 100,
-            enabled: false,
             value: 0,
+            enabled: false,
             flipped: false
           }
         ],
-        ydomain: []
+        speed: {
+          value: 1,
+          min: 1,
+          max: 50,
+        },
+        ydomain: [],
       }
     },
     mounted(){
       this.ydomain = this.STORE._timelineInstance.getDomainY()
-      
-      let speed = document.querySelector("#speed")
-      speed.value = this.STORE._timelineInstance.getSpeed()
-      speed.oninput = e => { this.STORE._timelineInstance.setSpeed(e.target.value) }
+      this.speed.value = this.STORE._timelineInstance.getSpeed()
 
       eventBus.$on("bounding-box-defined", (outerMax) => {
         this.clippingPlanes[0].max = outerMax.x
@@ -140,17 +132,31 @@ export default {
       })
     },
     watch: {
+      fov:{ 
+        handler(){
+          if(this.fov.value > this.fov.max) this.fov.value = this.fov.max
+          if(this.fov.value < this.fov.min) this.fov.value = this.fov.min
+          changeFOV(this.fov.value)
+        }, deep: true
+      },
+      speed:{
+        handler(){
+          if(this.speed.value > this.speed.max) this.speed.value = this.speed.max
+          if(this.speed.value < this.speed.min) this.speed.value = this.speed.min
+          this.STORE._timelineInstance.setSpeed(this.speed.value)
+        }, deep: true
+      },
       ydomain(){
+        if(this.ydomain[0] > 100) this.ydomain[0] = 100
+        if(this.ydomain[0] < -20) this.ydomain[0] = -20
+        if(this.ydomain[1] > 100) this.ydomain[1] = 100
+        if(this.ydomain[1] < -20) this.ydomain[1] = -20
         this.STORE._timelineInstance.setDomainY(this.ydomain[0], this.ydomain[1]);        
-      }
+      },
     },
     methods: {
-      onSliderChanged(key, value) {
-        switch(key) {
-          case 'fov': changeFOV(value); break;
-          case 'clipping': changeCameraClipping(parseInt(value)); break;
-          default: break;
-        }
+      onCameraSwitch(){
+        switchCamera()
       },
       handleClippingPlane(enabled, axis, value, flipped) {        
         switch(axis) {
@@ -177,9 +183,6 @@ export default {
           }
           default: break;
         }
-      },
-      onCameraSwitch() {
-        switchCamera()
       }
     }
 }
