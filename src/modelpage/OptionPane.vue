@@ -8,7 +8,7 @@
         <v-subheader>Field of View</v-subheader>
         <div class="flex-row">
           <input v-model="fov.value" type="range" class="slider" :min="fov.min" :max="fov.max">
-          <input v-model="fov.value" type="number" :min="fov.min" :max="fov.max">
+          <input v-model="fov.value" type="number" :min="fov.min" :max="fov.max" readonly>
         </div>
       </div>
     </div>
@@ -89,8 +89,8 @@
       <div>
         <v-subheader>Y Domain
           <v-spacer/>
-          min<input v-model="ydomain[0]" type="number" min="-20" max="100">
-          max<input v-model="ydomain[1]" type="number" min="-20" max="100">
+          min<input v-model="ydomain[0]" type="number">
+          max<input v-model="ydomain[1]" type="number">
         </v-subheader>
       </div>
     </div>
@@ -166,19 +166,22 @@ export default {
     watch: {
       fov:{ 
         handler(){
-          if(this.fov.value > this.fov.max) this.fov.value = this.fov.max
-          if(this.fov.value < this.fov.min) this.fov.value = this.fov.min
+          if(this.fov.value == "") return           
+          if(this.fov.value > this.fov.max) return
+          if(this.fov.value < this.fov.min) return
           changeFOV(this.fov.value)
         }, deep: true
       },
       speed:{
         handler(){
+          if(this.speed.value == "") return           
           if(this.speed.value > this.speed.max) this.speed.value = this.speed.max
           if(this.speed.value < this.speed.min) this.speed.value = this.speed.min
           this.STORE._timelineInstance.setSpeed(this.speed.value)
         }, deep: true
       },
       ydomain(){
+        if(this.ydomain[0] == "" || this.ydomain[1] == "") return           
         if(this.ydomain[0] > 100) this.ydomain[0] = 100
         if(this.ydomain[0] < -20) this.ydomain[0] = -20
         if(this.ydomain[1] > 100) this.ydomain[1] = 100
@@ -196,21 +199,21 @@ export default {
             this.clippingPlanes[0].enabled = enabled
             this.clippingPlanes[0].flipped = flipped
             this.clippingPlanes[0].value = value;
-            changeClippingPlane(axis, this.clippingPlanes[0])
+            changeClippingPlane(this.clippingPlanes[0])
             break;
           }
           case 'Y': {
             this.clippingPlanes[1].enabled = enabled
             this.clippingPlanes[1].flipped = flipped
             this.clippingPlanes[1].value = value;
-            changeClippingPlane(axis, this.clippingPlanes[1])
+            changeClippingPlane(this.clippingPlanes[1])
             break;
           }
           case 'Z': {
             this.clippingPlanes[2].enabled = enabled
             this.clippingPlanes[2].flipped = flipped
             this.clippingPlanes[2].value = value;
-            changeClippingPlane(axis, this.clippingPlanes[2])
+            changeClippingPlane(this.clippingPlanes[2])
             break;
           }
           default: break;
@@ -363,7 +366,15 @@ export default {
     padding: 0 3px;
     font-size: 12px;
     color: black;
+
+    &:invalid{
+      border: 1px solid red;
+    }
   }
+  input[type=number]:read-only {
+    outline: none; 
+  }
+
 
   .flex-row {
     display: flex;
