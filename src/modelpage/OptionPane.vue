@@ -15,38 +15,16 @@
 
     <div>
       <h4 class="pt-2">Cameras</h4>
-      <v-subheader :class="{active: activeCamera == 'Rotation Camera'}">
+      <v-subheader  @click="setCamera('Rotation Camera')" style="cursor:pointer" :class="{active: activeCamera == 'Rotation Camera'}">
         <v-icon :class="{active: activeCamera == 'Rotation Camera'}">mdi-rotate-3d-variant</v-icon>
         Rotation Camera
         <v-spacer/>
-        <v-tooltip bottom>
-          <template #activator="{ on, attrs }">
-              <v-icon @click="onCameraSwitch()"
-                      v-bind="attrs"
-                      v-on="on"
-                      :disabled="activeCamera=='Rotation Camera'"
-                      class="action-icon"
-              >mdi-crop-free</v-icon>
-          </template>
-          <span>Switch Camera</span>
-        </v-tooltip>
       </v-subheader>
 
-      <v-subheader :class="{active: activeCamera == 'Free Move Camera'}">
+      <v-subheader @click="setCamera('Free Move Camera')" style="cursor:pointer" :class="{active: activeCamera == 'Free Move Camera'}">
         <v-icon :class="{active: activeCamera == 'Free Move Camera'}">mdi-account</v-icon>
         Free Move Camera
         <v-spacer/>
-        <v-tooltip bottom>
-          <template #activator="{ on, attrs }">
-              <v-icon @click="onCameraSwitch()"
-                      v-bind="attrs"
-                      v-on="on"
-                      :disabled="activeCamera=='Free Move Camera'"
-                      class="action-icon"
-              >mdi-crop-free</v-icon>
-          </template>
-          <span>Switch Camera</span>
-        </v-tooltip>
       </v-subheader>
     </div>
 
@@ -190,7 +168,8 @@ export default {
       },
     },
     methods: {
-      onCameraSwitch(){
+      setCamera(camera){
+        if(camera != this.activeCamera)
         switchCamera()
       },
       handleClippingPlane(enabled, axis, value, flipped) {
