@@ -1,6 +1,6 @@
 <template lang="html">
     <div class="history" v-if="anomaliesLoaded">
-        <v-lazy min-height="80" v-for="(anomaly, index) in filteredAnomalies" :key="index">
+        <v-lazy min-height="50" v-for="(anomaly, index) in filteredAnomalies" :key="index">
         <v-hover v-slot:default="{ hover }">
             <v-card v-ripple :color="hover? 'grey lighten-4':'white'" class="my-1"
                     :style="`border-radius: 0; border-left: 5px solid ${sensorColors.get(anomaly.start_data.sensor_id)}!important; opacity:${anomaly.selected?'1.0':'0.5'}`" v-on:click="selectAnomaly(anomaly)">
@@ -10,17 +10,17 @@
                             <!--span>{{sensorsById.get(anomaly.start_data.sensor_id).name}}:</span><br--> 
                             <span>{{anomaly.type}}</span>
                         </v-card-title>
+
                         <v-card-subtitle class="pr-1">
                             <span class="date_span">{{ reformatDate(anomaly.start_data.date)}}{{anomaly.end_data? " - ": ""}}</span> 
                             <br v-if="anomaly.end_data" >
                             <span v-if="anomaly.end_data" class="date_span"> {{reformatDate(anomaly.end_data.date)}} </span>
-                            <br>
-                            <br>
-                            <span style="font-weight: bold">Peak: </span>
-                            <span>{{parseFloat(anomaly.peak_data.value).toFixed(2)}}</span>
-                            <span>{{sensorsById.get(anomaly.start_data.sensor_id).modelDatament_unit}}</span>
-                            <span v-if="anomaly.end_data">at {{reformatDate(anomaly.peak_data.date)}}</span>
+                        </v-card-subtitle>
 
+                        <v-card-subtitle class="pr-1">
+                            <span >Peak: </span>
+                            <span>{{parseFloat(anomaly.peak_data.value).toFixed(2)}}{{sensorsById.get(anomaly.start_data.sensor_id).measurement_unit}}</span>
+                            <span v-if="anomaly.end_data">at {{reformatDate(anomaly.peak_data.date)}}</span>
                         </v-card-subtitle>
                     </v-row>
                 </v-container>
@@ -92,14 +92,16 @@
     white-space: nowrap;
 }
 .v-card__title {
+    width:100%;
     font-size: 1rem;
     line-height: 1rem;
     word-break: normal;
-    margin-bottom: 10px;
-    width:100%;
+    padding-top: 10px;
 }
 .v-card__subtitle {
     line-height: 1rem;
     width:100%;
+    padding-bottom: 4px;
+    padding-top: 4px;
 }
 </style>

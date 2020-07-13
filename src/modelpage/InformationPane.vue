@@ -170,4 +170,8 @@
     div[aria-expanded="true"]{
         background-color: #F5F5F5 !important; // entspricht vuetify grey lighten-4;
     }
+    .v-application .pr-1{
+        padding-top: 2px !important;
+        padding-right: 0 !important;
+    }
 </style>
