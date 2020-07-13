@@ -49,7 +49,6 @@ export default class SensorGraph{
     }
 
     fetchAnomalies(){
-        // this._parentElement.selectAll(".anomaly").remove()
         this.anomalies.forEach(anomaly => anomaly.remove())
         this.anomalies = []
         fetch(`${API_URL}/sensors/${this.sensorId}/anomalies?end_date=${moment.utc(new Date()).format("YYYY-MM-DD HH:mm:ss")}`).then(d => d.json().then(data => {
@@ -95,7 +94,7 @@ export default class SensorGraph{
     show(){
         this.isHidden = false
         this.path.attr("display", "unset")
-        this.anomalies.forEach(a=>a.show())
+        this.anomalies.forEach(a=>a.redraw())
     }
     hide(){
         this.isHidden = true

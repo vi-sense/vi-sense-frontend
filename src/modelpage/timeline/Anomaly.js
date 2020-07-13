@@ -25,9 +25,11 @@ export default class Anomaly {
         this._yScale = yScale
         this.data = data 
 
+        let sensorId = this.data.start_data.sensor_id
+
         this.rect = parentElement.append("rect")
         .attr("class", "anomaly")
-        .attr("fill", getSensorColor(this.data.start_data.sensor_id))
+        .attr("fill", getSensorColor(sensorId))
         .attr("opacity", 0.2)
         
         this.redraw()
