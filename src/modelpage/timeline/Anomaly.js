@@ -31,11 +31,9 @@ export default class Anomaly {
         .attr("class", "anomaly")
         .attr("fill", getSensorColor(sensorId))
         .attr("opacity", 0.2)
-        
-        this.redraw()
     }
 
-    redraw(){
+    draw(){
         let startdate = new Date(this.data.start_data.date)
         let left = this._xScale.domain()[0] 
         let right = this._xScale.domain()[1] 

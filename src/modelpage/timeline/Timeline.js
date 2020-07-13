@@ -144,7 +144,7 @@ const Timeline = (function(parentElement){
             gx.call(xAxis);
             gy.call(yGrid);
             if(selection) brushGroup.call(brush.move, [xScale(selection[0]), xScale(selection[1])]);
-            graphs.forEach(g => g.redraw())
+            graphs.forEach(g => g.draw())
             redrawTimepin()
         })
 
@@ -478,7 +478,7 @@ const Timeline = (function(parentElement){
             svg.select("#clipXY").select("rect").attr("y", margin.top).attr("x", margin.left).attr("height",height-margin.top-margin.bottom).attr("width",width-margin.left-margin.right)
             svg.select("#clipX").select("rect").attr("y", 0).attr("x", margin.left).attr("height",height).attr("width",width-margin.left-margin.right)
 
-            graphs.forEach(g => g.redraw())
+            graphs.forEach(g => g.draw())
             if(selection) brushGroup.call(brush.move, [xScale(selection[0]), xScale(selection[1])]);
             redrawTimepin()
         }
