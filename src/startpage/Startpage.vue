@@ -3,31 +3,8 @@
     <v-app-bar>
       <img id="logo" src="../assets/logo.svg" alt="vuejs logo" />
       <h2>Vi-Sense</h2>
-      <div class="account-title">Demo Account</div>
-      <div class="account-logo">
-        <v-dialog v-model="dialog" persistent max-width="290">
-          <template v-slot:activator="{ }">
-            <v-btn
-              @click.stop="dialog = true"
-              icon
-              width="auto"
-              height="auto"
-              class="pa-1"
-              style="border: 2px solid #52baa2;"
-            >
-              <v-avatar size="20">DA</v-avatar>
-            </v-btn>
-          </template>
-          <v-card>
-            <v-card-title class="headline">This is a test account!</v-card-title>
-            <v-card-text>This is a showtime prototype of a project of the HTW Berlin in cooperation with Metr.</v-card-text>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn color="green darken-1" text @click="dialog = false">Ok</v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
-      </div>
+      <v-spacer></v-spacer>
+      <AccountInfo/>
     </v-app-bar>
 
     <main>
@@ -86,6 +63,7 @@ import { latLng } from "leaflet";
 import { LMap, LTileLayer, LMarker, LPopup, LTooltip, LIcon } from "vue2-leaflet";
 import moment from "moment";
 require("../../node_modules/leaflet/dist/leaflet.css");
+import AccountInfo from './AccountInfo.vue'
 
 // FIX leaflet's default icon path problems with webpack
 delete L.Icon.Default.prototype._getIconUrl;
@@ -101,15 +79,15 @@ export default {
     LTileLayer,
     LMarker,
     LTooltip,
-    LIcon
+    LIcon,
+    AccountInfo
   },
   data() {
     return {
       endpoint: process.env.API_URL + "/",
       zoom: 12,
       url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-      attribution:
-        '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+      attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
       models: [],
       lastAnomalies: Map,
       lastTemperatures: Map,
@@ -206,13 +184,8 @@ export default {
 </script>
 
 <style lang="scss">
-.account-title {
-  padding-left: 70%;
-}
-.account-logo {
-  left: 20%;
-  margin-left: 1%;
-}
+
+
 .modelTitle {
   background: #ffffffd1;
   font-weight: normal;

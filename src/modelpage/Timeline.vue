@@ -13,7 +13,7 @@
             <template v-slot:activator="{ on, attrs }">
                 <div v-bind="attrs" v-on="on" class="tool" :class="{'selected': tool == 'pin'}"><img alt="move tool" v-on:click="tool='pin'" src="../assets/moveIcon.png"></div>
               </template>
-              <span>move in timeline</span>
+              <span>move in timeline and place the timepin</span>
           </v-tooltip>
         
           <v-tooltip left max-width="10rem" open-delay="1500">
