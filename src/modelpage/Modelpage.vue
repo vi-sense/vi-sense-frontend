@@ -4,9 +4,10 @@
       <a id="logo" href="/"><img src="../assets/logo.svg" alt="visense logo"></a>
       <h2>{{ title }}</h2>
       <v-spacer></v-spacer>
-      <v-btn icon v-on:click="showOptionPane=!showOptionPane">
+      <v-btn :ripple="false" class="noHover" icon v-on:click="showOptionPane=!showOptionPane" style="margin-right: 2px">
         <v-icon middle>mdi-cog</v-icon>
-      </v-btn>
+      </v-btn >
+      <AccountInfo/>
     </v-app-bar>
     
     <main>
@@ -47,13 +48,11 @@ import History from "./History";
 import PopUp from "./PopUp";
 import {registerSensorColors} from "../storage/SensorColors";
 import LoadingOverlay from "./LoadingOverlay";
+import AccountInfo from "../startpage/AccountInfo.vue";
 
 export default {
   props: ["id"],
-  components: {
-    LoadingOverlay,
-    History, Timeline, InformationPane, OptionPane, PopUp
-  },
+  components: { LoadingOverlay, History, Timeline, InformationPane, OptionPane, PopUp, AccountInfo },
   data() {
     return {
       STORE: new Storage(),
@@ -216,6 +215,12 @@ export default {
       margin-top: 0.5%;
       background-color: rgba(255, 255, 255, 0.9);
       border-radius: 2px;
+    }
+  }
+
+  .noHover:hover{
+    &.v-btn:not(.v-btn--text):not(.v-btn--outlined):hover:before{
+      opacity: 0 !important;
     }
   }
 </style>
