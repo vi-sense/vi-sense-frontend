@@ -45,11 +45,11 @@
                             >
                         <span>Cancel</span>
                     </v-btn>
-                    <v-btn @click.prevent="initSensor(sensor.id)" alt="Select sensor position" class="button"
+                    <v-btn :disabled="IS_PRODUCTION ? true:false" @click.prevent="IS_PRODUCTION ? {}:initSensor(sensor.id)" alt="Select sensor position" class="button"
                             color="rgba(82, 186, 162, 1)" dark elevation="2" block
                             v-else
                             >
-                        <span v-if="sensor.mesh_id">Reposition in 3D</span>
+                        <span v-if="sensor.mesh_id">Reposition</span>
                         <span v-else>Position in 3D</span>
                     </v-btn>
                     <sensor-limits v-if="sensor.mesh_id" :sensor="sensor" :STORE=STORE></sensor-limits>
@@ -72,6 +72,7 @@
         props: ["model", "STORE", "sensorColors"],
         data() {
             return {
+                IS_PRODUCTION: Boolean(process.env.PRODUCTION),
                 selectedSensors: [],
                 modelData: Vue.util.extend({}, this.model),
                 initSensorID: null
@@ -184,5 +185,12 @@
     .v-application .pr-1{
         padding-top: 2px !important;
         padding-right: 0 !important;
+    }
+    .button{
+        max-width: 100% !important;
+
+        &:disabled{
+            color: grey !important
+        }
     }
 </style>

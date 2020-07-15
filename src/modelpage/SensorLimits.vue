@@ -34,7 +34,7 @@
                                   @input="revalidateForm"
                         >
                         <template #append>
-                            <v-tooltip bottom max-width="20rem">
+                            <!--v-tooltip bottom max-width="20rem">
                                 <template #activator="{ on, attrs }">
                                     <v-icon class="px-1"
                                             v-bind="attrs"
@@ -42,7 +42,7 @@
                                     >mdi-help-circle-outline</v-icon>
                                 </template>
                                 <span>If the sensor value changes more than this in an hour a data anomaly will be shown.</span>
-                            </v-tooltip>
+                            </v-tooltip-->
                         </template>
                     </v-text-field>
                 </v-col>
