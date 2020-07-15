@@ -115,8 +115,11 @@
     }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 
+    .v-text-field >>> label, .v-text-field >>> input {
+        font-size: 1rem !important;
+    }
     .v-label label{
         font-size: 11px !important;
     }

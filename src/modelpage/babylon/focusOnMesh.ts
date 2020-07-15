@@ -1,6 +1,5 @@
 import * as BABYLON from 'babylonjs'
 import FloorCamera from './FloorCamera';
-import { switchCamera } from './cameras';
 import { ArcRotateCamera } from 'babylonjs';
 import {eventBus} from "../../main";
 

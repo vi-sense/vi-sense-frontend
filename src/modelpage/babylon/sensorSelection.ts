@@ -2,9 +2,9 @@ import * as BABYLON from 'babylonjs';
 import * as GUI from "babylonjs-gui";
 import Storage from '../../storage/Storage';
 import { focusOnMesh } from './focusOnMesh';
-import { PulseShader, GradientShader } from './shaders';
+import { PulseShader, GradientShader, SelectMaterial } from './shaders';
 import SKEYS from "../../storage/StorageKeys";
-import {getSensorColor} from "../../storage/SensorColors";
+import { getSensorColor } from "../../storage/SensorColors";
 import { InputBlock } from 'babylonjs';
 
 const API_URL = process.env.API_URL;
@@ -17,7 +17,7 @@ var storage: Storage;
 var highlight: BABYLON.HighlightLayer;
 var arrow_svg = require('../../assets/arrow.svg');
 
-// stores all GUI Labels; a sensorLabel contains the container (rect) with its children [circle, label]
+// stores all UI elements for a sensor: { rect, label, arrow, circle, color }
 // uses the sensor_id as key
 var sensorLabels = {};
 
@@ -26,9 +26,8 @@ var savedSensors = {};
 
 /**
   * @author Lennard Grimm
-  * This is the callback function used for (de)selecting meshes via Vue or Babylon
   * Update the selection state of a mesh by passing the respective sensor_id
-  * Changes the color of the mesh, and the text displayed in the label
+  * Adds a highlight layer to the mesh and changes the displayed label
   */
 export async function updateSelectedSensor(sensor_id: number, action: String) {
   let sensor = savedSensors[sensor_id];
@@ -70,14 +69,20 @@ export async function moveToMesh(scene: BABYLON.Scene, sensor_id: number) {
 
 /**
   * @author Lennard Grimm
-  * This function handles the setup of basic sensor selection.
-  * It instantiates GUI elements for all available sensors and adds Observables to them and their respective meshes.
+  * Set up all callback functions for sensor initialization and picking
   */
 export default async function setupSensorSelection(scene: BABYLON.Scene, modelID: number, modelMeshes, STORE: Storage) {
   myScene = scene;
   storage = STORE;
 
+  let sel = new PulseShader();
+  //let def = <BABYLON.PBRMaterial>myScene.getMaterialByName("Mat");
+  //def.albedoColor = new BABYLON.Color3(0.91, 0.91, 0.91);
+  let def = new BABYLON.StandardMaterial("default", myScene);
   SELECTABLES = myScene.getNodeByName("selectables").getChildMeshes();
+  SELECTABLES.forEach((mesh) => {
+    mesh.material = def;
+  })
 
   // setup of highlight layer
   highlight = new BABYLON.HighlightLayer("highlight", myScene);
@@ -105,18 +110,34 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
   // CALLBACK FOR SENSOR INIT
   storage.registerOnUpdateCallback(SKEYS.INIT_SENSOR, (id) => {
     if (id == null) {
-      modelMeshes.forEach((m) => highlight.addExcludedMesh(<BABYLON.Mesh>m))
+      //modelMeshes.forEach((m) => highlight.addExcludedMesh(<BABYLON.Mesh>m))
       SELECTABLES.forEach((mesh) => {
         mesh.isPickable = false
-        highlight.removeMesh(mesh.subMeshes[0].getRenderingMesh());
+        let i = mesh.metadata.sensor_id ? mesh.metadata.sensor_id : null;
+        if (i) {
+          sensorLabels[i].circle.hoverCursor = "pointer";
+          if (savedSensors[i].lower_bound != null && savedSensors[i].upper_bound != null) {
+            mesh.material = new GradientShader(savedSensors[i].lower_bound, savedSensors[i].upper_bound, savedSensors[i].latest_data.value);
+          } else {
+            mesh.material = new GradientShader(0, 100, 50);
+          }
+        } else {
+          mesh.material = def;
+        }
+        //highlight.removeMesh(mesh.subMeshes[0].getRenderingMesh());
         mesh.actionManager.actions.splice(0, 1);
       })
     }
     else {
-      modelMeshes.forEach((m) => highlight.removeExcludedMesh(<BABYLON.Mesh>m))
+      let selectedSensors = storage.getSelectedSensors()
+      selectedSensors.forEach((sensor) => storage.unselectSensor(sensor))
+      //modelMeshes.forEach((m) => highlight.removeExcludedMesh(<BABYLON.Mesh>m))
       SELECTABLES.forEach((mesh) => {
-        mesh.isPickable = true
-        highlight.addMesh(mesh.subMeshes[0].getRenderingMesh(), BABYLON.Color3.White());
+        mesh.isPickable = true;
+        mesh.material = sel;
+
+        if (mesh.metadata.sensor_id) sensorLabels[mesh.metadata.sensor_id].circle.hoverCursor = "default";
+        //highlight.addMesh(mesh.subMeshes[0].getRenderingMesh(), new BABYLON.Color3.White());
         mesh.actionManager = new BABYLON.ActionManager(myScene);
         mesh.actionManager.registerAction(
           new BABYLON.ExecuteCodeAction(
@@ -126,18 +147,15 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
 
               storage.onInitStateChanged(async (id, state) => {
                 if(state === "confirmed") {
-                  let selectedSensors = storage.getSelectedSensors()
-                  selectedSensors.forEach((sensor) => storage.unselectSensor(sensor))
-
                   if (savedSensors[id] && savedSensors[id].mesh_id != null) {
                     // REPOSITION A SENSOR
                     let prevMesh = myScene.getMeshByUniqueID(savedSensors[id].mesh_id)
-                    prevMesh.material = myScene.getMaterialByName("Mat");
+                    prevMesh.material = def;
                     prevMesh.metadata.sensor_id = null;
                   }
                   
                   if (mesh.metadata.sensor_id && mesh.metadata.sensor_id != null) {
-                    // OVERRIDE A MESH WITH ANOTHER SENSOR
+                    // OVERWRITE A MESH WITH ANOTHER SENSOR
                     await updateSensorMeshID(mesh.metadata.sensor_id, null);
                   }
 
@@ -145,9 +163,7 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
                   await updateSensorMeshID(id, mesh.uniqueId);
                   mesh.metadata.sensor_id = id;
                   storage.updateInitState(id, 'updated');
-                  storage.set(SKEYS.INIT_SENSOR, null);
-                  storage.removeCallbacks()
-
+                  
                   advancedTexture.dispose();
                   for (const prop of Object.getOwnPropertyNames(sensorLabels)) {
                     delete sensorLabels[prop];
@@ -155,7 +171,10 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
                   for (const prop of Object.getOwnPropertyNames(savedSensors)) {
                     delete savedSensors[prop];
                   }
-                  addUIElements(modelID);
+                  await addUIElements(modelID);
+                  
+                  storage.set(SKEYS.INIT_SENSOR, null);
+                  storage.removeCallbacks()
                 }
               })
         }));
@@ -164,6 +183,10 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
   })
 }
 
+/**
+  * @author Lennard Grimm
+  * Create UI elements and set shaders for all initialized sensors in the provided model
+  */
 async function addUIElements(modelID: number) {
   let model = await getModelData(modelID);
   let sensors = model.sensors;
@@ -195,7 +218,6 @@ async function addUIElements(modelID: number) {
       mesh.material = new GradientShader(sensors[i].lower_bound, sensors[i].upper_bound, sensors[i].latest_data.value);
     } else mesh.material = new GradientShader(0, 100, 50);
 
-    //mesh.material = new PulseShader(20, 0.25, 0.75);
     mesh.material.backFaceCulling = true;
 
     // GUI SETUP
@@ -219,8 +241,10 @@ async function addUIElements(modelID: number) {
     circle.isPointerBlocker = true;
     circle.hoverCursor = "pointer"
     circle.onPointerDownObservable.add(function () {
-      if (mesh.state == "") storage.selectSensor(sensors[i].id)
-      else storage.unselectSensor(sensors[i].id)
+      if (storage.get(SKEYS.INIT_SENSOR) == null) {
+        if (mesh.state == "") storage.selectSensor(sensors[i].id)
+        else storage.unselectSensor(sensors[i].id)
+      }
     })
     stackPanel.addControl(circle)
 
@@ -250,40 +274,6 @@ async function addUIElements(modelID: number) {
     stackPanel.linkWithMesh(mesh);
 
     sensorLabels[sensors[i].id] = { rect: rect, label: label, arrow: arrow, circle: circle, color: getSensorColor(sensors[i].id) };
-    // REGISTER MESH ACTIONS
-    // mesh.actionManager = new BABYLON.ActionManager(scene);
-    // mesh.actionManager.registerAction(
-    //   new BABYLON.ExecuteCodeAction(
-    //     BABYLON.ActionManager.OnPickTrigger, async function(e) {
-    //       if (e.source.state === "") storage.selectSensor(sensors[i].id)
-    //       else storage.unselectSensor(sensors[i].id)
-    //     }));
-
-    // // on hover enter, change color to teal
-    // mesh.actionManager.registerAction(
-    //   new BABYLON.InterpolateValueAction(
-    //     BABYLON.ActionManager.OnPointerOverTrigger,
-    //     mesh.material,
-    //     'albedoColor',
-    //     selectedSensorColor,
-    //     200
-    //   ));
-    //
-    // // on hover leave, change color back to purple if mesh is not selected
-    // mesh.actionManager.registerAction(
-    //   new BABYLON.InterpolateValueAction(
-    //     BABYLON.ActionManager.OnPointerOutTrigger,
-    //     mesh.material,
-    //     'albedoColor',
-    //     sensorColor,
-    //     200,
-    //     new BABYLON.PredicateCondition(
-    //       mesh.actionManager as BABYLON.ActionManager,
-    //       function() {
-    //         return mesh.state !== "selected";
-    //       }
-    //     )
-    //   ));
   }
   myScene.metadata.savedSensors = savedSensors;
 }
@@ -298,12 +288,18 @@ export function turnArrow(sensorId, gradient) {
 }
 
 export function updateLocalSensors(sensorId, upper_bound, lower_bound) {
+  if(!savedSensors[sensorId]) return;
   savedSensors[sensorId].upper_bound = upper_bound
   savedSensors[sensorId].lower_bound = lower_bound
   updateShader(sensorId)
 }
 
+/**
+  * @author Lennard Grimm
+  * Update the shader of a mesh to display the current value in relation to upper and lower bounds
+  */
 export function updateShader(sensorId, value?) {
+  if (!savedSensors[sensorId]) return;
   let sensor = savedSensors[sensorId]
   let mesh = myScene.getMeshByUniqueID(sensor.mesh_id);
 
@@ -312,19 +308,24 @@ export function updateShader(sensorId, value?) {
     if (sensor.lower_bound != null && sensor.upper_bound != null) {
       (<InputBlock>(<GradientShader>mesh.material).getBlockByName("sourceMin")).value = sensor.lower_bound;
       (<InputBlock>(<GradientShader>mesh.material).getBlockByName("sourceMax")).value = sensor.upper_bound;
-      (<InputBlock>(<GradientShader>mesh.material).getBlockByName("Input Temperature")).value = value;
+      (<InputBlock>(<GradientShader>mesh.material).getBlockByName("inputValue")).value = value;
     } else {
       // one of the bounds isnt set, set material to default
       (<InputBlock>(<GradientShader>mesh.material).getBlockByName("sourceMin")).value = 0;
-      (<InputBlock>(<GradientShader>mesh.material).getBlockByName("sourceMax")).value = 1;
-      (<InputBlock>(<GradientShader>mesh.material).getBlockByName("Input Temperature")).value = 0.5;
+      (<InputBlock>(<GradientShader>mesh.material).getBlockByName("sourceMax")).value = 100;
+      (<InputBlock>(<GradientShader>mesh.material).getBlockByName("inputValue")).value = 50;
     }
   }
-  else{
+  else {
     sensorLabels[sensorId].label.text = savedSensors[sensorId].name + "\n"
   }
 }
 
+
+
+/**
+ * http helper functions
+ */
 async function getModelData(id: number) {
   let response = await fetch(API_URL + "/models/" + id)
     .then(res => { return res.json() })

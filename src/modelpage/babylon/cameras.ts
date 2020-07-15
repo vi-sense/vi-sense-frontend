@@ -68,7 +68,7 @@ export function createArcCamera(canvas: HTMLCanvasElement, engine:BABYLON.Engine
     arcCamera.setTarget(new BABYLON.Vector3(0,1,0));
     arcCamera.radius = 25
     arcCamera.lowerRadiusLimit = 5
-    arcCamera.upperRadiusLimit = 150
+    arcCamera.upperRadiusLimit = 200
     arcCamera.wheelPrecision = 50
 
     storage.onSensorSelectionChanged(() => {

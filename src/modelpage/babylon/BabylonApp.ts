@@ -35,7 +35,7 @@ export default class BabylonApp {
         var light = new BABYLON.HemisphericLight("HemiLight", new BABYLON.Vector3(0, 1, 0), this.scene);
         light.diffuse = new BABYLON.Color3(1, 1, 1);
         light.groundColor = new BABYLON.Color3(0.1, 0.1, 0.1);
-        light.intensity = 1.5;
+        light.intensity = 1.2;
 
         try {
             loadModel(modelID, this.scene, (meshes) => {
@@ -88,31 +88,13 @@ export default class BabylonApp {
                 setupSensorSelection(this.scene, modelID, meshes, STORE).then(() => {
                     eventBus.$emit("loading-finished")
                 });
-                BABYLON.SceneOptimizer.OptimizeAsync(this.scene, BABYLON.SceneOptimizerOptions.ModerateDegradationAllowed())
 
             }, !IS_PRODUCTION)
         } catch (e) {
             console.log(e)
             eventBus.$emit("loading-failed")
         }
-
-        /*
-        this.scene.onPointerUp = function (evt, pickResult) {
-            if (pickResult.hit) {
-                var normal = pickResult.getNormal(true, false)
-                let origin = new BABYLON.Vector3()
-                //this.clipPlane = new BABYLON.Plane(normal.x, normal.y, normal.z, origin.subtract(normal.clone()).length());
-
-                let pos = pickResult.pickedPoint;
-                var lines = [];
-                var line = [pos, pos.add(normal)];
-                lines.push(line);
-                var lineSystem = BABYLON.MeshBuilder.CreateLineSystem("ls", { lines: lines }, this);
-                lineSystem.color = BABYLON.Color3.Red();
-            };
-        }
         
-        */
         this.engine.runRenderLoop(() => {
             this.scene.render();
         })

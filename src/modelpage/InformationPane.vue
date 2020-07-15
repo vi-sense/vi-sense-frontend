@@ -3,7 +3,7 @@
         <v-expansion-panels accordion>
             <v-expansion-panel v-for="sensor in modelData.sensors" :key="sensor.id" class="sensorElement" :style="`border-radius: 0; border-left: 5px solid ${sensorColors.get(sensor.id)}!important`">
                 <v-expansion-panel-header disable-icon-rotate>
-                    <v-checkbox class="pr-1 mt-0" hide-details :disabled="sensor.mesh_id == null" dense :id="'sensorcheckbox' + sensor.id" :value="sensor.id" color="rgba(82, 186, 162, 1)"
+                    <v-checkbox class="pr-1 mt-0" hide-details :disabled="sensor.mesh_id == null || initSensorID != null" dense :id="'sensorcheckbox' + sensor.id" :value="sensor.id" color="rgba(82, 186, 162, 1)"
                                 multiple v-model="selectedSensors" @change="updateSensorSelection(sensor.id)">
                     </v-checkbox>
                     <span>{{sensor.name}}</span>
