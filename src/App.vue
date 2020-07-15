@@ -45,4 +45,8 @@ html, body, #app_router_view, #app{
     padding-right: 8px;
 }
 
+.v-btn{
+  border-radius: 1px;
+}
+
 </style>
