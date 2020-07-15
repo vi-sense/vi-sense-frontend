@@ -9,14 +9,14 @@
           <img v-else alt="pause" v-on:click="togglePlayPause" src="../assets/pauseIcon.png">
         </div>
         <hr>
-        <v-tooltip left max-width="10rem" open-delay="1500">
+        <v-tooltip left max-width="10rem" open-delay="500">
             <template v-slot:activator="{ on, attrs }">
                 <div v-bind="attrs" v-on="on" class="tool" :class="{'selected': tool == 'pin'}"><img alt="move tool" v-on:click="tool='pin'" src="../assets/moveIcon.png"></div>
               </template>
               <span>move in timeline and place the timepin</span>
           </v-tooltip>
         
-          <v-tooltip left max-width="10rem" open-delay="1500">
+          <v-tooltip left max-width="10rem" open-delay="500">
             <template v-slot:activator="{ on, attrs }">
                 <div v-bind="attrs" v-on="on" class="tool" :class="{'selected': tool == 'brush'}"><img alt="brush tool" v-on:click="tool='brush'" src="../assets/selectIcon.png"></div>
               </template>
@@ -26,10 +26,8 @@
       <hr>
 
 
-
-
       <div id="toolsBottom">
-        <v-tooltip left max-width="10rem" open-delay="1500">
+        <v-tooltip left max-width="10rem" open-delay="500">
            <template v-slot:activator="{ on, attrs }">
               <div class="tool" v-bind="attrs" v-on="on"><img alt="center to timepin" v-on:click="timeline.centerToTimepin()" src="../assets/pinIcon.png"></div>
             </template>

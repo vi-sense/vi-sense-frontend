@@ -15,17 +15,28 @@
 
     <div>
       <h4 class="pt-2">Cameras</h4>
-      <v-subheader  @click="setCamera('Rotation Camera')" style="cursor:pointer" :class="{active: activeCamera == 'Rotation Camera'}">
-        <v-icon :class="{active: activeCamera == 'Rotation Camera'}">mdi-rotate-3d-variant</v-icon>
-        Rotation Camera
-        <v-spacer/>
-      </v-subheader>
 
-      <v-subheader @click="setCamera('Free Move Camera')" style="cursor:pointer" :class="{active: activeCamera == 'Free Move Camera'}">
-        <v-icon :class="{active: activeCamera == 'Free Move Camera'}">mdi-account</v-icon>
-        Free Move Camera
-        <v-spacer/>
-      </v-subheader>
+      <v-tooltip left max-width="15rem" open-delay="500">
+        <template v-slot:activator="{ on, attrs }">
+          <v-subheader v-bind="attrs" v-on="on" @click="setCamera('Rotation Camera')" style="cursor:pointer" :class="{active: activeCamera == 'Rotation Camera'}">
+            <v-icon :class="{active: activeCamera == 'Rotation Camera'}">mdi-rotate-3d-variant</v-icon>
+            Rotation Camera
+            <v-spacer/>
+          </v-subheader>            
+        </template>
+        <span>Use left click to rotate, right click to move and your scroll wheel to zoom</span>
+      </v-tooltip>
+
+      <v-tooltip left max-width="15rem" open-delay="500">
+        <template v-slot:activator="{ on, attrs }">
+          <v-subheader  v-bind="attrs" v-on="on" @click="setCamera('Free Move Camera')" style="cursor:pointer" :class="{active: activeCamera == 'Free Move Camera'}">
+            <v-icon :class="{active: activeCamera == 'Free Move Camera'}">mdi-account</v-icon>
+            Free Move Camera
+            <v-spacer/>
+          </v-subheader>            
+        </template>
+        <span>Use WASD or the arrow keys to move in the 3d scene. Use Q and E to move downwards or upwards</span>
+      </v-tooltip>
     </div>
 
     <div>
