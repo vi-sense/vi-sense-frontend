@@ -1,7 +1,7 @@
 <template>
     <div>
         <v-expansion-panels accordion>
-            <v-expansion-panel v-for="sensor in modelData.sensors" :key="sensor.id" class="sensorElement" :style="`border-radius: 0; border-left: 5px solid ${sensorColors.get(sensor.id)}!important`">
+            <v-expansion-panel v-for="sensor in modelData.sensors" :key="sensor.id" class="sensorElement" :style="`border-left: 5px solid ${sensorColors.get(sensor.id)}!important`">
                 <v-expansion-panel-header disable-icon-rotate>
                     <v-checkbox class="pr-1 mt-0" hide-details :disabled="sensor.mesh_id == null || initSensorID != null" dense :id="'sensorcheckbox' + sensor.id" :value="sensor.id" color="rgba(82, 186, 162, 1)"
                                 multiple v-model="selectedSensors" @change="updateSensorSelection(sensor.id)">
@@ -163,9 +163,21 @@
         background-color: transparent !important;
     }
     
-    .sensorElement:hover{
-        background-color: #F5F5F5 // entspricht vuetify grey lighten-4;
+    .sensorElement{
+        margin-bottom: 3px; 
+        border-radius: 0;
+
+        &:hover{
+            background-color: #F5F5F5 // entspricht vuetify grey lighten-4;
+        }
+        &::before{
+            box-shadow: 
+                0 3px 1px -3px rgba(0,0,0,.2), 
+                0 2px 2px 0 rgba(0,0,0,.1), 
+                0 1px 5px 0 rgba(0,0,0,.1)
+        }
     }
+
     div[aria-expanded="true"]{
         background-color: #F5F5F5 !important; // entspricht vuetify grey lighten-4;
     }
