@@ -2,6 +2,7 @@ import * as BABYLON from 'babylonjs'
 import FloorCamera from './FloorCamera';
 import { switchCamera } from './cameras';
 import { ArcRotateCamera } from 'babylonjs';
+import {eventBus} from "../../main";
 
 /**
  * @author Lennard Grimm
@@ -16,6 +17,7 @@ export async function focusOnMesh(scene: BABYLON.Scene, target: BABYLON.Vector3)
         arcCam.detachControl(document.getElementById("babyloncanvas"))
         cam.attachControl(document.getElementById("babyloncanvas"))
         scene.activeCamera = cam;
+        eventBus.$emit("active-cam-change", "Free Move Camera")
     }
     let camera = scene.activeCamera as FloorCamera;
     let ease = new BABYLON.CubicEase();

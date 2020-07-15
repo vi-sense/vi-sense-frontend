@@ -4,32 +4,34 @@
       <a id="logo" href="/"><img src="../assets/logo.svg" alt="visense logo"></a>
       <h2>{{ title }}</h2>
       <v-spacer></v-spacer>
-      <v-btn icon v-on:click="showOptionPane=!showOptionPane">
+      <v-btn :ripple="false" class="noHover" icon v-on:click="showOptionPane=!showOptionPane" style="margin-right: 2px">
         <v-icon middle>mdi-cog</v-icon>
-      </v-btn>
+      </v-btn >
+      <AccountInfo/>
     </v-app-bar>
-      <main>
-        <loading-overlay></loading-overlay>
-        <div id="sidepane">
-          <h3 class="pb-1">Sensors</h3>
-          <information-pane class="pa-1" id="informationpane" v-if="model" :model="model" :STORE="STORE" :sensor-colors="sensorColors" v-on:sensor-selection-changed="propagateSensorSelection"/>
+    
+    <main>
+      <loading-overlay></loading-overlay>
+      <div id="sidepane">
+        <h3 class="pb-1">Sensors</h3>
+        <information-pane class="pa-1" id="informationpane" v-if="model" :model="model" :STORE="STORE" :sensor-colors="sensorColors" v-on:sensor-selection-changed="propagateSensorSelection"/>
 
-          <h3 class="pb-1">Anomalies</h3>
-          <history class="pa-1" id="historypane" ref="historyRef" v-if="model" :model="model" :STORE="STORE" :sensor-colors="sensorColors" :selected-sensors="this.selectedSensors"/>
+        <h3 class="pb-1">Anomalies</h3>
+        <history class="pa-1" id="historypane" ref="historyRef" v-if="model" :model="model" :STORE="STORE" :sensor-colors="sensorColors" :selected-sensors="this.selectedSensors"/>
+      </div>
+
+      <div id="mainpane">
+        <div id="babylonwrapper">
+          <canvas id="babyloncanvas"></canvas>
         </div>
-
-        <div id="mainpane">
-          <div id="babylonwrapper">
-            <canvas id="babyloncanvas"></canvas>
-          </div>
-          <div id="timelinewrapper">
-            <div id="BTdragger"></div>
-            <timeline id="timeline" :STORE="STORE" />
-          </div>
+        <div id="timelinewrapper">
+          <div id="BTdragger"></div>
+          <timeline id="timeline" :STORE="STORE" />
         </div>
+      </div>
 
-        <option-pane id="optionpane" v-show="showOptionPane" :STORE="STORE"/>
-      </main>
+      <option-pane id="optionpane" v-show="showOptionPane" :STORE="STORE"/>
+    </main>
 
     <pop-up :STORE="STORE"/>
   </div>
@@ -46,13 +48,11 @@ import History from "./History";
 import PopUp from "./PopUp";
 import {registerSensorColors} from "../storage/SensorColors";
 import LoadingOverlay from "./LoadingOverlay";
+import AccountInfo from "../startpage/AccountInfo.vue";
 
 export default {
   props: ["id"],
-  components: {
-    LoadingOverlay,
-    History, Timeline, InformationPane, OptionPane, PopUp
-  },
+  components: { LoadingOverlay, History, Timeline, InformationPane, OptionPane, PopUp, AccountInfo },
   data() {
     return {
       STORE: new Storage(),
@@ -85,13 +85,13 @@ export default {
     let dragger = document.querySelector("#BTdragger")
     let startY
 
-    dragger.onmousedown = e => {     
+    dragger.onmousedown = e => {
       startY = e.pageY;
     }
     window.addEventListener("mouseup", e => {
       startY = null
     })
-    window.addEventListener("mousemove", e => {      
+    window.addEventListener("mousemove", e => {
       if(startY == null) return
       let o = startY-e.pageY;
       startY = e.pageY
@@ -184,12 +184,13 @@ export default {
 
     #sidepane {
       display: inline-block;
-      min-width: 200px;
+      min-width: 230px;
       max-width: 280px;
       width: 16%;
       height: 100%;
       background-color: white;
       overflow-y: scroll;
+      scrollbar-width: none;
       padding-right: 2px;
       h3 {
         display: block;
@@ -213,7 +214,13 @@ export default {
       right: 0.5%;
       margin-top: 0.5%;
       background-color: rgba(255, 255, 255, 0.9);
-      border-radius: 2px;
+      border-radius: 4px;
+    }
+  }
+
+  .noHover:hover{
+    &.v-btn:not(.v-btn--text):not(.v-btn--outlined):hover:before{
+      opacity: 0 !important;
     }
   }
 </style>

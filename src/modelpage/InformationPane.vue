@@ -1,16 +1,14 @@
 <template>
     <div>
-        <v-expansion-panels focusable accordion>
-            <v-expansion-panel :key="sensor.id" :style="`border-radius: 0; border-left: 5px solid ${sensorColors.get(sensor.id)}!important`"
-                               v-for="sensor in modelData.sensors">
+        <v-expansion-panels accordion>
+            <v-expansion-panel v-for="sensor in modelData.sensors" :key="sensor.id" class="sensorElement" :style="`border-radius: 0; border-left: 5px solid ${sensorColors.get(sensor.id)}!important`">
                 <v-expansion-panel-header disable-icon-rotate>
                     <v-checkbox class="pr-1 mt-0" hide-details :disabled="sensor.mesh_id == null" dense :id="'sensorcheckbox' + sensor.id" :value="sensor.id" color="rgba(82, 186, 162, 1)"
-                                multiple v-model="selectedSensors" @change="updateSensorSelection(sensor.id)"
-                    >
+                                multiple v-model="selectedSensors" @change="updateSensorSelection(sensor.id)">
                     </v-checkbox>
                     <span>{{sensor.name}}</span>
                     <template #actions>
-                    <v-tooltip bottom max-width="20rem">
+                    <v-tooltip bottom max-width="16rem">
                         <template #activator="{ on, attrs }">
                             <v-icon class="px-1"
                                     v-bind="attrs"
@@ -26,7 +24,6 @@
                                     v-on="on"
                             >mdi-arrow-right-circle-outline</v-icon>
                         </template>
-<!--                                    color="rgba(82, 186, 162, 1)"-->
                         <span>Go to Sensor</span>
                     </v-tooltip>
                         <v-tooltip v-else bottom>
@@ -42,13 +39,19 @@
                     </template>
                 </v-expansion-panel-header>
                 <v-expansion-panel-content>
-                            <v-btn @click.prevent="initSensor(sensor.id)" alt="Select sensor position" class="button"
-                                   color="rgba(82, 186, 162, 1)" dark elevation="2" block
-                                   >
-                                <span v-if="sensor.mesh_id">Reposition in 3D</span>
-                                <span v-else>Position in 3D</span>
-                                
-                            </v-btn>
+                    <v-btn @click.prevent="initSensor(null)" alt="Cancel sensor positioning" class="button"
+                            color="rgb(186,82,106)" dark elevation="2" block 
+                            v-if="initSensorID == sensor.id"
+                            >
+                        <span>Cancel</span>
+                    </v-btn>
+                    <v-btn @click.prevent="initSensor(sensor.id)" alt="Select sensor position" class="button"
+                            color="rgba(82, 186, 162, 1)" dark elevation="2" block
+                            v-else
+                            >
+                        <span v-if="sensor.mesh_id">Reposition in 3D</span>
+                        <span v-else>Position in 3D</span>
+                    </v-btn>
                     <sensor-limits v-if="sensor.mesh_id" :sensor="sensor" :STORE=STORE></sensor-limits>
                 </v-expansion-panel-content>
             </v-expansion-panel>
@@ -71,6 +74,7 @@
             return {
                 selectedSensors: [],
                 modelData: Vue.util.extend({}, this.model),
+                initSensorID: null
             };
         },
         watch:{
@@ -80,10 +84,11 @@
         },
         created() {
             this.STORE.onInitStateChanged( async (id, state) => {
-                    if(state === "updated") {
-                        this.loadSensorData(this.modelData.id);
-                    }
-                })
+                if(state === "updated") {
+                    this.loadSensorData(this.modelData.id);
+                    this.initSensorID = null;
+                }
+            })
 
             this.STORE.onSensorSelectionChanged((sensorId, action) => {
                 if (action === "new" && !this.selectedSensors.includes(sensorId)) {
@@ -109,10 +114,11 @@
             initSensor(id) {
                 this.STORE.removeCallbacks()
                 this.STORE.set(SKEYS.INIT_SENSOR, id);
+                this.initSensorID = id;
                 if(id) {
                     this.STORE.onInitStateChanged(async (id, state) => {
                         if(state === "updated") {
-                            const newSensorRes = await fetch(this.endpoint + "sensors/" + id)
+                            const newSensorRes = await fetch(process.env.API_URL + "/sensors/" + id)
                             const newSensorData = await newSensorRes.json()
                             this.modelData.sensors.find((sensor) => sensor.id === id).mesh_id = newSensorData.mesh_id
                         }
@@ -123,6 +129,7 @@
                 axios(process.env.API_URL + "/models/" + id)
                     .then(response => {
                         this.modelData = response.data;
+                        this.modelData.sensors.sort((a,b) => a.name.localeCompare(b.name))
                     })
                     .catch(error => {
                         console.log(error);
@@ -137,6 +144,9 @@
     // do we really need the scoped attribute? overriding vuetify styles doesnt work with that
     // yes we do need it because its very confusing if every component sets globas css attributes. you can change vuetify styles with the >>> operator
 
+    .v-expansion-panel--active > .v-expansion-panel-header {
+        min-height: 48px;
+    }
     .v-expansion-panel-header {
         padding: 0 10px 0 10px;
     }
@@ -149,7 +159,18 @@
         padding: 10px !important;
     }
 
-
-
-
+    .v-expansion-panel-header:before{
+        background-color: transparent !important;
+    }
+    
+    .sensorElement:hover{
+        background-color: #F5F5F5 // entspricht vuetify grey lighten-4;
+    }
+    div[aria-expanded="true"]{
+        background-color: #F5F5F5 !important; // entspricht vuetify grey lighten-4;
+    }
+    .v-application .pr-1{
+        padding-top: 2px !important;
+        padding-right: 0 !important;
+    }
 </style>

@@ -7,6 +7,7 @@
                 <v-col cols="6">
 
                     <v-text-field dense type="number"
+                                  :disabled="IS_PRODUCTION ? true : false"
                                   label="Lower Bound"
                                   v-model="lowerBound"
                                   :rules="[value => !!!upperBound || !!!value || parseFloat(value) <= parseFloat(upperBound) || 'Higher than upper bound']"
@@ -15,6 +16,7 @@
                 </v-col>
                 <v-col cols="6">
                     <v-text-field dense type="number"
+                                  :disabled="IS_PRODUCTION ? true : false"
                                   label="Upper Bound"
                                   v-model="upperBound"
                                   :rules="[value => !!!lowerBound || !!!value || parseFloat(value) >= parseFloat(lowerBound) || 'Lower than lower bound']"
@@ -25,6 +27,7 @@
             <v-row dense>
                 <v-col cols="6">
                     <v-text-field dense type="number"
+                                  :disabled="IS_PRODUCTION ? true : false"
                                   label="Gradient Bound"
                                   v-model="gradientBound"
                                   :rules="[value => !!!value || parseFloat(value) >= 0 || 'Must be positive']"
@@ -44,7 +47,8 @@
                     </v-text-field>
                 </v-col>
                 <v-col cols="6">
-                    <v-btn :disabled="!valid" block class="ma-0" text color="rgba(82, 186, 162, 1)" v-on:click="saveLimits"><strong>Save</strong></v-btn>
+                    <v-btn v-if="IS_PRODUCTION" :disabled="true" block class="ma-0" text color="rgba(82, 186, 162, 1)"><strong>Save</strong></v-btn>
+                    <v-btn v-else :disabled="!valid" block class="ma-0" text color="rgba(82, 186, 162, 1)" v-on:click="saveLimits"><strong>Save</strong></v-btn>
                 </v-col>
             </v-row>
         </v-container>
@@ -62,6 +66,7 @@
         props: ["sensor", "STORE"],
         data() {
             return {
+                IS_PRODUCTION: Boolean(process.env.PRODUCTION),
                 valid: true,
                 upperBound: this.sensor.upper_bound ,
                 lowerBound: this.sensor.lower_bound,
@@ -85,11 +90,11 @@
                 else return null
             },
             async saveLimits(){
-                    let update = {
-                        upper_bound: parseFloat(this.upperBound),
-                        lower_bound: parseFloat(this.lowerBound),
-                        gradient_bound: this.gradientBoundAPIScaled(parseFloat(this.gradientBound))
-                    }
+                let update = {
+                    upper_bound: parseFloat(this.upperBound),
+                    lower_bound: parseFloat(this.lowerBound),
+                    gradient_bound: this.gradientBoundAPIScaled(parseFloat(this.gradientBound))
+                }
                 try {
                     let response = await fetch(process.env.API_URL + "/sensors/" + this.sensor.id, {
                         method: 'PATCH',
