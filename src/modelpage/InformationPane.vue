@@ -1,9 +1,9 @@
 <template>
     <div>
         <v-expansion-panels accordion>
-            <v-expansion-panel v-for="sensor in modelData.sensors" :key="sensor.id" class="sensorElement" :style="`border-radius: 0; border-left: 5px solid ${sensorColors.get(sensor.id)}!important`">
+            <v-expansion-panel v-for="sensor in modelData.sensors" :key="sensor.id" class="sensorElement" :style="`border-left: 5px solid ${sensorColors.get(sensor.id)}!important`">
                 <v-expansion-panel-header disable-icon-rotate>
-                    <v-checkbox class="pr-1 mt-0" hide-details :disabled="sensor.mesh_id == null" dense :id="'sensorcheckbox' + sensor.id" :value="sensor.id" color="rgba(82, 186, 162, 1)"
+                    <v-checkbox class="pr-1 mt-0" hide-details :disabled="sensor.mesh_id == null || initSensorID != null" dense :id="'sensorcheckbox' + sensor.id" :value="sensor.id" color="rgba(82, 186, 162, 1)"
                                 multiple v-model="selectedSensors" @change="updateSensorSelection(sensor.id)">
                     </v-checkbox>
                     <span>{{sensor.name}}</span>
@@ -45,11 +45,11 @@
                             >
                         <span>Cancel</span>
                     </v-btn>
-                    <v-btn @click.prevent="initSensor(sensor.id)" alt="Select sensor position" class="button"
+                    <v-btn :disabled="IS_PRODUCTION ? true:false" @click.prevent="IS_PRODUCTION ? {}:initSensor(sensor.id)" alt="Select sensor position" class="button"
                             color="rgba(82, 186, 162, 1)" dark elevation="2" block
                             v-else
                             >
-                        <span v-if="sensor.mesh_id">Reposition in 3D</span>
+                        <span v-if="sensor.mesh_id">Reposition</span>
                         <span v-else>Position in 3D</span>
                     </v-btn>
                     <sensor-limits v-if="sensor.mesh_id" :sensor="sensor" :STORE=STORE></sensor-limits>
@@ -72,6 +72,7 @@
         props: ["model", "STORE", "sensorColors"],
         data() {
             return {
+                IS_PRODUCTION: Boolean(process.env.PRODUCTION),
                 selectedSensors: [],
                 modelData: Vue.util.extend({}, this.model),
                 initSensorID: null
@@ -163,14 +164,33 @@
         background-color: transparent !important;
     }
     
-    .sensorElement:hover{
-        background-color: #F5F5F5 // entspricht vuetify grey lighten-4;
+    .sensorElement{
+        margin-bottom: 3px; 
+        border-radius: 0;
+
+        &:hover{
+            background-color: #F5F5F5 // entspricht vuetify grey lighten-4;
+        }
+        &::before{
+            box-shadow: 
+                0 3px 1px -3px rgba(0,0,0,.2), 
+                0 2px 2px 0 rgba(0,0,0,.1), 
+                0 1px 5px 0 rgba(0,0,0,.1)
+        }
     }
+
     div[aria-expanded="true"]{
         background-color: #F5F5F5 !important; // entspricht vuetify grey lighten-4;
     }
     .v-application .pr-1{
         padding-top: 2px !important;
         padding-right: 0 !important;
+    }
+    .button{
+        max-width: 100% !important;
+
+        &:disabled{
+            color: grey !important
+        }
     }
 </style>

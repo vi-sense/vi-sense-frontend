@@ -435,7 +435,7 @@ const Timeline = (function(parentElement){
         setDomainY(min, max){
             yScale.domain([min, max]).nice()
             gy.call(yAxis)
-            graphs.forEach(g => g.redraw())
+            graphs.forEach(g => g.draw())
         },
         getDomainY(){
             return yScale.domain()
@@ -456,7 +456,7 @@ const Timeline = (function(parentElement){
 
         refreshAnomalies(){            
             graphs.forEach(g => g.fetchAnomalies())
-            graphs.forEach(g => g.redraw())
+            graphs.forEach(g => g.draw())
         },
         resize(){
             width = parentElement.clientWidth
