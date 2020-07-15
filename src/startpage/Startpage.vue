@@ -60,16 +60,21 @@
               <div>Floors: {{ model.floors }}</div>
               <div v-if="anomaliesLoaded">
                 Last Anomaly:
-                <span class="colorAnomalies"
+                <span
+                  class="colorAnomalies"
                 >{{lastAnomalies.has(model.id) ? lastAnomalies.get(model.id).start_data.date : "" | formatDate}}</span>
               </div>
             </v-card-text>
 
             <v-card-actions>
-                    <v-btn :href="`#/modelview/${model.id}`" color="rgba(82, 186, 162, 1)" dark elevation="2" block
-                        style="color: white">
-                        Open in Modelview
-                    </v-btn>
+              <v-btn
+                :href="`#/modelview/${model.id}`"
+                color="rgba(82, 186, 162, 1)"
+                dark
+                elevation="2"
+                block
+                style="color: white"
+              >Open in Modelview</v-btn>
             </v-card-actions>
             <div class="mapWrapper">
               <l-map
@@ -78,6 +83,7 @@
               >
                 <l-tile-layer :url="url" :attribution="attribution" />
                 <l-marker :lat-lng="getLatlong(model.location.latitude, model.location.longitude)">
+                  <l-popup :content="model.location.address"></l-popup>
                 </l-marker>
               </l-map>
             </div>
@@ -103,7 +109,7 @@ import moment from "moment";
 require("../../node_modules/leaflet/dist/leaflet.css");
 
 // FIX leaflet's default icon path problems with webpack
-delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.imagePath = "/";
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png"),
   iconUrl: require("leaflet/dist/images/marker-icon.png"),
@@ -119,7 +125,7 @@ export default {
     },
     formatNumber: function(value) {
       if (value) {
-        return Number((value).toFixed(1));
+        return Number(value.toFixed(1));
       }
     }
   },
@@ -128,7 +134,8 @@ export default {
     LTileLayer,
     LMarker,
     LTooltip,
-    LIcon
+    LIcon,
+    LPopup
   },
   data() {
     return {
@@ -208,7 +215,9 @@ export default {
       axios
         .get(this.endpoint + "models")
         .then(response => {
-          this.models = response.data.sort((a) => a.name.includes("echanical")? -1:1);
+          this.models = response.data.sort(a =>
+            a.name.includes("echanical") ? -1 : 1
+          );
           this.getLatestData();
         })
         .catch(error => {
@@ -220,6 +229,9 @@ export default {
 </script>
 
 <style lang="scss">
+.leaflet-popup-content {
+  font-size: xx-small;
+}
 .account-title {
   padding-left: 70%;
 }
@@ -236,17 +248,15 @@ export default {
   top: 8%;
   left: 1%;
 }
-.colorAnomalies{
-
-color:red;
-
+.colorAnomalies {
+  color: red;
 }
 .mapWrapper {
   width: 100%;
   height: 150px;
 }
-.vue2leaflet-map{
-    z-index: 1;
+.vue2leaflet-map {
+  z-index: 1;
 }
 #mapid {
   height: 180px;
@@ -310,9 +320,9 @@ aside {
   width: 100%;
 }
 .modelCardWrapper {
-    margin: 2% 2% 2% 10px;
-    grid-column: 2;
-    display: block;
+  margin: 2% 2% 2% 10px;
+  grid-column: 2;
+  display: block;
   text-decoration: none;
   color: #2c3e50;
   &--home {
