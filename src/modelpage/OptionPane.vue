@@ -34,7 +34,7 @@
             <v-spacer/>
           </v-subheader>            
         </template>
-        <span>Use WASD or the arrow keys to move in the 3d scene. Use Q and E to move downwards or upwards</span>
+        <span>Use WASD or the arrow keys to move in the 3d scene. Use Q and E to move down- and upwards</span>
       </v-tooltip>
     </div>
 
@@ -93,7 +93,9 @@
         </v-subheader>
       </div>
     </div>
+
     <div>
+      <h4 class="pt-2">Tutorial</h4>
       <v-btn
         v-on:click="OnBtnClick"
         color="rgba(82, 186, 162, 1)"
@@ -101,7 +103,7 @@
         elevation="2"
         block
         style="color: white"
-      >Tutorial</v-btn>
+      >show UI overview again</v-btn>
     </div>
   </div>
 </template>
