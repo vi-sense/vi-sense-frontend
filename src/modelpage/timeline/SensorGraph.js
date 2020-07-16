@@ -30,7 +30,8 @@ export default class SensorGraph{
         this.color = getSensorColor(sensorId)
         this.data = []
         this.dataFetcher = new SensorGraphDataFetcher(sensorId)
-        
+        this.isHidden = false
+
         this.line = d3.line()
             .defined(d => !isNaN(d.value) && !isNaN(d.date))
 
@@ -45,17 +46,18 @@ export default class SensorGraph{
         this.anomalies = []
         this.fetchAnomalies()
         //this._applyHover(graphs)
-        this.redraw()
+        this.draw()
     }
 
     fetchAnomalies(){
-        this._parentElement.selectAll(".anomaly").remove()
+        this.anomalies.forEach(anomaly => anomaly.remove())
         this.anomalies = []
         fetch(`${API_URL}/sensors/${this.sensorId}/anomalies?end_date=${moment.utc(new Date()).format("YYYY-MM-DD HH:mm:ss")}`).then(d => d.json().then(data => {
             for(let d of data){
                 let a = new Anomaly(d, this._parentElement, this._xScale, this._yScale)
                 this.anomalies.push(a)                
             }
+            if(!this.isHidden) this.draw()
         }))  
     }
 
@@ -74,14 +76,16 @@ export default class SensorGraph{
         })  
     }
 
-    redraw(){     
-        this.anomalies.forEach(a=>a.redraw())
+    draw(){     
+        if(this.isHidden) return 
+
+        this.anomalies.forEach(a=>a.draw())
    
         this.dataFetcher.get(this._xScale.domain()).then(data => {
             if(data) {
                 this.data = data                
                 this.path.datum(this.data)
-                this.redraw()
+                this.draw()
             }
         })
         this.line
@@ -94,7 +98,8 @@ export default class SensorGraph{
     show(){
         this.isHidden = false
         this.path.attr("display", "unset")
-        this.anomalies.forEach(a=>a.show())
+        this.draw()
+        this.anomalies.forEach(a=>a.draw())
     }
     hide(){
         this.isHidden = true

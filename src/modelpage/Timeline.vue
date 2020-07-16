@@ -9,13 +9,32 @@
           <img v-else alt="pause" v-on:click="togglePlayPause" src="../assets/pauseIcon.png">
         </div>
         <hr>
-        <div class="tool" :class="{'selected': tool == 'pin'}"><img alt="move tool" v-on:click="tool='pin'" src="../assets/moveIcon.png"></div>
-        <div class="tool" :class="{'selected': tool == 'brush'}"><img alt="brush tool" v-on:click="tool='brush'" src="../assets/selectIcon.png"></div>
+        <v-tooltip left max-width="10rem" open-delay="1500">
+            <template v-slot:activator="{ on, attrs }">
+                <div v-bind="attrs" v-on="on" class="tool" :class="{'selected': tool == 'pin'}"><img alt="move tool" v-on:click="tool='pin'" src="../assets/moveIcon.png"></div>
+              </template>
+              <span>move in timeline and place the timepin</span>
+          </v-tooltip>
+        
+          <v-tooltip left max-width="10rem" open-delay="1500">
+            <template v-slot:activator="{ on, attrs }">
+                <div v-bind="attrs" v-on="on" class="tool" :class="{'selected': tool == 'brush'}"><img alt="brush tool" v-on:click="tool='brush'" src="../assets/selectIcon.png"></div>
+              </template>
+              <span>select area for playback</span>
+          </v-tooltip>
       </div>
       <hr>
 
+
+
+
       <div id="toolsBottom">
-        <div class="tool"><img alt="center to timepin" v-on:click="timeline.centerToTimepin()" src="../assets/pinIcon.png"></div>
+        <v-tooltip left max-width="10rem" open-delay="1500">
+           <template v-slot:activator="{ on, attrs }">
+              <div class="tool" v-bind="attrs" v-on="on"><img alt="center to timepin" v-on:click="timeline.centerToTimepin()" src="../assets/pinIcon.png"></div>
+            </template>
+            <span>center to timepin</span>
+        </v-tooltip>
 
         <div class="tool" id="datePicker">
           <img v-on:click="showDatePicker=!showDatePicker" src="../assets/datepicker.png">

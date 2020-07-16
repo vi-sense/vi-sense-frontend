@@ -38,4 +38,11 @@ html, body, #app_router_view, #app{
   color: #2c3e50;
 }
 
+.v-tooltip__content {
+    line-height: 1em;
+    font-size: 1em;
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
 </style>

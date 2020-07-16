@@ -8,7 +8,7 @@
                     </v-checkbox>
                     <span>{{sensor.name}}</span>
                     <template #actions>
-                    <v-tooltip bottom max-width="20rem">
+                    <v-tooltip bottom max-width="16rem">
                         <template #activator="{ on, attrs }">
                             <v-icon class="px-1"
                                     v-bind="attrs"
@@ -24,7 +24,6 @@
                                     v-on="on"
                             >mdi-arrow-right-circle-outline</v-icon>
                         </template>
-<!--                                    color="rgba(82, 186, 162, 1)"-->
                         <span>Go to Sensor</span>
                     </v-tooltip>
                         <v-tooltip v-else bottom>
@@ -169,5 +168,9 @@
     }
     div[aria-expanded="true"]{
         background-color: #F5F5F5 !important; // entspricht vuetify grey lighten-4;
+    }
+    .v-application .pr-1{
+        padding-top: 2px !important;
+        padding-right: 0 !important;
     }
 </style>
