@@ -132,4 +132,8 @@
     .v-label--active label{
         font-size: 14px !important;
     }
+
+    h4{
+        font-weight: normal;
+    }
 </style>

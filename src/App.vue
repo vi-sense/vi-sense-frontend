@@ -25,6 +25,10 @@ html {
   overflow: hidden;
 }
 
+*{
+  font-family: Helvetica !important;
+}
+
 html, body, #app_router_view, #app{
   width: 100%;
   height: 100%;

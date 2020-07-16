@@ -29,9 +29,7 @@
               </div>
               <div v-if="anomaliesLoaded">
                 Last Anomaly:
-                <span
-                  class="colorAnomalies"
-                >{{lastAnomalies.has(model.id) ? lastAnomalies.get(model.id).start_data.date : "" | formatDate}}</span>
+                <span>{{lastAnomalies.has(model.id) ? lastAnomalies.get(model.id).start_data.date : "" | formatDate}}</span>
               </div>
             </v-card-text>
 
@@ -203,9 +201,6 @@ export default {
   position: absolute;
   top: 8%;
   left: 1%;
-}
-.colorAnomalies {
-  color: red;
 }
 .mapWrapper {
   width: 100%;

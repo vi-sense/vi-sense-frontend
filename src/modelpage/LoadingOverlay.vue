@@ -9,7 +9,7 @@
                     :width="15"
                     :value="sceneLoadingProgress"
                     color="rgba(82, 186, 162, 1)">
-                {{ sceneLoadingProgress }}
+                {{ sceneLoadingProgress }}%
             </v-progress-circular>
 
         </div>
