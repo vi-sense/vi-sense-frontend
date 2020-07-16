@@ -151,7 +151,7 @@ export default {
           if (modelSensors.length > 0) {
             const latestTemperature = modelSensors[0];
             this.lastTemperatures.set(model.id, latestTemperature);
-            console.log(this.lastTemperatures);
+            //console.log(this.lastTemperatures);
           }
           if (modelAnomalies.length > 0) {
             const latestAnomaly = modelAnomalies.sort((b, a) =>
