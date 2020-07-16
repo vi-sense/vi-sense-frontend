@@ -20,12 +20,14 @@
         <h2>Controls</h2>Free Movement Camera – WASD + Mouse
         <br />Rotation only Camera – Mouse (Press on Sensor to reposition)
       </div>
-      <div class="timelineControls_content">
-        Play on the currently selected Timestamp
-        <br />Move in Timeline and place the Timepin
-        <br />Select area for playback
-        <br />Center to Timepin
-        <br />Calender
+      <div id="parent" style="margin:0 auto; width:100%; height:100%; position:relative;">
+        <div class="timelineControls_content">
+          Play on the currently selected Timestamp →
+          <br />Move in Timeline and place the Timepin →
+          <br />Select area for playback →
+          <br />Center to Timepin →
+          <br />Calendar →
+        </div>
       </div>
     </v-overlay>
   </div>
@@ -65,76 +67,76 @@ export default {
 
 <style scoped lang="scss">
 .threed_content {
-  position: relative;
-  left: 50%;
-  top: -100px;
+  position: fixed;
+  left: 43%;
+  top: 28%;
   background-color: #42b983bf;
-  width: 93%;
+  width: 30%;
   border: 3px solid silver;
   box-shadow: -10px 10px 15px #7d7c7c;
-  padding: 0% 2%;
+  padding: 0% 0.5%;
   border-radius: 5px;
 }
 .sensor_content {
-  position: absolute;
-  right: 185%;
-  top: -100px;
-  width: 30%;
+  position: fixed;
+  right: 86%;
+  top: 36%;
+  width: 12%;
   background-color: #42b983db;
   border: 3px solid silver;
   box-shadow: -10px 10px 15px #7d7c7c;
-  padding: 0% 2%;
+  padding: 0% 0.5%;
   border-radius: 5px;
 }
 .anomalies_content {
-  position: absolute;
-  right: 170%;
-  top: 190%;
-  width: 50%;
+  position: fixed;
+  right: 86%;
+  top: 80%;
+  width: 12%;
   background-color: #42b983db;
   border: 3px solid silver;
   box-shadow: -10px 10px 15px #7d7c7c;
-  padding: 0% 2%;
+  padding: 0% 0.5%;
   border-radius: 5px;
 }
 .timeline_content {
-  position: absolute;
-  top: 190%;
-  left: 0.5%;
+  position: fixed;
+  left: 30%;
+  top: 79%;
   background-color: #42b983bf;
+  width: 30%;
   border: 3px solid silver;
   box-shadow: -10px 10px 15px #7d7c7c;
-  padding: 0% 2%;
+  padding: 0% 0.5%;
   border-radius: 5px;
-  width: 88%;
 }
 .controls_content {
-  position: inherit;
-  left: 50%;
+  position: fixed;
+  left: 43%;
   background-color: #42b983bf;
   border: 3px solid silver;
   box-shadow: -10px 10px 15px #7d7c7c;
-  top: -60px;
-  padding: 0% 2%;
+  top: 43%;
+  padding: 0% 0.5%;
   border-radius: 5px;
-  width: 104%;
+  width: 30%;
 }
 .timelineControls_content {
-  position: absolute;
-  left: 130%;
-  top: 190%;
-  width: 80%;
+  position: fixed;
+  left: 75%;
+  top: 78.5%;
+  width: auto;
   text-align: end;
   line-height: 2;
-  padding: 0% 2%;
+  padding: 0% 0.2%;
   border-radius: 5px;
   background-color: #42b983bf;
   border: 3px solid silver;
   box-shadow: -10px 10px 15px #7d7c7c;
 }
 .btn {
-  position: absolute;
-  top: -150%;
-  left: 210%;
+  position: fixed;
+  top: 10%;
+  left: 96%;
 }
 </style>
