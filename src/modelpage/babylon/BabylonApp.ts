@@ -21,7 +21,7 @@ export default class BabylonApp {
 
     constructor(canvas: HTMLCanvasElement, modelID: number, STORE: Storage) {
         this.engine = new BABYLON.Engine(canvas, true);
-        this.scene = new BABYLON.Scene(this.engine);
+        this.scene = new BABYLON.Scene(this.engine, { useGeometryUniqueIdsMap: true, useClonedMeshMap: true, useMaterialMeshMap: true });
         //this.scene.debugLayer.show();
 
         var camera = createFloorCamera(canvas, this.engine, this.scene)
@@ -35,7 +35,7 @@ export default class BabylonApp {
         var light = new BABYLON.HemisphericLight("HemiLight", new BABYLON.Vector3(0, 1, 0), this.scene);
         light.diffuse = new BABYLON.Color3(1, 1, 1);
         light.groundColor = new BABYLON.Color3(0.1, 0.1, 0.1);
-        light.intensity = 1.5;
+        light.intensity = 1.2;
 
         try {
             loadModel(modelID, this.scene, (meshes) => {
@@ -48,6 +48,15 @@ export default class BabylonApp {
                     mesh.isPickable=false
                     mesh.freezeWorldMatrix()
                     mesh.renderingGroupId = 2;
+
+                    // (<BABYLON.Mesh>mesh).simplify(
+                    //     [{ distance: 50, quality: 0.8, optimizeMesh: true }], 
+                    //     false, 
+                    //     BABYLON.SimplificationType.QUADRATIC, 
+                    //     function () {
+                    //         console.log("simplification finished");
+                    //     }
+                    // );
                     
                     let max = mesh.getBoundingInfo().boundingBox.maximum
                     let min = mesh.getBoundingInfo().boundingBox.minimum
@@ -72,35 +81,20 @@ export default class BabylonApp {
                 this.scene.metadata = { modelCenter: center }
                 arc.setTarget(center)
 
+                outerMax = outerMax.add(new BABYLON.Vector3(5,5,5))
                 eventBus.$emit("bounding-box-defined", outerMax)
                 setupClippingPlanes(this.scene);
 
                 setupSensorSelection(this.scene, modelID, meshes, STORE).then(() => {
                     eventBus.$emit("loading-finished")
                 });
+
             }, !IS_PRODUCTION)
         } catch (e) {
             console.log(e)
             eventBus.$emit("loading-failed")
         }
-
-        /*
-        this.scene.onPointerUp = function (evt, pickResult) {
-            if (pickResult.hit) {
-                var normal = pickResult.getNormal(true, false)
-                let origin = new BABYLON.Vector3()
-                //this.clipPlane = new BABYLON.Plane(normal.x, normal.y, normal.z, origin.subtract(normal.clone()).length());
-
-                let pos = pickResult.pickedPoint;
-                var lines = [];
-                var line = [pos, pos.add(normal)];
-                lines.push(line);
-                var lineSystem = BABYLON.MeshBuilder.CreateLineSystem("ls", { lines: lines }, this);
-                lineSystem.color = BABYLON.Color3.Red();
-            };
-        }
         
-        */
         this.engine.runRenderLoop(() => {
             this.scene.render();
         })

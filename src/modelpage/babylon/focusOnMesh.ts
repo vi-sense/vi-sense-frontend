@@ -1,6 +1,5 @@
 import * as BABYLON from 'babylonjs'
 import FloorCamera from './FloorCamera';
-import { switchCamera } from './cameras';
 import { ArcRotateCamera } from 'babylonjs';
 import {eventBus} from "../../main";
 
@@ -23,7 +22,7 @@ export async function focusOnMesh(scene: BABYLON.Scene, target: BABYLON.Vector3)
     let ease = new BABYLON.CubicEase();
     ease.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEINOUT);
 
-    let distanceFromMesh = 5;
+    let distanceFromMesh = 10;
     let direction = target.subtract(camera.position.clone())
     let distance = direction.length() - distanceFromMesh;
     direction.normalize();

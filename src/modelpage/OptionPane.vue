@@ -82,12 +82,10 @@
         </v-subheader>
       </div>
       <div>
-        <v-subheader>
-          Y Domain
-          <v-spacer />min
-          <input v-model="ydomain[0]" type="number" />
-          max
-          <input v-model="ydomain[1]" type="number" />
+        <v-subheader>Y Domain
+          <v-spacer/>
+          min<input v-model="ydomain[0]" type="number" step="10">
+          max<input v-model="ydomain[1]" type="number" step="10">
         </v-subheader>
       </div>
     </div>

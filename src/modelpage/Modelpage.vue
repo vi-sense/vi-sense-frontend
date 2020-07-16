@@ -216,7 +216,7 @@ export default {
       right: 0.5%;
       margin-top: 0.5%;
       background-color: rgba(255, 255, 255, 0.9);
-      border-radius: 2px;
+      border-radius: 4px;
     }
   }
 

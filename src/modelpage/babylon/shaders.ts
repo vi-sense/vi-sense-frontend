@@ -1,7 +1,7 @@
 import * as BABYLON from 'babylonjs';
 
 export class PulseShader extends BABYLON.NodeMaterial {
-    constructor(waveSpeed: number, waveLength: number, waveHeight: number) {
+    constructor() {
         super("node")
 
         // InputBlock
@@ -36,24 +36,24 @@ export class PulseShader extends BABYLON.NodeMaterial {
         // MultiplyBlock
         var Multiply = new BABYLON.MultiplyBlock("Multiply");
 
+        // MultiplyBlock
+        var Multiply1 = new BABYLON.MultiplyBlock("Multiply");
+
         // ColorMergerBlock
         var ColorMerger = new BABYLON.ColorMergerBlock("ColorMerger");
-
-        // OneMinusBlock
-        var Oneminus = new BABYLON.OneMinusBlock("One minus");
 
         // AddBlock
         var Add = new BABYLON.AddBlock("Add");
 
         // MultiplyBlock
-        var Multiply1 = new BABYLON.MultiplyBlock("Multiply");
+        var Multiply2 = new BABYLON.MultiplyBlock("Multiply");
 
         // TrigonometryBlock
         var Sin = new BABYLON.TrigonometryBlock("Sin");
         Sin.operation = BABYLON.TrigonometryBlockOperations.Sin;
 
         // MultiplyBlock
-        var Multiply2 = new BABYLON.MultiplyBlock("Multiply");
+        var Multiply3 = new BABYLON.MultiplyBlock("Multiply");
 
         // InputBlock
         var Time = new BABYLON.InputBlock("Time");
@@ -67,31 +67,43 @@ export class PulseShader extends BABYLON.NodeMaterial {
         Time.visibleInInspector = false;
 
         // InputBlock
-        var speed = new BABYLON.InputBlock("speed");
-        speed.value = waveSpeed;
-        speed.isBoolean = false;
-        speed.matrixMode = 0;
-        speed.animationType = BABYLON.AnimatedInputBlockTypes.None;
-        speed.isConstant = false;
-        speed.visibleInInspector = false;
+        var Speed = new BABYLON.InputBlock("Speed");
+        Speed.value = 2;
+        Speed.min = 0;
+        Speed.max = 0;
+        Speed.isBoolean = false;
+        Speed.matrixMode = 0;
+        Speed.animationType = BABYLON.AnimatedInputBlockTypes.None;
+        Speed.isConstant = false;
+        Speed.visibleInInspector = false;
 
         // InputBlock
-        var length = new BABYLON.InputBlock("length");
-        length.value = waveLength;
-        length.isBoolean = false;
-        length.matrixMode = 0;
-        length.animationType = BABYLON.AnimatedInputBlockTypes.None;
-        length.isConstant = false;
-        length.visibleInInspector = false;
+        var Float = new BABYLON.InputBlock("Float");
+        Float.value = 0.15;
+        Float.min = 0;
+        Float.max = 0;
+        Float.isBoolean = false;
+        Float.matrixMode = 0;
+        Float.animationType = BABYLON.AnimatedInputBlockTypes.None;
+        Float.isConstant = false;
+        Float.visibleInInspector = false;
 
         // InputBlock
-        var height = new BABYLON.InputBlock("height");
-        height.value = waveHeight;
-        height.isBoolean = false;
-        height.matrixMode = 0;
-        height.animationType = BABYLON.AnimatedInputBlockTypes.None;
-        height.isConstant = false;
-        height.visibleInInspector = false;
+        var minValue = new BABYLON.InputBlock("minValue");
+        minValue.value = 0.95;
+        minValue.min = 0;
+        minValue.max = 0;
+        minValue.isBoolean = false;
+        minValue.matrixMode = 0;
+        minValue.animationType = BABYLON.AnimatedInputBlockTypes.None;
+        minValue.isConstant = false;
+        minValue.visibleInInspector = false;
+
+        // InputBlock
+        var Color = new BABYLON.InputBlock("Color3");
+        Color.value = new BABYLON.Color3(0.3215686274509804, 0.7294117647058823, 0.6352941176470588);
+        Color.isConstant = false;
+        Color.visibleInInspector = false;
 
         // FragmentOutputBlock
         var fragmentOutput = new BABYLON.FragmentOutputBlock("fragmentOutput");
@@ -120,17 +132,19 @@ export class PulseShader extends BABYLON.NodeMaterial {
         Worldnormal.output.connectTo(Lights.worldNormal);
         cameraPosition.output.connectTo(Lights.cameraPosition);
         Lights.diffuseOutput.connectTo(Multiply.left);
-        Time.output.connectTo(Multiply2.left);
-        speed.output.connectTo(Multiply2.right);
-        Multiply2.output.connectTo(Sin.input);
-        Sin.output.connectTo(Multiply1.left);
-        length.output.connectTo(Multiply1.right);
-        Multiply1.output.connectTo(Add.left);
-        height.output.connectTo(Add.right);
-        Add.output.connectTo(Oneminus.input);
-        Oneminus.output.connectTo(ColorMerger.r);
+        Time.output.connectTo(Multiply3.left);
+        Speed.output.connectTo(Multiply3.right);
+        Multiply3.output.connectTo(Sin.input);
+        Sin.output.connectTo(Multiply2.left);
+        Float.output.connectTo(Multiply2.right);
+        Multiply2.output.connectTo(Add.left);
+        minValue.output.connectTo(Add.right);
+        Add.output.connectTo(ColorMerger.r);
+        Add.output.connectTo(ColorMerger.g);
         Add.output.connectTo(ColorMerger.b);
-        ColorMerger.rgb.connectTo(Multiply.right);
+        ColorMerger.rgb.connectTo(Multiply1.left);
+        Color.output.connectTo(Multiply1.right);
+        Multiply1.output.connectTo(Multiply.right);
         Multiply.output.connectTo(fragmentOutput.rgb);
 
         // Output nodes
@@ -193,13 +207,13 @@ export class GradientShader extends BABYLON.NodeMaterial {
         Remap.targetRange = new BABYLON.Vector2(0, 1);
 
         // InputBlock
-        let InputTemperature = new BABYLON.InputBlock("Input Temperature");
-        InputTemperature.value = currentValue;
-        InputTemperature.isBoolean = false;
-        InputTemperature.matrixMode = 0;
-        InputTemperature.animationType = BABYLON.AnimatedInputBlockTypes.None;
-        InputTemperature.isConstant = false;
-        InputTemperature.visibleInInspector = false;
+        let InputValue = new BABYLON.InputBlock("inputValue");
+        InputValue.value = currentValue;
+        InputValue.isBoolean = false;
+        InputValue.matrixMode = 0;
+        InputValue.animationType = BABYLON.AnimatedInputBlockTypes.None;
+        InputValue.isConstant = false;
+        InputValue.visibleInInspector = false;
 
         // InputBlock
         let sourceMin = new BABYLON.InputBlock("sourceMin");
@@ -268,7 +282,7 @@ export class GradientShader extends BABYLON.NodeMaterial {
         Transform.output.connectTo(Lights.worldNormal);
         cameraPosition.output.connectTo(Lights.cameraPosition);
         Lights.diffuseOutput.connectTo(Multiply.left);
-        InputTemperature.output.connectTo(Remap.input);
+        InputValue.output.connectTo(Remap.input);
         sourceMin.output.connectTo(Remap.sourceMin);
         sourceMax.output.connectTo(Remap.sourceMax);
         targetMin.output.connectTo(Remap.targetMin);
@@ -284,4 +298,85 @@ export class GradientShader extends BABYLON.NodeMaterial {
 
         return this;
     }  
+}
+
+export class SelectMaterial extends BABYLON.NodeMaterial {
+    constructor(){
+        super("node");
+
+        // InputBlock
+        var position = new BABYLON.InputBlock("position");
+        position.setAsAttribute("position");
+
+        // TransformBlock
+        var worldPos = new BABYLON.TransformBlock("worldPos");
+        worldPos.complementZ = 0;
+        worldPos.complementW = 1;
+
+        // InputBlock
+        var world = new BABYLON.InputBlock("world");
+        world.setAsSystemValue(BABYLON.NodeMaterialSystemValues.World);
+
+        // TransformBlock
+        var Worldnormal = new BABYLON.TransformBlock("World normal");
+        Worldnormal.complementZ = 0;
+        Worldnormal.complementW = 0;
+
+        // InputBlock
+        var normal = new BABYLON.InputBlock("normal");
+        normal.setAsAttribute("normal");
+
+        // LightBlock
+        var Lights = new BABYLON.LightBlock("Lights");
+
+        // InputBlock
+        var cameraPosition = new BABYLON.InputBlock("cameraPosition");
+        cameraPosition.setAsSystemValue(BABYLON.NodeMaterialSystemValues.CameraPosition);
+
+        // MultiplyBlock
+        var Multiply = new BABYLON.MultiplyBlock("Multiply");
+
+        // InputBlock
+        var Color = new BABYLON.InputBlock("Color3");
+        Color.value = new BABYLON.Color3(0.3215686274509804, 0.7294117647058823, 0.6352941176470588);
+        Color.isConstant = false;
+        Color.visibleInInspector = false;
+
+        // FragmentOutputBlock
+        var fragmentOutput = new BABYLON.FragmentOutputBlock("fragmentOutput");
+
+        // TransformBlock
+        var worldPosviewProjectionTransform = new BABYLON.TransformBlock("worldPos * viewProjectionTransform");
+        worldPosviewProjectionTransform.complementZ = 0;
+        worldPosviewProjectionTransform.complementW = 1;
+
+        // InputBlock
+        var viewProjection = new BABYLON.InputBlock("viewProjection");
+        viewProjection.setAsSystemValue(BABYLON.NodeMaterialSystemValues.ViewProjection);
+
+        // VertexOutputBlock
+        var vertexOutput = new BABYLON.VertexOutputBlock("vertexOutput");
+
+        // Connections
+        position.output.connectTo(worldPos.vector);
+        world.output.connectTo(worldPos.transform);
+        worldPos.output.connectTo(worldPosviewProjectionTransform.vector);
+        viewProjection.output.connectTo(worldPosviewProjectionTransform.transform);
+        worldPosviewProjectionTransform.output.connectTo(vertexOutput.vector);
+        worldPos.output.connectTo(Lights.worldPosition);
+        normal.output.connectTo(Worldnormal.vector);
+        world.output.connectTo(Worldnormal.transform);
+        Worldnormal.output.connectTo(Lights.worldNormal);
+        cameraPosition.output.connectTo(Lights.cameraPosition);
+        Lights.diffuseOutput.connectTo(Multiply.left);
+        Color.output.connectTo(Multiply.right);
+        Multiply.output.connectTo(fragmentOutput.rgb);
+
+        // Output nodes
+        this.addOutputNode(vertexOutput);
+        this.addOutputNode(fragmentOutput);
+        this.build();
+
+        return this;
+    }
 }

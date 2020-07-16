@@ -7,6 +7,7 @@
                 <v-col cols="6">
 
                     <v-text-field dense type="number"
+                                  :disabled="IS_PRODUCTION ? true : false"
                                   label="Lower Bound"
                                   v-model="lowerBound"
                                   :rules="[value => !!!upperBound || !!!value || parseFloat(value) <= parseFloat(upperBound) || 'Higher than upper bound']"
@@ -15,6 +16,7 @@
                 </v-col>
                 <v-col cols="6">
                     <v-text-field dense type="number"
+                                  :disabled="IS_PRODUCTION ? true : false"
                                   label="Upper Bound"
                                   v-model="upperBound"
                                   :rules="[value => !!!lowerBound || !!!value || parseFloat(value) >= parseFloat(lowerBound) || 'Lower than lower bound']"
@@ -25,13 +27,14 @@
             <v-row dense>
                 <v-col cols="6">
                     <v-text-field dense type="number"
+                                  :disabled="IS_PRODUCTION ? true : false"
                                   label="Gradient Bound"
                                   v-model="gradientBound"
                                   :rules="[value => !!!value || parseFloat(value) >= 0 || 'Must be positive']"
                                   @input="revalidateForm"
                         >
                         <template #append>
-                            <v-tooltip bottom max-width="20rem">
+                            <!--v-tooltip bottom max-width="20rem">
                                 <template #activator="{ on, attrs }">
                                     <v-icon class="px-1"
                                             v-bind="attrs"
@@ -39,12 +42,13 @@
                                     >mdi-help-circle-outline</v-icon>
                                 </template>
                                 <span>If the sensor value changes more than this in an hour a data anomaly will be shown.</span>
-                            </v-tooltip>
+                            </v-tooltip-->
                         </template>
                     </v-text-field>
                 </v-col>
                 <v-col cols="6">
-                    <v-btn :disabled="!valid" block class="ma-0" text color="rgba(82, 186, 162, 1)" v-on:click="saveLimits"><strong>Save</strong></v-btn>
+                    <v-btn v-if="IS_PRODUCTION" :disabled="true" block class="ma-0" text color="rgba(82, 186, 162, 1)"><strong>Save</strong></v-btn>
+                    <v-btn v-else :disabled="!valid" block class="ma-0" text color="rgba(82, 186, 162, 1)" v-on:click="saveLimits"><strong>Save</strong></v-btn>
                 </v-col>
             </v-row>
         </v-container>
@@ -62,6 +66,7 @@
         props: ["sensor", "STORE"],
         data() {
             return {
+                IS_PRODUCTION: Boolean(process.env.PRODUCTION) && !process.env.API_URL.includes('localhost'),
                 valid: true,
                 upperBound: this.sensor.upper_bound ,
                 lowerBound: this.sensor.lower_bound,
@@ -85,11 +90,11 @@
                 else return null
             },
             async saveLimits(){
-                    let update = {
-                        upper_bound: parseFloat(this.upperBound),
-                        lower_bound: parseFloat(this.lowerBound),
-                        gradient_bound: this.gradientBoundAPIScaled(parseFloat(this.gradientBound))
-                    }
+                let update = {
+                    upper_bound: parseFloat(this.upperBound),
+                    lower_bound: parseFloat(this.lowerBound),
+                    gradient_bound: this.gradientBoundAPIScaled(parseFloat(this.gradientBound))
+                }
                 try {
                     let response = await fetch(process.env.API_URL + "/sensors/" + this.sensor.id, {
                         method: 'PATCH',
@@ -116,7 +121,15 @@
 </script>
 
 <style scoped lang="scss">
+
     .v-text-field >>> label, .v-text-field >>> input {
         font-size: 1rem !important;
+    }
+    .v-label label{
+        font-size: 11px !important;
+    }
+
+    .v-label--active label{
+        font-size: 14px !important;
     }
 </style>

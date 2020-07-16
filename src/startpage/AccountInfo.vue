@@ -8,7 +8,7 @@
               width="auto"
               height="auto"
               class="pa-1"
-              style="border: 2px solid #52baa2;"
+              style="border: 2px solid #52baa2; border-radius: 20px"
             >
                 <v-avatar size="15">D</v-avatar>
             </v-btn>
