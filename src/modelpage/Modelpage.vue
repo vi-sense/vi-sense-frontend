@@ -12,6 +12,7 @@
     
     <main>
       <loading-overlay></loading-overlay>
+      <tutorial-overlay></tutorial-overlay>
       <div id="sidepane">
         <h3 class="pb-1">Sensors</h3>
         <information-pane class="pa-1" id="informationpane" v-if="model" :model="model" :STORE="STORE" :sensor-colors="sensorColors" v-on:sensor-selection-changed="propagateSensorSelection"/>
@@ -48,11 +49,12 @@ import History from "./History";
 import PopUp from "./PopUp";
 import {registerSensorColors} from "../storage/SensorColors";
 import LoadingOverlay from "./LoadingOverlay";
+import TutorialOverlay from "./TutorialOverlay";
 import AccountInfo from "../startpage/AccountInfo.vue";
 
 export default {
   props: ["id"],
-  components: { LoadingOverlay, History, Timeline, InformationPane, OptionPane, PopUp, AccountInfo },
+  components: { LoadingOverlay, TutorialOverlay, History, Timeline, InformationPane, OptionPane, PopUp, AccountInfo },
   data() {
     return {
       STORE: new Storage(),

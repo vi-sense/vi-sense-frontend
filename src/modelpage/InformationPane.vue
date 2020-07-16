@@ -66,9 +66,10 @@
     import SensorLimits from "./SensorLimits";
     import Vue from 'vue'
     import LoadingOverlay from "./LoadingOverlay";
+    import TutorialOverlay from "./TutorialOverlay";
 
     export default {
-        components: {LoadingOverlay, SensorLimits},
+        components: {LoadingOverlay, TutorialOverlay, SensorLimits},
         props: ["model", "STORE", "sensorColors"],
         data() {
             return {

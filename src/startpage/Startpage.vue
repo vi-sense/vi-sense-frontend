@@ -154,7 +154,7 @@ export default {
           if (modelSensors.length > 0) {
             const latestTemperature = modelSensors[0];
             this.lastTemperatures.set(model.id, latestTemperature);
-            console.log(this.lastTemperatures);
+            //console.log(this.lastTemperatures);
           }
           if (modelAnomalies.length > 0) {
             const latestAnomaly = modelAnomalies.sort((b, a) =>
@@ -192,18 +192,11 @@ export default {
 .leaflet-popup-content {
   font-size: xx-small;
 }
-.account-title {
-  padding-left: 70%;
-}
-.account-logo {
-  left: 20%;
-  margin-left: 1%;
-}
 .modelTitle {
   background: #ffffffd1;
   font-weight: normal;
-  padding-top: 4px;
-    padding-bottom: 10px;
+  padding-top: 12px;
+  padding-bottom: 10px;
 }
 .title {
   grid-column: 1;
