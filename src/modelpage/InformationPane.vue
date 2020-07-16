@@ -72,7 +72,7 @@
         props: ["model", "STORE", "sensorColors"],
         data() {
             return {
-                IS_PRODUCTION: Boolean(process.env.PRODUCTION),
+                IS_PRODUCTION: Boolean(process.env.PRODUCTION) && !process.env.API_URL.includes('localhost'),
                 selectedSensors: [],
                 modelData: Vue.util.extend({}, this.model),
                 initSensorID: null

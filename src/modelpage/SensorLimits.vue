@@ -66,7 +66,7 @@
         props: ["sensor", "STORE"],
         data() {
             return {
-                IS_PRODUCTION: Boolean(process.env.PRODUCTION),
+                IS_PRODUCTION: Boolean(process.env.PRODUCTION) && !process.env.API_URL.includes('localhost'),
                 valid: true,
                 upperBound: this.sensor.upper_bound ,
                 lowerBound: this.sensor.lower_bound,
