@@ -2,7 +2,7 @@ import * as BABYLON from 'babylonjs';
 import * as GUI from "babylonjs-gui";
 import Storage from '../../storage/Storage';
 import { focusOnMesh } from './focusOnMesh';
-import { PulseShader, GradientShader, SelectMaterial } from './shaders';
+import { PulseShader, GradientShader, FireShader, WaterFlowShader } from './shaders';
 import SKEYS from "../../storage/StorageKeys";
 import { getSensorColor } from "../../storage/SensorColors";
 import { InputBlock } from 'babylonjs';
@@ -17,11 +17,11 @@ var storage: Storage;
 var highlight: BABYLON.HighlightLayer;
 var arrow_svg = require('../../assets/arrow.svg');
 
-// stores all UI elements for a sensor: { rect, label, arrow, circle, color }
+// stores all UI elements for a initialized sensor: { rect, label, arrow, circle, color }
 // uses the sensor_id as key
 var sensorLabels = {};
 
-// stores all sensors with sensor_id as key
+// stores all initialized sensors with sensor_id as key
 var savedSensors = {};
 
 /**
@@ -76,9 +76,8 @@ export default async function setupSensorSelection(scene: BABYLON.Scene, modelID
   storage = STORE;
 
   let sel = new PulseShader();
-  //let def = <BABYLON.PBRMaterial>myScene.getMaterialByName("Mat");
-  //def.albedoColor = new BABYLON.Color3(0.91, 0.91, 0.91);
-  let def = new BABYLON.StandardMaterial("default", myScene);
+  let def = <BABYLON.PBRMaterial>myScene.getMaterialByName("Default");
+  //let def = new BABYLON.StandardMaterial("default", myScene);
   SELECTABLES = myScene.getNodeByName("selectables").getChildMeshes();
   SELECTABLES.forEach((mesh) => {
     mesh.material = def;
@@ -205,15 +204,6 @@ async function addUIElements(modelID: number) {
     //sensor meshes get a different rendering group so that the highlight layer will always be on top
     mesh.renderingGroupId = 1;
     
-    //QPRJU9#12 - sine water flow
-    //QPRJU9#16 - sine color change
-    //JN2BSF#54 - turbulence fire
-    //4EQZYW - temperature gradient
-    //imported using the node material editor: https://nme.babylonjs.com/#QPRJU9#12
-    // await BABYLON.NodeMaterial.ParseFromSnippetAsync("4EQZYW", myScene).then(nodeMaterial => {
-    //   mesh.material = nodeMaterial;
-    // });
-    
     if(sensors[i].lower_bound != null && sensors[i].upper_bound != null && sensors[i].latest_data.value != null) {
       mesh.material = new GradientShader(sensors[i].lower_bound, sensors[i].upper_bound, sensors[i].latest_data.value);
     } else mesh.material = new GradientShader(0, 100, 50);
@@ -259,8 +249,8 @@ async function addUIElements(modelID: number) {
     let label = new GUI.TextBlock();
     label.width = "120px"
     label.fontSizeInPixels = 13
-    label.paddingBottomInPixels = 3
-    label.paddingTopInPixels = 3
+    label.paddingBottomInPixels = 5
+    label.paddingTopInPixels = 5
     label.paddingLeftInPixels = 5
     label.paddingRightInPixels = 5
     label.text = sensors[i].name;
@@ -320,7 +310,6 @@ export function updateShader(sensorId, value?) {
     sensorLabels[sensorId].label.text = savedSensors[sensorId].name + "\n"
   }
 }
-
 
 
 /**

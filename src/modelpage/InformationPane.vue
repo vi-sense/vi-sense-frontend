@@ -24,7 +24,7 @@
                                     v-on="on"
                             >mdi-arrow-right-circle-outline</v-icon>
                         </template>
-                        <span>Go to Sensor</span>
+                        <span>go to sensor</span>
                     </v-tooltip>
                         <v-tooltip v-else bottom>
                         <template #activator="{ on, attrs }">

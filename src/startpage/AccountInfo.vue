@@ -14,11 +14,11 @@
             </v-btn>
           </template>
           <v-card>
-            <v-card-title class="headline">Account information</v-card-title>
+            <v-card-title class="headline">Version information</v-card-title>
             <v-card-text>
               Your are logged in automatically as a user with limited rights to avoid unrealistic use of the software. 
-              Since most of your settings are stored in the backend, this would affect other users aswell.
-              During the presentation of this prototype we would like to show you what is possible with admin rights.
+              Since our settings are saved server-side, this would affect other users aswell.
+              During the presentation of this prototype we would like to show you what is possible in addition to what you can do.
               </v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
