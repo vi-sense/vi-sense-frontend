@@ -9,7 +9,7 @@
         1. Navigate the 3D view using your mouse.
         <br />2. To see a sensor value select a sensor either in 3D view or in the sensors list on the left hand side.
         <br />3. Anomalies indicate errors. Press them to go directly to the sensor.
-        <br />4. The timeline shows the progression of the measured date depending of the selected Sensors.
+        <br />4. The timeline shows the progression of the measured date depending of the selected sensors.
       </div>
     </v-overlay>
   </div>
