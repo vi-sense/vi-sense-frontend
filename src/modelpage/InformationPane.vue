@@ -24,7 +24,7 @@
                                     v-on="on"
                             >mdi-arrow-right-circle-outline</v-icon>
                         </template>
-                        <span>Go to Sensor</span>
+                        <span>go to sensor</span>
                     </v-tooltip>
                         <v-tooltip v-else bottom>
                         <template #activator="{ on, attrs }">
@@ -66,13 +66,14 @@
     import SensorLimits from "./SensorLimits";
     import Vue from 'vue'
     import LoadingOverlay from "./LoadingOverlay";
+    import TutorialOverlay from "./TutorialOverlay";
 
     export default {
-        components: {LoadingOverlay, SensorLimits},
+        components: {LoadingOverlay, TutorialOverlay, SensorLimits},
         props: ["model", "STORE", "sensorColors"],
         data() {
             return {
-                IS_PRODUCTION: Boolean(process.env.PRODUCTION),
+                IS_PRODUCTION: Boolean(process.env.PRODUCTION) && !process.env.API_URL.includes('localhost'),
                 selectedSensors: [],
                 modelData: Vue.util.extend({}, this.model),
                 initSensorID: null

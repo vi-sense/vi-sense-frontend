@@ -13,7 +13,7 @@
           <v-card class="buildingCard mx-auto" max-height="500" max-width="300" width="100%" :elevation="model.name==optimizedModelTitel ? 20 : 1">
             <div v-if="model.name==optimizedModelTitel" class="optiBadge"><span>Optimized for Show-time</span></div>  
 
-            <v-img class="black--text align-end" height="200px" :src="'https://visense.f4.htw-berlin.de:44344/' + model.image_url" style="border-radius: 0">
+            <v-img class="black--text align-end" height="200px" :src="endpoint + model.image_url" style="border-radius: 0">
               <v-card-title class="modelTitle">{{ model.name }}</v-card-title>
             </v-img>
 
@@ -46,6 +46,7 @@
               >
                 <l-tile-layer :url="url" :attribution="attribution" />
                 <l-marker :lat-lng="getLatlong(model.location.latitude, model.location.longitude)">
+                  <l-popup :content="model.location.address"></l-popup>
                 </l-marker>
               </l-map>
             </div>
@@ -65,7 +66,7 @@ require("../../node_modules/leaflet/dist/leaflet.css");
 import AccountInfo from './AccountInfo.vue'
 
 // FIX leaflet's default icon path problems with webpack
-delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.imagePath = "/";
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png"),
   iconUrl: require("leaflet/dist/images/marker-icon.png"),
@@ -79,7 +80,8 @@ export default {
     LMarker,
     LTooltip,
     LIcon,
-    AccountInfo
+    AccountInfo,
+    LPopup
   },
   data() {
     return {
@@ -171,7 +173,9 @@ export default {
       axios
         .get(this.endpoint + "models")
         .then(response => {
-          this.models = response.data.sort((a) => a.name.includes("echanical")? -1:1);
+          this.models = response.data.sort(a =>
+            a.name.includes("echanical") ? -1 : 1
+          );
           this.getLatestData();
         })
         .catch(error => {
@@ -183,13 +187,14 @@ export default {
 </script>
 
 <style lang="scss">
-
-
+.leaflet-popup-content {
+  font-size: xx-small;
+}
 .modelTitle {
   background: #ffffffd1;
   font-weight: normal;
-  padding-top: 4px;
-    padding-bottom: 10px;
+  padding-top: 12px;
+  padding-bottom: 10px;
 }
 .title {
   grid-column: 1;
@@ -201,8 +206,8 @@ export default {
   width: 100%;
   height: 150px;
 }
-.vue2leaflet-map{
-    z-index: 1;
+.vue2leaflet-map {
+  z-index: 1;
 }
 #mapid {
   height: 180px;
