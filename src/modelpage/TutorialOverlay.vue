@@ -8,7 +8,7 @@
         <h3>Introduction</h3>
         1. Navigate the 3D view using your mouse.
         <br />2. To see a sensor value select a sensor either in 3D view or in the sensors list on the left hand side.
-        <br />3. Anomalies indicate errors. Press them to go directly to sensor.
+        <br />3. Anomalies indicate errors. Press them to go directly to the sensor.
         <br />4. The timeline shows the progression of the measured date depending of the selected Sensors.
       </div>
     </v-overlay>
@@ -60,13 +60,12 @@ export default {
   background-color: #52baa2ed;
   width: 37%;
   border: 3px solid silver;
-  box-shadow: -10px 10px 15px #7d7c7c;
+  //box-shadow: -10px 10px 15px #7d7c7c;
   padding: 0.2% 0.5%;
   border-radius: 5px;
 }
 .btn {
-  position: absolute;
-  left: 93%;
-  bottom: 78%;
+  position: sticky;
+  float: right;
 }
 </style>
