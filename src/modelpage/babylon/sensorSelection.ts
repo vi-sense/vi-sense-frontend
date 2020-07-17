@@ -250,7 +250,7 @@ async function addUIElements(modelID: number) {
     label.width = "120px"
     label.fontSizeInPixels = 13
     label.paddingBottomInPixels = 5
-    label.paddingTopInPixels = 5
+    label.paddingTopInPixels = 8
     label.paddingLeftInPixels = 5
     label.paddingRightInPixels = 5
     label.text = sensors[i].name;

@@ -7,9 +7,9 @@
         </v-btn>
         <h3>Introduction</h3>
         1. Navigate the 3D view using your mouse.
-        <br />2. To see a sensor value select a sensor either in 3D view or in the sensors list on the left hand side.
-        <br />3. Anomalies indicate errors. Press them to go directly to the sensor.
-        <br />4. The timeline shows the progression of the measured date depending of the selected sensors.
+        <br />2. Select a sensor either in the 3D view or in the sensors list on the left hand side.
+        <br />3. Click on a anomaly to jump to its date of occurrence.
+        <br />4. Hit play to animate the change of the sensor value(s) over time in timeline and 3D view.
       </div>
     </v-overlay>
   </div>
