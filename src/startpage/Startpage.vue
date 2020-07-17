@@ -13,7 +13,7 @@
           <v-card class="buildingCard mx-auto" max-height="500" max-width="300" width="100%" :elevation="model.name==optimizedModelTitel ? 20 : 1">
             <div v-if="model.name==optimizedModelTitel" class="optiBadge"><span>Optimized for Show-time</span></div>  
 
-            <v-img class="black--text align-end" height="200px" :src="'https://visense.f4.htw-berlin.de:44344/' + model.image_url" style="border-radius: 0">
+            <v-img class="black--text align-end" height="200px" :src="endpoint + model.image_url" style="border-radius: 0">
               <v-card-title class="modelTitle">{{ model.name }}</v-card-title>
             </v-img>
 

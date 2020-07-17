@@ -97,7 +97,7 @@
         elevation="2"
         block
         style="color: white"
-      >Tutorial</v-btn>
+      >Introduction</v-btn>
     </div>
   </div>
 </template>
