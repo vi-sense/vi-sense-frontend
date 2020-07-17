@@ -95,7 +95,7 @@
     </div>
 
     <div>
-      <h4 class="pt-2">Tutorial</h4>
+      <h4 class="pt-2">Introduction</h4>
       <v-btn
         v-on:click="OnBtnClick"
         color="rgba(82, 186, 162, 1)"
@@ -103,7 +103,7 @@
         elevation="2"
         block
         style="color: white"
-      >Introduction</v-btn>
+      >Show again</v-btn>
     </div>
   </div>
 </template>
